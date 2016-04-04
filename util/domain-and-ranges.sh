@@ -15,4 +15,4 @@ project=$root/../summarization
 
 cd $project
 
-run_experiment DomainsAndRanges $@
+run_experiment DomainsAndRanges dbpedia-2014 dbpedia.org benchmark/experiments/dbpedia/dbpedia_2014.owl /Users/anisarula/Documents/git/projects/abstat/data/experiments/domainAndRangeResults

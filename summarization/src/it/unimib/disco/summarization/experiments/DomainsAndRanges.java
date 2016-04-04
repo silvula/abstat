@@ -1,9 +1,12 @@
 package it.unimib.disco.summarization.experiments;
 
+import it.unimib.disco.summarization.dataset.BulkTextOutput;
+import it.unimib.disco.summarization.dataset.FileSystemConnector;
 import it.unimib.disco.summarization.export.Events;
 import it.unimib.disco.summarization.ontology.LDSummariesVocabulary;
 import it.unimib.disco.summarization.ontology.TypeOf;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,9 +25,10 @@ public class DomainsAndRanges {
 		String dataset = args[0];
 		String domain = args[1];
 		String ontologyPath = args[2];
+		String directory = args[3];
 		
 		LDSummariesVocabulary vocabulary = new LDSummariesVocabulary(ModelFactory.createDefaultModel(), dataset);
-		SparqlEndpoint endpoint = SparqlEndpoint.local();
+		SparqlEndpoint endpoint = SparqlEndpoint.abstat();
 		TypeOf classifier = new TypeOf(domain);
 		BenchmarkOntology ontology = new BenchmarkOntology(ontologyPath);
 		
@@ -33,6 +37,9 @@ public class DomainsAndRanges {
 		for(OntProperty property : ontology.properties()){
 			properties.put(property.toString(), property);
 		}
+		
+		BulkTextOutput out = new BulkTextOutput(new FileSystemConnector(new File(directory)), 20);
+		
 		
 		for(Resource[] property : allProperties){
 			String uri = property[1].toString();
@@ -51,8 +58,9 @@ public class DomainsAndRanges {
 					escaped(inferred.ranges().size() + ""),
 			};
 			
-			System.out.println(StringUtils.join(line, "\t"));
+			out.writeLine(StringUtils.join(line, "\t"));
 		}
+		out.close();
 	}
 
 	private static String join(HashSet<String> types){
