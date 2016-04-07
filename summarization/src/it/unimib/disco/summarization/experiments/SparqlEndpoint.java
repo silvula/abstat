@@ -17,6 +17,10 @@ public class SparqlEndpoint{
 		return new SparqlEndpoint("http://abstat.disco.unimib.it");
 	}
 	
+	public static SparqlEndpoint abstatLocal(){
+		return new SparqlEndpoint("192.168.99.100");
+	}
+	
 	public static SparqlEndpoint external(String host){
 		return new SparqlEndpoint(host);
 	}

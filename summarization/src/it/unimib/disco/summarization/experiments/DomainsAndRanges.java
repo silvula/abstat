@@ -28,7 +28,7 @@ public class DomainsAndRanges {
 		String directory = args[3];
 		
 		LDSummariesVocabulary vocabulary = new LDSummariesVocabulary(ModelFactory.createDefaultModel(), dataset);
-		SparqlEndpoint endpoint = SparqlEndpoint.abstat();
+		SparqlEndpoint endpoint = SparqlEndpoint.abstatLocal();
 		TypeOf classifier = new TypeOf(domain);
 		BenchmarkOntology ontology = new BenchmarkOntology(ontologyPath);
 		
@@ -59,6 +59,7 @@ public class DomainsAndRanges {
 			};
 			
 			out.writeLine(StringUtils.join(line, "\t"));
+			
 		}
 		out.close();
 	}
