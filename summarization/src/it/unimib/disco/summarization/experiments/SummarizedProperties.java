@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class SummarizedProperties{
@@ -20,19 +19,21 @@ public class SummarizedProperties{
 		this.endpoint = endpoint;
 	}
 
-	public List<Resource[]> all() {
-		String allProperties = "select distinct ?property ?uri from <" + vocabulary.graph() + "> " + 
+	public List<String[]> all() {
+		String allProperties = "select distinct ?property ?uri ?occurrence from <" + vocabulary.graph() + "> " + 
 								"where { " +
 								"?property a <" + vocabulary.property() + "> . " +
 								"?property <" + RDFS.seeAlso + "> ?uri ." +
+								"?property <" + vocabulary.occurrence() + "> ?occurrence ." +
 								"}";
 		ResultSet allPropertiesResults = endpoint.execute(allProperties);
-		List<Resource[]> properties = new ArrayList<Resource[]>();
+		List<String[]> properties = new ArrayList<String[]>();
 		while(allPropertiesResults.hasNext()){
 			QuerySolution next = allPropertiesResults.next();
-			properties.add(new Resource[]{
-					next.getResource("?property"),
-					next.getResource("?uri")
+			properties.add(new String[]{
+					next.getResource("?property").toString(),
+					next.getResource("?uri").toString(),
+					Integer.toString(next.getLiteral("?occurrence").getInt())
 			});
 		}
 		return properties;

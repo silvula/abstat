@@ -10,7 +10,7 @@ import com.hp.hpl.jena.query.Syntax;
 public class SparqlEndpoint{
 	
 	public static SparqlEndpoint local(){
-		return new SparqlEndpoint("http://localhost");
+		return new SparqlEndpoint("http://localhost:8890");
 	}
 	
 	public static SparqlEndpoint abstat(){

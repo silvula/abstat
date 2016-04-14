@@ -11,3 +11,6 @@ solr/server/indexing/data/
 *.pid
 data/vectors*
 
+data/experiments/DatatypeVsObjectTypeResults-dbpedia-3.8
+data/experiments/DomainsAndRanges_dbpedia-2015-10
+data/experiments/DomainsAndRanges_dbpedia-3.9-infobox

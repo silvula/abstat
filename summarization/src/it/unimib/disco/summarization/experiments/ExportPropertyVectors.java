@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
@@ -29,15 +28,15 @@ public class ExportPropertyVectors {
 		final SparqlEndpoint abstat = SparqlEndpoint.abstat();
 
 		
-		final Property subject;
-		if(subjectOrObject.equals("subject")) subject = vocabulary.subject();
-		else subject = vocabulary.object();
+		final String subject;
+		if(subjectOrObject.equals("subject")) subject = vocabulary.subject().toString();
+		else subject = vocabulary.object().toString();
 		
 		
-		final List<Resource[]> properties = new SummarizedProperties(vocabulary, abstat).all();
+		final List<String[]> properties = new SummarizedProperties(vocabulary, abstat).all();
 		
 		ExecutorService executor = Executors.newFixedThreadPool(10);
-		for(final Resource[] property : properties){
+		for(final String[] property : properties){
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -54,7 +53,7 @@ public class ExportPropertyVectors {
 	    while(!executor.isTerminated()){}
 	}
 
-	private static void exportProperty(SparqlEndpoint endpoint, File directory, String dataset, LDSummariesVocabulary vocabulary, Property subject, Resource property) throws Exception {
+	private static void exportProperty(SparqlEndpoint endpoint, File directory, String dataset, LDSummariesVocabulary vocabulary, String subject, String property) throws Exception {
 		String vector = "select ?type ?typeOcc ?propOcc (sum(?occ) as ?akpOcc) where {" +
 						   "<"+ property +"> <" + vocabulary.occurrence() + "> ?propOcc ." +
 						   "?akp <" + vocabulary.predicate() + "> <"+ property +"> . " +

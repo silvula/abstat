@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
 
 public class DomainsAndRanges {
 
@@ -28,11 +27,12 @@ public class DomainsAndRanges {
 		String directory = args[3];
 		
 		LDSummariesVocabulary vocabulary = new LDSummariesVocabulary(ModelFactory.createDefaultModel(), dataset);
-		SparqlEndpoint endpoint = SparqlEndpoint.abstatLocal();
+		SparqlEndpoint endpoint = SparqlEndpoint.local();
 		TypeOf classifier = new TypeOf(domain);
 		BenchmarkOntology ontology = new BenchmarkOntology(ontologyPath);
 		
-		List<Resource[]> allProperties = new SummarizedProperties(vocabulary, endpoint).all();
+		List<String[]> allProperties = new SummarizedProperties(vocabulary, endpoint).all();
+		
 		HashMap<String, OntProperty> properties = new HashMap<String, OntProperty>();
 		for(OntProperty property : ontology.properties()){
 			properties.put(property.toString(), property);
@@ -41,11 +41,12 @@ public class DomainsAndRanges {
 		BulkTextOutput out = new BulkTextOutput(new FileSystemConnector(new File(directory)), 20);
 		
 		
-		for(Resource[] property : allProperties){
-			String uri = property[1].toString();
-			String type = classifier.resource(property[0].toString());
-			OntProperty ontProperty = properties.get(uri.toString());
-			Inferred inferred = new Inferred(vocabulary, endpoint).of(uri);
+		for(String[] property : allProperties){
+			String uri = property[1];
+			String predicate = property[0];
+			String type = classifier.resource(property[0]);
+			OntProperty ontProperty = properties.get(uri);
+			Inferred inferred = new Inferred(vocabulary, endpoint).of(predicate);
 			
 			String[] line = new String[]{
 					escaped(uri),

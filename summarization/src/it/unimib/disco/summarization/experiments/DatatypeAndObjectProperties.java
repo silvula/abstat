@@ -12,7 +12,6 @@ import java.util.HashMap;
 
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
 
 public class DatatypeAndObjectProperties {
 
@@ -30,64 +29,55 @@ public class DatatypeAndObjectProperties {
 
 		HashMap<String, OntProperty> properties = ontologyProperties(ontologyPath);
 		BulkTextOutput out = new BulkTextOutput(new FileSystemConnector(new File(directory)), 20);
-		
+
 		HashMap<String,ArrayList<String>> datatypeVsObjectProp= new HashMap<String,ArrayList<String>>();
 
-		for(Resource[] summarizedProperty : new SummarizedProperties(vocabulary, endpoint).all()){
-			int usedAsDatatype = 0;
-			int usedAsObjectType=0;
-			Resource datasetProperty = summarizedProperty[0];
-			Resource ontologyProperty = summarizedProperty[1];
+		for(String[] summarizedProperty : new SummarizedProperties(vocabulary, endpoint).all()){
+
+			String datasetProperty = summarizedProperty[0];
+			String ontologyProperty = summarizedProperty[1];
+			String propertyOccurrence = summarizedProperty[2];
 
 			ArrayList<String> usageDtvsObjeProperty = new ArrayList<String>();
 
 
-			if(classifier.resource(datasetProperty.getURI()).equals("external")) continue;
+			if(classifier.resource(datasetProperty).equals("external")) continue;
 			else{
 
-				if (datatypeVsObjectProp.containsKey(datasetProperty.toString())){
-					if(datasetProperty.getURI().contains("object-property")){
+				if(properties.get(ontologyProperty).isDatatypeProperty()){
 
-						usedAsObjectType=usedAsObjectType+Integer.parseInt(datatypeVsObjectProp.get(datasetProperty).get(1));
+					usageDtvsObjeProperty.add(0,"Datatype");
+
+					if(datasetProperty.contains("object-property")){
+
+						usageDtvsObjeProperty.add(1, "0");
+						usageDtvsObjeProperty.add(2, propertyOccurrence);
 					}
 					else{
-						usedAsDatatype=usedAsDatatype+Integer.parseInt(datatypeVsObjectProp.get(datasetProperty).get(2));
-					}
-					usageDtvsObjeProperty.add(1, Integer.toString(usedAsDatatype));
-					usageDtvsObjeProperty.add(2, Integer.toString(usedAsObjectType));
-				}
-				else{
-					if(properties.get(ontologyProperty.toString()).isDatatypeProperty()){
 
-						usageDtvsObjeProperty.add(0,"Datatype");
-
-						if(datasetProperty.getURI().contains("object-property")){
-
-							usedAsObjectType++;
-						}
-						else{
-							usedAsDatatype++;
-						}
-						usageDtvsObjeProperty.add(1, Integer.toString(usedAsDatatype));
-						usageDtvsObjeProperty.add(2, Integer.toString(usedAsObjectType));
-					}
-					else if(properties.get(ontologyProperty.toString()).isObjectProperty()){
-
-						usageDtvsObjeProperty.add(0,"ObjectType");
-
-						if(datasetProperty.getURI().contains("datatype-property")){
-							usedAsDatatype++;
-						}
-						else
-						{
-							usedAsObjectType++;
-						}
-						usageDtvsObjeProperty.add(1, Integer.toString(usedAsDatatype));
-						usageDtvsObjeProperty.add(2, Integer.toString(usedAsObjectType));
+						usageDtvsObjeProperty.add(1, propertyOccurrence);
+						usageDtvsObjeProperty.add(2, "0");
 					}
 				}
-				datatypeVsObjectProp.put(datasetProperty.toString(), usageDtvsObjeProperty);
+				else if(properties.get(ontologyProperty).isObjectProperty()){
+
+					usageDtvsObjeProperty.add(0,"ObjectType");
+
+					if(datasetProperty.contains("datatype-property")){
+						usageDtvsObjeProperty.add(1, propertyOccurrence);
+						usageDtvsObjeProperty.add(2, "0");
+					}
+					else
+					{
+						usageDtvsObjeProperty.add(1, "0");
+						usageDtvsObjeProperty.add(2, propertyOccurrence);
+					}
+				}
+				datatypeVsObjectProp.put(datasetProperty, usageDtvsObjeProperty);
+				
+				
 			}
+			
 
 
 		}
