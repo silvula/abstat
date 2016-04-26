@@ -47,7 +47,8 @@ public class Application extends AbstractHandler{
 			.mapJson("/api/v1/autocomplete/concepts", new SolrAutocomplete(new SolrConnector(), "concept-suggest"))
 			.mapJson("/api/v1/autocomplete/properties", new SolrAutocomplete(new SolrConnector(), "property-suggest"))
 			.mapJson("/api/v1/datasets", new Datasets(new File("../data/summaries")))
-			.mapJson("/api/v1/sample", new Sample());
+			.mapJson("/api/v1/sample", new Sample())
+			.mapJson("/api/v1/queryWithParams", new QueryWithParams());
 	}
 
 	private void experiment(Routing routes) {
