@@ -3,8 +3,6 @@ package it.unimib.disco.summarization.web;
 import com.hp.hpl.jena.query.*;
 import java.io.*;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import it.unimib.disco.summarization.experiments.SparqlEndpoint;
 
@@ -83,10 +81,14 @@ public class QueryWithParams implements Api{
 		//gestisce l'ordine dell'output
 		if(rankingFunction!=null){
 			if(rankingFunction[0].equals("frequency")){
-				if(rankingFunction[1].equals("desc"))
-					query += "ORDER BY DESC(?occurrences)";
+				if(rankingFunction.length>1){
+					if(rankingFunction[1].equals("desc"))
+						query += "ORDER BY DESC(?occurrences)";
+					else
+						query += "ORDER BY ASC(?occurrences)";
+				}
 				else
-					query += "ORDER BY ASC(?occurrences)";
+					query += "ORDER BY DESC(?occurrences)";
 			}
 		}
 		
