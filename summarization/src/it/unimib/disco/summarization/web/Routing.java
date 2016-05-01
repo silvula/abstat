@@ -25,6 +25,19 @@ public class Routing{
 		return this;
 	}
 	
+	public Routing mapRDF(String route, Api api) {
+		map(route, new RDFResponse(api));
+		return this;
+	}
+	
+	public Routing mapMultiple(String route, Api api) {
+		if(route.contains("format=rdf"))
+			mapRDF(route, api);
+		else
+			mapJson(route, api);
+		return this;
+	}
+	
 	public Response routeTo(String path){
 		Response response = mappings.get(path);
 		if(response == null) response = new NotFound();

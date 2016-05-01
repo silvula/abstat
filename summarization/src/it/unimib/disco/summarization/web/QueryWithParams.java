@@ -1,6 +1,7 @@
 package it.unimib.disco.summarization.web;
 
 import com.hp.hpl.jena.query.*;
+
 import java.io.*;
 
 
@@ -15,6 +16,7 @@ public class QueryWithParams implements Api{
 		String o = request.get("objectType");
 		String limit = request.get("limit");
 		String rankFunc = request.get("rankingFunction");
+		String format = request.get("format");
 		
 		String[] subjectType = null;
 		String[] predicate = null;
@@ -29,9 +31,13 @@ public class QueryWithParams implements Api{
 		String queryString = buildQuery(dataset, subjectType, predicate, objectType, limit, rankingFunction);
 		SparqlEndpoint localEndpoint = SparqlEndpoint.local();
 		ResultSet results = localEndpoint.execute(queryString);
-
+		
+		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();	
-		ResultSetFormatter.outputAsJSON(out, results);
+		if(format!=null && format.equals("rdf"))
+			ResultSetFormatter.outputAsRDF(out,"RDF/XML-ABBREV", results);	
+		else
+			ResultSetFormatter.outputAsJSON(out, results);
 		byte[] data = out.toByteArray();
 		ByteArrayInputStream istream = new ByteArrayInputStream(data);
 		

@@ -1,6 +1,7 @@
 FROM ubuntu:14.04
 
 RUN \
+	apt-get update && \
 	apt-get install -y wget software-properties-common && \
 	add-apt-repository ppa:webupd8team/java && \
 	echo "deb http://packages.comsode.eu/debian wheezy main" > /etc/apt/sources.list.d/odn.list && \
