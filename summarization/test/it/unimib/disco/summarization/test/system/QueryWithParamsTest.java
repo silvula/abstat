@@ -11,9 +11,46 @@ import it.unimib.disco.summarization.test.web.HttpAssert;
 public class QueryWithParamsTest {
 	
 	@Test
+	public void ShouldReturnJson() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
+				containsString("{\n  \"head\":"));
+	}
+	
+	@Test
+	public void ShouldReturnRDF() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=rdf",
+				containsString("<rdf:RDF"));
+	}
+	
+	@Test
+	public void ShouldShowSubject() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
+				containsString("\"subj\": {"));
+	}
+	
+	@Test
+	public void ShouldShowPredicate() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
+				containsString("\"pred\": {"));
+	}
+	
+	@Test
+	
+	public void ShouldShowObject() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
+				containsString("\"obj\": {"));
+	}
+	
+	@Test
+	public void ShouldShowOccurrences() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
+				containsString("\"occurrences\": {"));
+	}
+	
+	@Test
 	public void ShouldWorkWithNoSubjectNoPredicateNoObject() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test",
-				containsString("\"s\": {"));
+				containsString("\"akp\": {"));
 	}
 	
 	@Test
