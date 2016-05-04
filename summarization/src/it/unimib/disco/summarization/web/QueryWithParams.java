@@ -50,11 +50,14 @@ public class QueryWithParams implements Api{
 		String query;
 		
 		//comune a tutti i casi
-		query = "SELECT DISTINCT  ?s ?occurrences " +
+		query = "SELECT DISTINCT  ?akp ?subj ?pred ?obj ?occurrences " +
 				"FROM <http://ld-summaries.org/"+dataset+"> "+
 			    "WHERE { " +
-				"       ?s  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ld-summaries.org/ontology/AbstractKnowledgePattern>. " + 
-				"		?s  <http://ld-summaries.org/ontology/occurrence> ?occurrences. ";
+				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ld-summaries.org/ontology/AbstractKnowledgePattern>. " + 
+				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> ?subj. " +
+				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?pred. " +
+				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> ?obj. " +
+				"		?akp  <http://ld-summaries.org/ontology/occurrence> ?occurrences. " ;
 		
 		
 		//gestisce i subjectType
@@ -62,7 +65,7 @@ public class QueryWithParams implements Api{
 			for(int i=0; i<subjectType.length; i++){
 				if(i!=0)
 					query += " UNION ";
-				query += "{  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> <" + subjectType[i] + ">.} ";			
+				query += "{  ?akp <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> <" + subjectType[i] + ">.} ";			
 			}
 		
 		//gestisce i predicate
@@ -70,7 +73,7 @@ public class QueryWithParams implements Api{
 			for(int i=0; i<predicate.length; i++){
 				if(i!=0)
 					query += " UNION ";
-				query += "{  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <" + predicate[i] + ">.} ";
+				query += "{  ?akp <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <" + predicate[i] + ">.} ";
 			}
 			
 		//gestisce gli objectType
@@ -78,7 +81,7 @@ public class QueryWithParams implements Api{
 			for(int i=0; i<objectType.length; i++){
 				if(i!=0)
 					query += " UNION ";
-				query += "{  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> <" + objectType[i] + ">.} ";				
+				query += "{  ?akp <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> <" + objectType[i] + ">.} ";				
 			}
 		
 
