@@ -2,7 +2,6 @@ package it.unimib.disco.summarization.experiments;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +9,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.JFrame;
 
-import org.apache.commons.io.FileUtils;
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 
@@ -29,21 +27,9 @@ public class PatternGraph {
 
 	 DirectedAcyclicGraph<Concept, DefaultEdge> typeGraph = new DirectedAcyclicGraph<Concept, DefaultEdge>(DefaultEdge.class);
 	 DirectedAcyclicGraph<Pattern, DefaultEdge> patternGraph = new DirectedAcyclicGraph<Pattern, DefaultEdge>(DefaultEdge.class);
-	 String ontologyDir;
-	
-	 
-	 public PatternGraph(String ontologyDir) {
-		this.ontologyDir = ontologyDir;
-		createTypeGraph();
-	}
 
-	private void createTypeGraph(){
-		File folder = new File(ontologyDir);
-		Collection<File> listOfFiles = FileUtils.listFiles(folder, new String[]{"owl"}, false);
-		String fileName = listOfFiles.iterator().next().getName();
-		String owlBaseFile = "file://" + ontologyDir + "/" + fileName;
-			
-		OntModel ontologyModel = new Model(owlBaseFile,"RDF/XML").getOntologyModel();
+	public void createTypeGraph(File ontology){			
+		OntModel ontologyModel = new Model(ontology.getAbsolutePath(),"RDF/XML").getOntologyModel();
 			
 		ConceptExtractor cExtract = new ConceptExtractor();
 		cExtract.setConcepts(ontologyModel);
@@ -89,22 +75,6 @@ public class PatternGraph {
 		catch(Exception e){System.out.println(e);}  
 	}
 	 
-	 
-	/*Riceve un insieme di AKPs sotto forma lista di stringhe e viene tutto convertito in 
-	 * oggetti Pattern e messi in un array "AKPs" per poi passarlo a procedura()*/
-	public void crea(ArrayList<String> stringAKPs) {		
-		Pattern[] AKPs = new Pattern[stringAKPs.size()];
-			
-		for(int j=0; j<stringAKPs.size();j++){
-			String AKP = stringAKPs.get(j);
-			String[] splitted = AKP.split("##");
-			String s = splitted[0];
-			String p = splitted[1];
-			String o = splitted[2];
-			AKPs[j] = new Pattern( new Concept(s), p, new Concept(o));
-		}		
-		contatoreIstanze(AKPs);		
-	}
 	
 	
  /*Entrypoint del processo di creazione del pattern graph e del conteggio delle istanze.
