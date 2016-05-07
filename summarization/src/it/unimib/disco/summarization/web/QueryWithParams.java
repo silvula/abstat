@@ -129,7 +129,7 @@ public class QueryWithParams implements Api{
 	}
 	
 	
-	/* Questo metodo fa ciò che dovrebbe fare ResultSetFormatter.outputAsJSON ma in modo corretto*/
+	/* Questo metodo fa ciò che dovrebbe fare ResultSetFormatter.outputAsRDF ma in modo corretto*/
 	private String buildRDFOutput(ResultSet res, ResultSet res2) throws Exception{
 		//ricavo stringa con output in json
 		ByteArrayOutputStream out = new ByteArrayOutputStream();	
