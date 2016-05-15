@@ -14,6 +14,7 @@ public class PatternInference {
 		Events.summarization();
 		
 		File folder = new File(args[0]);
+		//File folder = new File("/home/renzo/Git/abstat/data/datasets/system-test/ontology");
 		Collection<File> listOfFiles = FileUtils.listFiles(folder, new String[]{"owl"}, false);
 		File ontology = listOfFiles.iterator().next();
 		
@@ -27,8 +28,11 @@ public class PatternInference {
 		fos.close();*/
 
 		PGMakerDatatype.readTriplesAKPs("DatatypeTriple-AKPs.txt");
-		new File("DatatypeTriple-AKPs.txt").delete();
+		//new File("DatatypeTriple-AKPs.txt").delete();
 		PGMakerDatatype.stampaPatternsSuFile(args[1]+"patterns_datatype.txt");
+		//PGMakerDatatype.stampaPatternsSuFile("patterns_datatype.txt");
+		//PGMakerDatatype.disegna();
+		//PGMakerDatatype.stampaGrafoSuFile("PGDatatype.txt");
 		
 		
 		
@@ -41,8 +45,11 @@ public class PatternInference {
 		fos2.close();*/
 
 		PGMakerObject.readTriplesAKPs("ObjectTriple-AKPs.txt");
-		new File("ObjectTriple-AKPs.txt").delete();
+		//new File("ObjectTriple-AKPs.txt").delete();
 		PGMakerObject.stampaPatternsSuFile(args[1]+"patterns_object.txt");
+		//PGMakerObject.stampaPatternsSuFile("patterns_object.txt");
+		//PGMakerObject.disegna();
+		//PGMakerObject.stampaGrafoSuFile("PGObject.txt");
 	}
 		
 }
