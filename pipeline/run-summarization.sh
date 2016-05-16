@@ -343,6 +343,15 @@ echo "---Start: Counting---"
 	    exit 1
 	fi
 
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternInference "$OntologyFile" "$ResultsDirectory/patterns/"
+
+	if [ $? -ne 0 ]
+	then
+	    echo "App Failed during run"
+	    exit 1
+	fi
+
+
 	endBlock=$SECONDS
 	if [ $debug -eq 1 ]
 	then

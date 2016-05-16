@@ -1,7 +1,8 @@
 package it.unimib.disco.summarization.test.system;
 
+import it.unimib.disco.summarization.test.system.StringMatcher;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.hamcrest.Matchers.allOf;
 import java.util.ArrayList;
@@ -13,44 +14,60 @@ public class QueryWithParamsTest {
 	@Test
 	public void ShouldReturnJson() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
-				containsString("{\n  \"head\":"));
+				startsWith("{\n  \"head\":"));
 	}
 	
 	@Test
 	public void ShouldReturnRDF() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=rdf",
-				containsString("<rdf:RDF"));
+				startsWith("<rdf:RDF"));
 	}
 	
 	@Test
-	public void ShouldShowSubject() throws Exception {
+	public void JsonShouldShowSubjectsPredicatesObjects() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
-				containsString("\"subj\": {"));
+				allOf(containsString("\"subj\": {"),
+					  containsString("\"pred\": {"),
+					  containsString("\"obj\": {")));	
+	}
+
+	
+	@Test
+	public void JsonShouldShowOccurrences() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
+				allOf(containsString("\"akp_frequency\": {"),
+					  containsString("\"subj_frequency\": {"),
+					  containsString("\"pred_frequency\": {"),
+					  containsString("\"obj_frequency\": {")));				     
 	}
 	
 	@Test
-	public void ShouldShowPredicate() throws Exception {
-		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
-				containsString("\"pred\": {"));
+	public void RDFShouldShowSubjectsPredicatesObjectsOccurrences() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=rdf",
+				allOf(containsString("<rdf:subject"),
+					  containsString("<rdf:predicate"),	
+					  containsString("<rdf:object"),
+					  containsString("<j.0:occurrence")));
 	}
 	
 	@Test
-	
-	public void ShouldShowObject() throws Exception {
-		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
-				containsString("\"obj\": {"));
+	public void RDFShouldDescribeSubjectsPredicatesObjects() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&limit=100&format=rdf",
+				allOf(StringMatcher.containsStringNTimes("<rdf:Description rdf:about=\"http://ld-summaries.org/resource/system-test/dbpedia.org/", 5),
+					  StringMatcher.containsStringNTimes("<rdf:Description rdf:about=\"http://ld-summaries.org/resource/system-test/schema.org/", 2),
+					  StringMatcher.containsStringNTimes("<rdf:Description rdf:about=\"http://ld-summaries.org/resource/system-test/datatype-property/",  10),
+					  StringMatcher.containsStringNTimes("<rdf:Description rdf:about=\"http://ld-summaries.org/resource/system-test/object-property/",  2),
+					  StringMatcher.containsStringNTimes("<rdf:Description rdf:about=\"http://ld-summaries.org/resource/system-test/www.w3.org/",  3)));			     
 	}
 	
-	@Test
-	public void ShouldShowOccurrences() throws Exception {
-		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&format=json",
-				containsString("\"occurrences\": {"));
-	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+	
 	
 	@Test
 	public void ShouldWorkWithNoSubjectNoPredicateNoObject() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test",
-				containsString("\"akp\": {"));
+				StringMatcher.containsStringNTimes("\"akp\":",  10)); 
 	}
 	
 	@Test
@@ -141,45 +158,48 @@ public class QueryWithParamsTest {
 												+ "http://ld-summaries.org/resource/system-test/datatype-property/www.w3.org/2003/01/geo/wgs84_pos%23lat,"
 												+ "http://ld-summaries.org/resource/system-test/datatype-property/xmlns.com/foaf/0.1/name&limit=100",
 				allOf(containsString("f12c4dc1f6eb0466d388b32fd9de29a6"),
-				      containsString("e6cc9c9e82f5518ec636bbbddedb2260"),
-				      containsString("de4c14c5fc727f5ea9ef9a21be645804"),
 				      containsString("b1c0183969c0b3fb35e6c3a11532c103"),
-				      containsString("f391c882967ad638f44551cf5af391e8"),
-				      containsString("9ad2a506658005b1e1c0e823b11e0a01"),
+				       containsString("f391c882967ad638f44551cf5af391e8"),
+				       containsString("9ad2a506658005b1e1c0e823b11e0a01"),
 				      containsString("854f487795ba71930f93f1968f2e18ec"),
 				      containsString("a1792e5711c7ac1207b7d5a7d5a993c3")));
 	}
 	
 	
+	@Test
+	public void ShouldWorkWithObjectWithoutOccurrences() throws Exception {
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&limit=100",
+				containsString("AKP/b2db6267552f6b143d9e6fd03b19ac5b"));			      
+	}
+	
+	
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 	
 	@Test
 	public void limitShouldWorkWithNoInput() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place", 
-				endsWith("\"value\": \"2\" }\n      }\n    ]\n  }\n}\n"));
+				StringMatcher.containsStringNTimes("\"akp\":", 10));
 	}
 	
 	
 	@Test
 	public void limitShouldWorkWithValidInput() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&limit=12", 
-				endsWith("\"value\": \"6\" }\n      }\n    ]\n  }\n}\n"));
+				StringMatcher.containsStringNTimes("\"akp\":", 12));
 	}
 	
 	@Test
 	public void limitShouldWorkWithInvalidInput1() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&limit=2", 
-				endsWith("\"value\": \"2\" }\n      }\n    ]\n  }\n}\n"));
-	}
-	
-	@Test
-	public void limitShouldWorkWithInvalidInput2() throws Exception {
+				StringMatcher.containsStringNTimes("\"akp\":", 10));
+		
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&limit=200", 
-				endsWith("\"value\": \"1\" }\n      }\n    ]\n  }\n}\n"));
+				StringMatcher.containsStringNTimes("\"akp\":", 18));
 	}
 	
 	
-	
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 	@Test
 	public void shouldRespectIncreasingOrder() throws Exception {
@@ -187,7 +207,7 @@ public class QueryWithParamsTest {
 		list.add("\"value\": \"3\"");
 		list.add("\"value\": \"6\"");
 		
-		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&rankingFunction=frequency,asc&limit=100", 
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&rankingFunction=akp_frequency,asc&limit=100", 
 				stringContainsInOrder(list));
 	}
 	
@@ -197,7 +217,20 @@ public class QueryWithParamsTest {
 		list.add("\"value\": \"6\"");
 		list.add("\"value\": \"3\"");
 		
-		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&rankingFunction=frequency,desc&limit=100", 
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&rankingFunction=akp_frequency,desc&limit=100", 
 				stringContainsInOrder(list));
 	}
+	
+
+	@Test
+	public void RDFshouldRespectIncreasingOrder() throws Exception {
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("\"http://www.w3.org/2001/XMLSchema#int\">2<");
+		list.add("\"http://www.w3.org/2001/XMLSchema#int\">3<");
+		list.add("\"http://www.w3.org/2001/XMLSchema#int\">6<");
+		
+		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&rankingFunction=akp_frequency,asc&limit=100&format=rdf", 
+				stringContainsInOrder(list));
+	}
+	
 }

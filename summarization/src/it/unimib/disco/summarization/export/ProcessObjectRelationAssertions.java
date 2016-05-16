@@ -5,6 +5,7 @@ import it.unimib.disco.summarization.dataset.ParallelProcessing;
 
 import java.io.File;
 
+
 public class ProcessObjectRelationAssertions {
 	
 	public static void main(String[] args) throws Exception {
@@ -19,7 +20,8 @@ public class ProcessObjectRelationAssertions {
 		OverallObjectRelationsCounting counts = new OverallObjectRelationsCounting(properties, akps, minimalTypesDirectory);
 		
 		new ParallelProcessing(sourceDirectory, "_obj_properties.nt").process(counts);
-	    
+		
+		
 	    counts.endProcessing();
 	}	
 }
