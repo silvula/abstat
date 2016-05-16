@@ -1,10 +1,9 @@
 package it.unimib.disco.summarization.export;
 import it.unimib.disco.summarization.dataset.OverallDatatypeRelationsCounting;
 import it.unimib.disco.summarization.dataset.ParallelProcessing;
-import it.unimib.disco.summarization.experiments.PatternGraph;
 
 import java.io.File;
-import java.io.FileOutputStream;
+
 
 public class ProcessDatatypeRelationAssertions {
 
@@ -22,23 +21,7 @@ public class ProcessDatatypeRelationAssertions {
 		
 		new ParallelProcessing(sourceDirectory, "_dt_properties.nt").process(counts);
 		
-		/*
-		String ontologyDir ="";
-		int index = sourceDirectory.getAbsolutePath().lastIndexOf("/");
-		ontologyDir = sourceDirectory.getAbsolutePath().substring(0,index) + "/ontology";
-		PatternGraph PGMaker = new PatternGraph(ontologyDir);
 		
-		FileOutputStream fos = new FileOutputStream(new File("DatatypeTriple-AKPs.txt"));
-		fos.write(("").getBytes());
-		fos.close();
-
-		PGMaker.readTriplesAKPs("DatatypeTriple-AKPs.txt");
-		new File("DatatypeTriple-AKPs.txt").delete();
-		PGMaker.stampaPatternsSuFile(args[2]+"patterns_datatype.txt");
-		//PGMaker.stampaGrafoSuFile(args[2]+"patternGraph_datatype.txt");
-		//PGMaker.disegna();
-		*/
-	    
 	    counts.endProcessing();
 	    
 	}	
