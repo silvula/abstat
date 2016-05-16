@@ -67,7 +67,7 @@ public class QueryWithParamsTest {
 	@Test
 	public void ShouldWorkWithNoSubjectNoPredicateNoObject() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test",
-				StringMatcher.containsStringNTimes("\"akp\":",  10)); 
+				StringMatcher.containsStringNTimes("\"akp\":",  177)); 
 	}
 	
 	@Test
@@ -179,7 +179,7 @@ public class QueryWithParamsTest {
 	@Test
 	public void limitShouldWorkWithNoInput() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place", 
-				StringMatcher.containsStringNTimes("\"akp\":", 10));
+				StringMatcher.containsStringNTimes("\"akp\":", 18));
 	}
 	
 	
@@ -192,7 +192,7 @@ public class QueryWithParamsTest {
 	@Test
 	public void limitShouldWorkWithInvalidInput1() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&limit=2", 
-				StringMatcher.containsStringNTimes("\"akp\":", 10));
+				StringMatcher.containsStringNTimes("\"akp\":", 2));
 		
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test&subjectType=http://ld-summaries.org/resource/system-test/schema.org/Place&limit=200", 
 				StringMatcher.containsStringNTimes("\"akp\":", 18));
