@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.swing.JFrame;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
@@ -297,16 +296,7 @@ public class PatternGraph {
 		}
 	}
 	
-	public void disegna(){
-		JgraphGUI gui = new JgraphGUI(patternGraph);
-		JFrame frame = new JFrame();
-		frame.getContentPane().add(gui);
-		frame.setTitle("Minimal Pattern Base Transitive Closure Graph");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setVisible(true);
-	}
-	
+
 	
 	public void stampatypeGraphSuFile(String nomeFile){	
 		try{

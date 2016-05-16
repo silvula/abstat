@@ -38,7 +38,6 @@ public class AKPDatatypeCount implements NTripleAnalysis{
 			FileOutputStream fos = new FileOutputStream(new File("DatatypeTriple-AKPs.txt"), true);
 			fos.write((AKPs.toString()+"\n\n").getBytes());
 			fos.close();
-			//patternGraphMaker.crea(AKPs);
 		}
 		catch(Exception e){}
 		

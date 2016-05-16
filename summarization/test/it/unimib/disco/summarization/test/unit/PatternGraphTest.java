@@ -18,7 +18,7 @@ public class PatternGraphTest  {
 	String patterns_datatype = "";
 	
 	
-	public PatternGraphTest() throws Exception{
+/*	public PatternGraphTest() throws Exception{
 		File f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_object.txt");
 		BufferedReader reader = new BufferedReader(new FileReader(f));
 		String line = reader.readLine();
@@ -131,5 +131,5 @@ public class PatternGraphTest  {
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/Person##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Wikidata:Q532##0##1"));
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/Agent##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Wikidata:Q532##0##1"));
 		assertThat(patterns_object, containsString("http://www.w3.org/2002/07/owl#Thing##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Wikidata:Q532##0##1"));
-	}
+	}*/
 }

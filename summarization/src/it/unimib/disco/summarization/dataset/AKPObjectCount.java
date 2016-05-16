@@ -39,7 +39,6 @@ public class AKPObjectCount implements NTripleAnalysis{
 			FileOutputStream fos = new FileOutputStream(new File("ObjectTriple-AKPs.txt"), true);
 			fos.write((AKPs.toString()+"\n\n").getBytes());
 			fos.close();
-			//patternGraphMaker.crea(AKPs);
 			}
 			catch(Exception e){}
 			
