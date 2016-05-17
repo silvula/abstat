@@ -113,17 +113,10 @@ public class QueryWithParams implements Api{
 		//gestisce limiti di numerosità output
 		if(limit!=null){
 			int lim = Integer.parseInt(limit);
-			if(lim >=10 && lim<=100)
+			if(lim >=0)
 				query += "LIMIT "+limit;
-			else if(lim<10)
-				query += " LIMIT 10";
-			else if(lim>100)
-				query += " LIMIT 100";
 		}
-		else 
-			query += " LIMIT 10";
-	
-		
+
 		
 		return query;
 	}
