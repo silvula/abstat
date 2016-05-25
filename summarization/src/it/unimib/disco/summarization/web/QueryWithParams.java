@@ -114,7 +114,7 @@ public class QueryWithParams implements Api{
 		if(limit!=null){
 			int lim = Integer.parseInt(limit);
 			if(lim >=0)
-				query += "LIMIT "+limit;
+				query += "LIMIT "+lim;
 		}
 
 		
