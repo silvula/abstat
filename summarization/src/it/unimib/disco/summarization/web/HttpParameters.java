@@ -1,8 +1,5 @@
 package it.unimib.disco.summarization.web;
 
-import java.io.File;
-import java.io.FileOutputStream;
-
 import javax.servlet.http.HttpServletRequest;
 
 public class HttpParameters implements RequestParameters {
@@ -15,7 +12,7 @@ public class HttpParameters implements RequestParameters {
 
 	@Override
 	public String get(String name) {
-		//stratagemma pper evitare che venga codificato in utf-8 dato che valori contenenti caratteri speciali devono rimanere tali.
+		//stratagemma per evitare che venga codificato in utf-8 dato che valori contenenti caratteri speciali devono rimanere tali.
 		String req = request.toString();
 		String[] parameters = req.substring(req.indexOf("?")+1, req.lastIndexOf(")")).split("&");
 		String value = null;
