@@ -17,32 +17,20 @@ public class PatternInference {
 		Collection<File> listOfFiles = FileUtils.listFiles(folder, new String[]{"owl"}, false);
 		File ontology = listOfFiles.iterator().next();
 		
-		
-		
+			
 		PatternGraph PGMakerDatatype = new PatternGraph();
 		PGMakerDatatype.createTypeGraph(ontology);
 		
-		/*FileOutputStream fos = new FileOutputStream(new File("DatatypeTriple-AKPs.txt"));
-		fos.write(("").getBytes());
-		fos.close();*/
-
-		PGMakerDatatype.readTriplesAKPs("DatatypeTriple-AKPs.txt");
-		new File("DatatypeTriple-AKPs.txt").delete();
+		PGMakerDatatype.readTriplesAKPs(args[1]+"datatype-akp_grezzo.txt");
 		PGMakerDatatype.stampaPatternsSuFile(args[1]+"patterns_datatype.txt");
-		//PGMakerDatatype.disegna();
-		
-		
+
 		
 		
 		PatternGraph PGMakerObject = new PatternGraph();
 		PGMakerObject.createTypeGraph(ontology);
 		
-		/*FileOutputStream fos2 = new FileOutputStream(new File("ObjectTriple-AKPs.txt"));
-		fos2.write(("").getBytes());
-		fos2.close();*/
 
-		PGMakerObject.readTriplesAKPs("ObjectTriple-AKPs.txt");
-		new File("ObjectTriple-AKPs.txt").delete();
+		PGMakerObject.readTriplesAKPs(args[1]+"object-akp_grezzo.txt");
 		PGMakerObject.stampaPatternsSuFile(args[1]+"patterns_object.txt");
 	}
 		

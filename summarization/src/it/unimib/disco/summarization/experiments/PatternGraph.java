@@ -48,12 +48,16 @@ public class PatternGraph {
 	}
 	 
 	/*Legge un file txt dove per ogni relational assert nel dataset esiste una riga con i suoi AKP*/
-	public void readTriplesAKPs(String AKPsFile) {
+	public void readTriplesAKPs(String AKPsFile) throws Exception{
 		try{
 			BufferedReader br = new BufferedReader(new FileReader(new File(AKPsFile)));
 			String line;
+			
 			while ((line = br.readLine()) != null) {
 				if(!line.equals("")){
+					int index = line.indexOf(" [")+1;
+					line = line.substring(index);   //per togliere il relational assertion dalla riga.
+					
 					line =line.substring(1, line.length()-1);
 					String[] stringAKPs = line.split(", ");  
 					Pattern[] AKPs = new Pattern[stringAKPs.length];

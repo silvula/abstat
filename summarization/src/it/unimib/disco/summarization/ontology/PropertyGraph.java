@@ -93,34 +93,6 @@ public class PropertyGraph {
 	    return root;   
 	}
 	
-	/*public ArrayList<String> pathToAncestor(String c, String ancestor){
-		c = returnV_graph(c);
-		ArrayList<String> list = new ArrayList<String>();
-		list.add(c);
-	
-		boolean haPadre;
-		do{
-			haPadre=false;
-			if(!c.equals(ancestor)){
-				Set<DefaultEdge> relatedEdges = graph.edgesOf(c);
-				for (DefaultEdge edge : relatedEdges) {
-					String target = graph.getEdgeTarget(edge);
-					if(c.equals( graph.getEdgeSource(edge)) && (isVertexAndHasFather(target) || target.equals(ancestor))){
-						haPadre = true;
-						list.add(target);
-						c = target;
-						break;
-					}
-				}
-			}
-				
-		}while(haPadre);
-					
-		if(list.contains(ancestor))
-				return list;
-		else
-				return null;
-}*/
 	
 	public boolean isVertexAndHasFather(String c){
 		if(graph.containsVertex(c)){
@@ -174,10 +146,42 @@ public class PropertyGraph {
 	    fos.close();
 	}
 		
-		
+	
+	public void discendenza() throws Exception{
+		FileOutputStream fos = new FileOutputStream(new File("DiscendenzaPredicati.txt"));
+		Set<String> vertices = new HashSet<String>();
+	    vertices.addAll(graph.vertexSet());
+	    for (String vertex : vertices) { 
+	    	List<List<String>> paths = pathsToFartherAncestors(vertex);
+	    	for(List<String> path : paths){
+	    		fos.write((path.toString()+"\n").getBytes());
+	    	}
+	    }
+	    fos.close();
+	}
+	
+	public List<List<String>> pathsToFartherAncestors(String node){
+		ArrayList<List<String>> paths = new ArrayList<List<String>>();
+		if(graph.containsVertex(node)){
+			inOrderTraversal(node, new ArrayList<String>(), paths);
+		}
+		return paths;
+	}
+	
+	private void inOrderTraversal(String node, List<String> currentPath, List<List<String>> paths){
+		ArrayList<String> path = new ArrayList<String>(currentPath);
+		path.add(node);
+		if(graph.outgoingEdgesOf(node).isEmpty()){
+			paths.add(path);
+		}
+		for(DefaultEdge edgeToSuperProperty : graph.outgoingEdgesOf(node)){
+			String superProperty = graph.getEdgeTarget(edgeToSuperProperty);
+			inOrderTraversal(superProperty, path, paths);
+		}
+	}
 
 
-	public void stampaPadriConcetti() throws Exception{
+	public void stampaPadriProperties() throws Exception{
 		FileOutputStream fos = new FileOutputStream(new File("PadriProperties.txt"));
 		Set<String> vertices = new HashSet<String>();
 	    vertices.addAll(graph.vertexSet());
