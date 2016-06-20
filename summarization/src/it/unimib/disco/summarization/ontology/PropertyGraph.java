@@ -191,7 +191,7 @@ public class PropertyGraph {
         	for (DefaultEdge edge : relatedEdges) {
         		if(vertex.equals( graph.getEdgeSource(edge) )){
         			String target = graph.getEdgeTarget(edge);
-        			fos.write(("   "+target).getBytes());
+        			fos.write(("##"+target).getBytes());
         		}
         	}
 	    }
