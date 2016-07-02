@@ -366,14 +366,19 @@ echo "---Start: Counting---"
 
 
 	rm "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
+	mv  datatype-akp_grezzo_Updated.txt "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
 	rm "$ResultsDirectory/patterns/object-akp_grezzo.txt"
-	mv "$ResultsDirectory/patterns/datatype-akp_grezzo_Updated.txt" "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
-	mv "$ResultsDirectory/patterns/object-akp_grezzo_Updated.txt" "$ResultsDirectory/patterns/object-akp_grezzo.txt"
+	mv  object-akp_grezzo_Updated.txt "$ResultsDirectory/patterns/object-akp_grezzo.txt"
 	
 	rm "$ResultsDirectory/patterns/datatype-akp.txt"
+	mv  datatype-akp_Updated.txt "$ResultsDirectory/patterns/datatype-akp.txt"
 	rm "$ResultsDirectory/patterns/object-akp.txt"
-	mv "$ResultsDirectory/patterns/datatype-akp_Updated.txt" "$ResultsDirectory/patterns/datatype-akp.txt"
-	mv "$ResultsDirectory/patterns/object-akp_Updated.txt" "$ResultsDirectory/patterns/object-akp.txt"
+	mv  object-akp_Updated.txt "$ResultsDirectory/patterns/object-akp.txt"
+
+	rm "$ResultsDirectory/patterns/count-datatype-properties.txt"
+	mv  count-datatype-properties_Updated.txt "$ResultsDirectory/patterns/count-datatype-properties.txt"
+	rm "$ResultsDirectory/patterns/count-object-properties_Updated.txt"
+	mv  count-object-properties_Updated.txt "$ResultsDirectory/patterns/count-object-properties.txt"
 
 	
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternInference "$OntologyFile" "$ResultsDirectory/patterns/"

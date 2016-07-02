@@ -20,21 +20,22 @@ public class PropertyMinimalizator {
 	String object_akp_grezzo;
 	HashMap<String, ArrayList<Pattern>> tripleWithAKPs; //come chiavi conterrà solo triple con stesso soggetto
 	ArrayList<Pattern>  AKPsSet; 
+	HashMap<String, Integer> propertiesRemoved;
 	boolean updateAkpsGrezzo_File;
 	
 	public PropertyMinimalizator(File akp_grezzo, File akp_grezzo_Update, File akp_Update, File ontology, boolean updateAkpsGrezzo_File){
-		//this.akpsFile = akpsFile;
 		this.akp_grezzo = akp_grezzo;
 		this.akp_grezzo_Update = akp_grezzo_Update;
 		this.akp_Update = akp_Update;
 		tripleWithAKPs =  new HashMap<String, ArrayList<Pattern>>();
 		AKPsSet = new ArrayList<Pattern>();
 		propGraph = new PropertyGraph(ontology);
+		propertiesRemoved = new HashMap<String, Integer>();
 		this.updateAkpsGrezzo_File = updateAkpsGrezzo_File;
 	}
 	
 	
-	public void readAKPs_Grezzo(){
+	public void readAKPs_Grezzo() throws Exception{
 		try{
 			BufferedReader br = new BufferedReader(new FileReader(akp_grezzo));
 			String line;
@@ -78,9 +79,16 @@ public class PropertyMinimalizator {
 			}
 			startMinimalization();  //dopo aver letto l'ultima tripla minimilizzo l'ultimo carico di triple
 			scriviAKPs();
-			br.close();
+			
+			if(akp_grezzo.getPath().contains("datatype"))
+				updateCountFile(new File(akp_grezzo.getParent()+"/count-datatype-properties.txt"), new File("count-datatype-properties_Updated.txt"));
+			else
+				updateCountFile(new File(akp_grezzo.getParent()+"/count-object-properties.txt"), new File("count-object-properties_Updated.txt"));
+			br.close();	
 		}
-		catch(Exception e){System.out.println(e);}  
+		catch(Exception e){}  
+		
+		
 	}
 	
 	//viene chiamato quando un gruppo di triple con stesso soggetto è "pronto" cioè quando non ce ne sono altre con stesso sogg.
@@ -127,12 +135,14 @@ public class PropertyMinimalizator {
 							if(propGraph.pathsBetween(minimalProp, prop).isEmpty()){ 
 								if(!propGraph.pathsBetween(prop, minimalProp).isEmpty()){  
 									listIt.remove();  
+									trackRemovedProperties(minimalProp); 
 									tripleWithAKPs.remove(tripla2); //minimalizzo
 									System.out.println("eliminato:  "+ tripla2);
 								}
 								listIt.add(tripla);
 							}
 							else{
+								trackRemovedProperties(prop);
 								tripleWithAKPs.remove(tripla); //minimalizzo
 								System.out.println("eliminato:  "+ tripla);
 							}
@@ -167,7 +177,7 @@ public class PropertyMinimalizator {
 				//ATTENZIONE in questo caso pattern è una copia di quello in lista
 				if(AKPsSet.contains(pattern)){                                         
 					Pattern originalPattern = AKPsSet.get(AKPsSet.indexOf(pattern)); //ottengo il pattern originale 
-					originalPattern.setFreq(originalPattern.getFreq()+1);   //morifico freq del pattern originale
+					originalPattern.setFreq(originalPattern.getFreq()+1);   //modifico freq del pattern originale
 				}
 				else{
 					pattern.setFreq(1);
@@ -187,5 +197,38 @@ public class PropertyMinimalizator {
 		}catch(Exception e){}
 		
 	}
+	
+	public void trackRemovedProperties(String property){
+		if(this.propertiesRemoved.containsKey(property))
+			propertiesRemoved.put(property, propertiesRemoved.get(property)+1);
+		else
+			propertiesRemoved.put(property,1);
 
+	}
+	
+	
+	
+	private void updateCountFile(File inputFile, File outputFile) throws Exception{
+		
+		BufferedReader br = new BufferedReader(new FileReader(inputFile));
+		FileOutputStream fos = new FileOutputStream(outputFile);
+		String line;
+		while ((line = br.readLine()) != null) {
+			if(!line.equals("")){
+				String[] riga = line.split("##");
+				if(propertiesRemoved.containsKey(riga[0])){
+					System.out.println("----------"+riga[0]);
+					int newFreq = Integer.parseInt(riga[1]) - propertiesRemoved.get(riga[0]);
+					if(newFreq>0)
+						fos.write((riga[0] + "##" + newFreq + "\n").getBytes());
+					propertiesRemoved.remove(riga[0]);
+				}
+				else
+					fos.write((line + "\n").getBytes());
+			}
+		}
+		br.close();
+		fos.close();
+	}
+	
 }
