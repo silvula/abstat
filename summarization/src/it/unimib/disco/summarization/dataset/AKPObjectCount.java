@@ -1,9 +1,10 @@
 package it.unimib.disco.summarization.dataset;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import it.unimib.disco.summarization.export.Events;
 
 public class AKPObjectCount implements NTripleAnalysis{
 
@@ -34,14 +35,21 @@ public class AKPObjectCount implements NTripleAnalysis{
 				akps.put(key, akps.get(key) + 1);
 			}
 		}
-		
-		try{
-			FileOutputStream fos = new FileOutputStream(new File("ObjectTriple-AKPs.txt"), true);
-			fos.write((AKPs.toString()+"\n\n").getBytes());
-			fos.close();
-			}
-			catch(Exception e){}
 			
+		write_akps_grezzo(subject, property, object, AKPs.toString());
+		
 		return this;
+	}
+	
+	public void write_akps_grezzo(String subject, String property, String object, String akpsList){
+		try{
+			FileOutputStream fos = new FileOutputStream("object-akp_grezzo.txt", true);
+			String riga = "<"+subject+"##"+ property+"##"+ object+"> " + akpsList+"\n\n";
+			fos.write(riga.getBytes());
+			fos.close();
+		}
+		catch(Exception e){
+			Events.summarization().error("object-akp_grezzo.txt", e);
+		}
 	}
 }

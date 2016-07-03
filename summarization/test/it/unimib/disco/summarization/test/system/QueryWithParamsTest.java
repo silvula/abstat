@@ -67,7 +67,7 @@ public class QueryWithParamsTest {
 	@Test
 	public void ShouldWorkWithNoSubjectNoPredicateNoObject() throws Exception {
 		new HttpAssert("http://localhost").body("/api/v1/queryWithParams?dataset=system-test",
-				StringMatcher.containsStringNTimes("\"akp\":",  177)); 
+				StringMatcher.containsStringNTimes("\"akp\":",  178)); 
 	}
 	
 	@Test
