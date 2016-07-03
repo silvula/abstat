@@ -16,7 +16,7 @@ RUN \
 		ssh \
 		time \
 		unzip \
-		virtuoso-opensource=7.2 && \
+		virtuoso-opensource && \
 	apt-get autoremove && \
 	apt-get clean
 
