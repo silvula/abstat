@@ -4,6 +4,8 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import it.unimib.disco.summarization.export.Events;
+
 
 public class AKPDatatypeCount implements NTripleAnalysis{
 
@@ -46,6 +48,8 @@ public class AKPDatatypeCount implements NTripleAnalysis{
 			fos.write(riga.getBytes());
 			fos.close();
 		}
-		catch(Exception e){}
+		catch(Exception e){
+			Events.summarization().error("datatype-akp_grezzo.txt", e);
+		}
 	}
 }

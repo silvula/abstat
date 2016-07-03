@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
 
-
+import it.unimib.disco.summarization.export.Events;
 import it.unimib.disco.summarization.ontology.PropertyGraph;
 
 public class PropertyMinimalizator {
@@ -35,7 +35,7 @@ public class PropertyMinimalizator {
 	}
 	
 	
-	public void readAKPs_Grezzo() throws Exception{
+	public void readAKPs_Grezzo() {
 		try{
 			BufferedReader br = new BufferedReader(new FileReader(akp_grezzo));
 			String line;
@@ -86,7 +86,9 @@ public class PropertyMinimalizator {
 				updateCountFile(new File(akp_grezzo.getParent()+"/count-object-properties.txt"), new File("count-object-properties_Updated.txt"));
 			br.close();	
 		}
-		catch(Exception e){}  
+		catch(Exception e){
+			Events.summarization().error(akp_grezzo, e);
+		}  
 		
 		
 	}
@@ -167,7 +169,10 @@ public class PropertyMinimalizator {
 				fos.write(line.getBytes());
 			}
 			fos.close();
-		}catch(Exception e){};
+		}catch(Exception e){
+			Events.summarization().error(akp_grezzo_Update, e);
+			
+		};
 	}
 	
 	
@@ -190,11 +195,13 @@ public class PropertyMinimalizator {
 	
 	private void scriviAKPs() {
 		try{
-			FileOutputStream fos = new FileOutputStream(this.akp_Update, true);
+			FileOutputStream fos = new FileOutputStream(akp_Update, true);
 			for(Pattern akp : AKPsSet)
 				fos.write((akp.getSubj().getURI()+"##"+akp.getPred()+"##"+akp.getObj().getURI()+"##"+akp.getFreq()+"\n").getBytes());
 			fos.close();
-		}catch(Exception e){}
+		}catch(Exception e){
+			Events.summarization().error(akp_Update, e);
+		}
 		
 	}
 	
