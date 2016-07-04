@@ -84,7 +84,7 @@ public class PatternGraph {
 	
  /*Entrypoint del processo di creazione del pattern graph e del conteggio delle istanze.
 * Riceve in ingresso un insieme di AKP sotto forma di array */
-	private void contatoreIstanze(Pattern[] patterns) {
+	public void contatoreIstanze(Pattern[] patterns) {
 		for(int i = 0; i<(patterns.length ); i++){
 			try{
 				inferisciEintegra(patterns[i]);	
