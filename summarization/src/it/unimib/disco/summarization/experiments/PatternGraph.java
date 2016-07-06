@@ -286,7 +286,7 @@ public class PatternGraph {
 	//----------------------------------------------------------- UTILS -------------------------------------------------------------------------
 	public void stampaPatternsSuFile(String nomeFile){
 		try{
-			FileOutputStream fos = new FileOutputStream(new File(nomeFile));
+			FileOutputStream fos = new FileOutputStream(new File(nomeFile), true);
 			Set<Pattern> vertices = new HashSet<Pattern>();
 			vertices.addAll(patternGraph.vertexSet());
 			for (Pattern vertex : vertices)    

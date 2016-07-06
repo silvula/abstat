@@ -8,9 +8,11 @@ import it.unimib.disco.summarization.export.Events;
 
 public class TriplesRetriever implements Processing{
 	private File ontology;
+	private File output_dir;
 	
-	public TriplesRetriever(File ontology){
+	public TriplesRetriever(File ontology, File output_dir){
 		this.ontology = ontology;
+		this.output_dir = output_dir;
 	}
 	
 	@Override
@@ -44,7 +46,12 @@ public class TriplesRetriever implements Processing{
 			Events.summarization().error(file, e);
 		}  
 		
-		PG.stampaPatternsSuFile(file.name()+"_patterns.txt");
+		String outputFileSuffix;
+		if(file.name().contains("datatype"))
+			outputFileSuffix = "_datatype.txt";
+		else
+			outputFileSuffix = "_object.txt";
+		PG.stampaPatternsSuFile(output_dir + "/patterns_splitMode" + outputFileSuffix);
 	}
 
 	@Override

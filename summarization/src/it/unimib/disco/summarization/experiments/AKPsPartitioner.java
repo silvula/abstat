@@ -23,22 +23,23 @@ public class AKPsPartitioner {
 		BufferedReader br = new BufferedReader(new FileReader(akps_file));
 		String line;
 		while ((line = br.readLine()) != null) {
-			String[] tripleParts = line.split("##");
-			String predicate = tripleParts[1];
-			File outputFile = new File (output_directory+"/"+ predicate.substring(predicate.indexOf("://")+3).replace("/", "_"));
-			FileOutputStream fos = new FileOutputStream(outputFile, true);
-			fos.write((line+"\n").getBytes());
-			fos.close();
+			if(!line.equals("")){
+				int begin = line.indexOf("<");
+				int end = line.indexOf(">");
+				String tripla = line.substring(begin, end);
+				String predicate = tripla.split("##")[1];
+				
+				String suffix;
+				if(akps_file.getName().contains("datatype"))
+					suffix = "_datatype";
+				else
+					suffix = "_object";
+				File outputFile = new File (output_directory+"/"+ predicate.substring(predicate.indexOf("://")+3).replace("/", "-")+ suffix + ".txt");
+				FileOutputStream fos = new FileOutputStream(outputFile, true);
+				fos.write((line+"\n\n").getBytes());
+				fos.close();
+			}
 		}
-	}
-	
-	public static void main(String[] args) throws Exception{
-		//Events.summarization();
-		
-		File akps_file = new File(args[0]);
-		File output_directory = new File(args[1]);
-		AKPsPartitioner partitioner = new AKPsPartitioner(akps_file, output_directory);
-		partitioner.partition();
 	}
 	
 }

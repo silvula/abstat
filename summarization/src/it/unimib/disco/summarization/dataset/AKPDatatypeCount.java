@@ -44,7 +44,10 @@ public class AKPDatatypeCount implements NTripleAnalysis{
 	public void write_akps_grezzo(String subject, String property, String object, String akpsList){
 		try{
 			FileOutputStream fos = new FileOutputStream("datatype-akp_grezzo.txt", true);
-			String riga = "<"+subject+"##"+ property+"##"+ object+"> " + akpsList+"\n\n";
+			//il replaceAll serve in caso la tripla abbia \n e quindi venga interpretato come "a capo". 
+			//Ciò da problemi in multithreading: il primo  e il secondo pezzo sono scritti non contiguamente! probabilmente perchè assegnati a thread diversi
+			String riga = "<"+subject+"##"+ property+"##"+ object.replaceAll("\n", " ")+"> " + akpsList;
+			riga +="\n\n";
 			fos.write(riga.getBytes());
 			fos.close();
 		}
