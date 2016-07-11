@@ -18,18 +18,13 @@ public class PatternInference {
 		File ontology = listOfFiles.iterator().next();
 		
 			
-		PatternGraph PGMakerDatatype = new PatternGraph();
-		PGMakerDatatype.createTypeGraph(ontology);
-		
+		PatternGraph PGMakerDatatype = new PatternGraph(ontology, "datatype");
 		PGMakerDatatype.readTriplesAKPs(args[1]+"datatype-akp_grezzo.txt");
 		PGMakerDatatype.stampaPatternsSuFile(args[1]+"patterns_datatype.txt");
 
 		
 		
-		PatternGraph PGMakerObject = new PatternGraph();
-		PGMakerObject.createTypeGraph(ontology);
-		
-
+		PatternGraph PGMakerObject = new PatternGraph(ontology, "object");
 		PGMakerObject.readTriplesAKPs(args[1]+"object-akp_grezzo.txt");
 		PGMakerObject.stampaPatternsSuFile(args[1]+"patterns_object.txt");
 	}

@@ -3,18 +3,19 @@ package it.unimib.disco.summarization.ontology;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JFrame;
 
-import org.apache.commons.io.FileUtils;
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
+
+import it.unimib.disco.summarization.experiments.JgraphGUI;
 
 
 
@@ -45,16 +46,51 @@ public class PropertyGraph {
 		//link tra due predicati che rispettano la relazione subPropertyOf
 		for(List<OntProperty> subProperties : extractor.getSubPropertyOfs()){
 			addEdge(subProperties.get(0), subProperties.get(1));
-			System.out.println(subProperties.get(0) + " ## " + subProperties.get(1));
+			//System.out.println(subProperties.get(0) + " ## " + subProperties.get(1));
 		}
 		
 		linkToTheoreticalProperties();
 	}
 	
+	public void linkToTheoreticalProperties(){
+		for(OntProperty prop : findRoots()){
+			if(prop.isDatatypeProperty())
+				addEdge(prop, ontologyModel.createOntProperty("http://www.w3.org/2002/07/owl#topDataProperty") );
+			else
+				addEdge(prop, ontologyModel.createOntProperty("http://www.w3.org/2002/07/owl#topObjectProperty") );
+		}
+		if(ontologyModel.getOntProperty("http://www.w3.org/2002/07/owl#topDataProperty")!= null)
+			addEdge(ontologyModel.getOntProperty("http://www.w3.org/2002/07/owl#topDataProperty"),ontologyModel.createOntProperty("universalProperty") );
+		if(ontologyModel.getOntProperty("http://www.w3.org/2002/07/owl#topObjectProperty")!= null)
+			addEdge(ontologyModel.getOntProperty("http://www.w3.org/2002/07/owl#topObjectProperty"),ontologyModel.createOntProperty("universalProperty") );
+	}
+	
+	
+	public OntProperty returnV_graph(OntProperty p){
+		Set<OntProperty> vertices = new HashSet<OntProperty>();
+	    vertices.addAll(graph.vertexSet());
+	    for (OntProperty vertex : vertices)    
+	    	if(p.equals(vertex)) /////////////// equals o == ?
+	    		return vertex; 
+	    return null;
+	}
+	
+	public void addEdge(OntProperty property, OntProperty superProperty){
+		if(!graph.containsVertex(property))
+			graph.addVertex(property);
+		
+		if(graph.containsVertex(superProperty))
+			graph.addEdge(property, returnV_graph(superProperty));
+		else{
+			graph.addVertex(superProperty);
+			graph.addEdge(property, superProperty);
+		}
+	}
+	
+	//Ritorna tutti i vertici orfani, ovvero senza un padre
 	public HashSet<OntProperty> findRoots(){
 		HashSet<OntProperty> orfani = new HashSet<OntProperty>();
 		
-		//Ricavo i vertici orfani 
 		Set<OntProperty> vertices = new HashSet<OntProperty>();
 	    vertices.addAll(graph.vertexSet());
 	    for (OntProperty vertex : vertices) { 
@@ -95,58 +131,50 @@ public class PropertyGraph {
 		}
 	}
 	
-		
-	public boolean isVertexAndHasFather(OntProperty c){
-		if(graph.containsVertex(c)){
-			boolean haPadre = false;
-			Set<DefaultEdge> relatedEdges = graph.edgesOf(c);
-			for (DefaultEdge edge : relatedEdges) 
-				if(c.equals( graph.getEdgeSource(edge)))
-					haPadre = true;	
-			return haPadre;
-		}
-		return false;	
-	}
 	
 	
-	public OntProperty returnV_graph(OntProperty p){
-		Set<OntProperty> vertices = new HashSet<OntProperty>();
-	    vertices.addAll(graph.vertexSet());
-	    for (OntProperty vertex : vertices)    
-	    	if(p.equals(vertex)) /////////////// equals o == ?
-	    		return vertex; 
-	    return null;
-	}
+    //Ritorna i superpredicati diretti del predicato in input
+    public ArrayList<String> superProperties(String arg, String type){
+    	if(!graph.containsVertex(this.ontologyModel.createOntProperty(arg))){
+    		ArrayList<String> output = new ArrayList<String>();
+    		if(type.equals("object"))
+    			output.add("http://www.w3.org/2002/07/owl#topObjectProperty");
+    		else
+    			output.add("http://www.w3.org/2002/07/owl#topDataProperty");
+    		//System.out.println("ESTERNOOOOOO-------------------- "+arg);
+    		return output;
+    	}
+    
+    	else if(arg.equals("universalProperty"))
+            return null;
+    	
+        else{
+        	ArrayList<String> supertipi = new ArrayList<String>();
+          	OntProperty source, target;
+            Set<OntProperty> vertices = new HashSet<OntProperty>();
+            vertices.addAll(graph.vertexSet());
+       
+            for (OntProperty vertex : vertices) {
+                if(vertex.getURI().equals(arg)){        //cioè se ho trovato il concetto nel propertyGraph
+                    Set<DefaultEdge> relatedEdges = graph.edgesOf(vertex);
+                    for (DefaultEdge edge : relatedEdges) {
+                        source = graph.getEdgeSource(edge);
+                        target = graph.getEdgeTarget(edge);
+                        if(source.equals(vertex))
+                            supertipi.add(target.getURI());     
+                    }
+                }
+            }
+            
+            return supertipi;
+        }
+    }
 	
-	public void addEdge(OntProperty property, OntProperty superProperty){
-		if(!graph.containsVertex(property))
-			graph.addVertex(property);
-		
-		if(graph.containsVertex(superProperty))
-			graph.addEdge(property, returnV_graph(superProperty));
-		else{
-			graph.addVertex(superProperty);
-			graph.addEdge(property, superProperty);
-		}
-	}
-	
-	public void linkToTheoreticalProperties(){
-		for(OntProperty prop : findRoots()){
-			if(prop.isDatatypeProperty())
-				addEdge(prop, ontologyModel.createOntProperty("http://www.w3.org/2002/07/owl#topDataProperty") );
-			else
-				addEdge(prop, ontologyModel.createOntProperty("http://www.w3.org/2002/07/owl#topObjectProperty") );
-		}
-		if(ontologyModel.getOntProperty("http://www.w3.org/2002/07/owl#topDataProperty")!= null)
-			addEdge(ontologyModel.getOntProperty("http://www.w3.org/2002/07/owl#topDataProperty"),ontologyModel.createOntProperty("universalProperty") );
-		if(ontologyModel.getOntProperty("http://www.w3.org/2002/07/owl#topObjectProperty")!= null)
-			addEdge(ontologyModel.getOntProperty("http://www.w3.org/2002/07/owl#topObjectProperty"),ontologyModel.createOntProperty("universalProperty") );
-	}
-	
-	
+    
 	public DirectedAcyclicGraph<OntProperty, DefaultEdge> getGraph(){
 		return graph;
 	}
+	
 	
 	
 //--------------------------------------------------------- UTILS ------------------------------------------------------------------------------
@@ -199,6 +227,16 @@ public class PropertyGraph {
         	}
 	    }
 	    fos.close();
+	}
+	
+	public void disegna(){
+		JgraphGUI gui = new JgraphGUI(graph);
+		JFrame frame = new JFrame();
+		frame.getContentPane().add(gui);
+		frame.setTitle("Property Graph");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setVisible(true);
 	}
 	
 }

@@ -17,8 +17,17 @@ public class TriplesRetriever implements Processing{
 	
 	@Override
 	public void process(InputFile file) throws Exception {
-		PatternGraph PG = new PatternGraph();
-		PG.createTypeGraph(ontology);
+		String outputFileSuffix;
+		PatternGraph PG;
+		if(file.name().contains("datatype")){
+			outputFileSuffix = "_datatype.txt";
+			PG =  new PatternGraph(ontology, "datatype");
+		}
+		else{
+			outputFileSuffix = "_object.txt";
+			PG =  new PatternGraph(ontology, "object");
+		}
+
 		try{
 			while (file.hasNextLine()) {
 				String line = file.nextLine();
@@ -46,11 +55,6 @@ public class TriplesRetriever implements Processing{
 			Events.summarization().error(file, e);
 		}  
 		
-		String outputFileSuffix;
-		if(file.name().contains("datatype"))
-			outputFileSuffix = "_datatype.txt";
-		else
-			outputFileSuffix = "_object.txt";
 		PG.stampaPatternsSuFile(output_dir + "/patterns_splitMode" + outputFileSuffix);
 	}
 

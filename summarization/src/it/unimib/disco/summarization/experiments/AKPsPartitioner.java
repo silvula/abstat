@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 
 
-import it.unimib.disco.summarization.export.Events;
 
 public class AKPsPartitioner {
 
@@ -40,6 +39,7 @@ public class AKPsPartitioner {
 				fos.close();
 			}
 		}
+		br.close();
 	}
 	
 }
