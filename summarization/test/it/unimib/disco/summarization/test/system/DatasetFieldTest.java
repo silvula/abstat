@@ -22,7 +22,7 @@ public class DatasetFieldTest {
 	@Test
 	public void shouldBeOkTheDatasetFieldOfSchemaSolrTest4() throws Exception
 	{
-		httpAssert().body("select?q=dataset:system-test", containsString("numFound=\"219\""));
+		httpAssert().body("select?q=dataset:system-test", containsString("numFound=\"223\""));
 	}
 	
 	private HttpAssert httpAssert() {

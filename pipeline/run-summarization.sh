@@ -327,7 +327,7 @@ echo "---Start: Counting---"
 	    exit 1
 	fi
 
-	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.ProcessDatatypeRelationAssertions "${orgDatasetFile}" "$minTypeResult" "$ResultsDirectory/patterns/"
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.ProcessDatatypeRelationAssertions "${orgDatasetFile}" "$minTypeResult" "$ResultsDirectory/patterns/"  "${TmpDatasetFileResult}"
 
 	if [ $? -ne 0 ]
 	then
@@ -343,6 +343,44 @@ echo "---Start: Counting---"
 	    exit 1
 	fi
 
+
+	#Muovi da summarization a tmp-data-for-computation
+	mv datatype-akp_grezzo.txt  "$ResultsDirectory/patterns/datatype-akp_grezzo.txt" 
+	mv object-akp_grezzo.txt  "$ResultsDirectory/patterns/object-akp_grezzo.txt"
+	#ordina akps_grezzo  
+	sort "$ResultsDirectory/patterns/datatype-akp_grezzo.txt" > "$ResultsDirectory/patterns/datatype-akp_grezzo_Sorted.txt"
+	sort "$ResultsDirectory/patterns/object-akp_grezzo.txt" > "$ResultsDirectory/patterns/object-akp_grezzo_Sorted.txt"
+	rm "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
+	rm "$ResultsDirectory/patterns/object-akp_grezzo.txt"
+	mv "$ResultsDirectory/patterns/datatype-akp_grezzo_Sorted.txt" "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
+	mv "$ResultsDirectory/patterns/object-akp_grezzo_Sorted.txt" "$ResultsDirectory/patterns/object-akp_grezzo.txt"
+
+	
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.CalculatePropertyMinimalization "$OntologyFile" "$ResultsDirectory/patterns/"
+
+	if [ $? -ne 0 ]
+	then
+	    echo "App Failed during run"
+	    exit 1 
+	fi
+
+
+	rm "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
+	mv  datatype-akp_grezzo_Updated.txt "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
+	rm "$ResultsDirectory/patterns/object-akp_grezzo.txt"
+	mv  object-akp_grezzo_Updated.txt "$ResultsDirectory/patterns/object-akp_grezzo.txt"
+	
+	rm "$ResultsDirectory/patterns/datatype-akp.txt"
+	mv  datatype-akp_Updated.txt "$ResultsDirectory/patterns/datatype-akp.txt"
+	rm "$ResultsDirectory/patterns/object-akp.txt"
+	mv  object-akp_Updated.txt "$ResultsDirectory/patterns/object-akp.txt"
+
+	rm "$ResultsDirectory/patterns/count-datatype-properties.txt"
+	mv  count-datatype-properties_Updated.txt "$ResultsDirectory/patterns/count-datatype-properties.txt"
+	rm "$ResultsDirectory/patterns/count-object-properties_Updated.txt"
+	mv  count-object-properties_Updated.txt "$ResultsDirectory/patterns/count-object-properties.txt"
+
+	
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternInference "$OntologyFile" "$ResultsDirectory/patterns/"
 
 	if [ $? -ne 0 ]

@@ -9,7 +9,7 @@ public class SolrIndexingTest {
 	
 	@Test
 	public void solrConceptsIndexingShouldBeOk() throws Exception {
-		httpAssert().body("select?q=type:concept", containsString("numFound=\"20\""));
+		httpAssert().body("select?q=type:concept", containsString("numFound=\"22\""));
 	}
 
 	@Test
@@ -19,7 +19,7 @@ public class SolrIndexingTest {
 	
 	@Test
 	public void solrObjectPropertiesIndexingShouldBeOk() throws Exception {
-		httpAssert().body("select?q=type:objectProperty", containsString("numFound=\"5\""));
+		httpAssert().body("select?q=type:objectProperty", containsString("numFound=\"6\""));
 	}
 	
 	@Test
@@ -29,7 +29,7 @@ public class SolrIndexingTest {
 	
 	@Test
 	public void solrObjectAkpsIndexingShouldBeOk() throws Exception {
-		httpAssert().body("select?q=type:objectAkp", containsString("numFound=\"109\""));
+		httpAssert().body("select?q=type:objectAkp", containsString("numFound=\"110\""));
 	}
 	
 	@Test
@@ -39,7 +39,7 @@ public class SolrIndexingTest {
 	
 	@Test
 	public void solrIndexingShouldBeOk() throws Exception {
-		httpAssert().body("select?q=*:*", containsString("numFound=\"219\""));
+		httpAssert().body("select?q=*:*", containsString("numFound=\"223\""));
 	}
 	
 	@Test
@@ -79,7 +79,7 @@ public class SolrIndexingTest {
 	
 	@Test
 	public void elementsShouldBeSortableByOccurrence() throws Exception {
-		httpAssert().body("select?q=*:*&sort=occurrence+desc", containsString("numFound=\"219\""));
+		httpAssert().body("select?q=*:*&sort=occurrence+desc", containsString("numFound=\"223\""));
 	}
 	
 	private HttpAssert httpAssert() {

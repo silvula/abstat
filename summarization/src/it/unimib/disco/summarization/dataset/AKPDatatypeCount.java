@@ -1,9 +1,10 @@
 package it.unimib.disco.summarization.dataset;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import it.unimib.disco.summarization.export.Events;
 
 
 public class AKPDatatypeCount implements NTripleAnalysis{
@@ -33,15 +34,22 @@ public class AKPDatatypeCount implements NTripleAnalysis{
 				akps.put(key, 0l);
 			akps.put(key, akps.get(key) + 1);
 		}
-		
+
+		write_akps_grezzo(subject, property, triple.object().toString(), AKPs.toString());
+
+		return this;
+	}
+	
+	
+	public void write_akps_grezzo(String subject, String property, String object, String akpsList){
 		try{
-			FileOutputStream fos = new FileOutputStream(new File("DatatypeTriple-AKPs.txt"), true);
-			fos.write((AKPs.toString()+"\n\n").getBytes());
+			FileOutputStream fos = new FileOutputStream("datatype-akp_grezzo.txt", true);
+			String riga = "<"+subject+"##"+ property+"##"+ object+"> " + akpsList+"\n\n";
+			fos.write(riga.getBytes());
 			fos.close();
 		}
-		catch(Exception e){}
-		
-		
-		return this;
+		catch(Exception e){
+			Events.summarization().error("datatype-akp_grezzo.txt", e);
+		}
 	}
 }

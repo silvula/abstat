@@ -14,7 +14,7 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 
-
+import it.unimib.disco.summarization.export.Events;
 import it.unimib.disco.summarization.ontology.ConceptExtractor;
 import it.unimib.disco.summarization.ontology.Concepts;
 import it.unimib.disco.summarization.ontology.Model;
@@ -52,8 +52,12 @@ public class PatternGraph {
 		try{
 			BufferedReader br = new BufferedReader(new FileReader(new File(AKPsFile)));
 			String line;
+			
 			while ((line = br.readLine()) != null) {
 				if(!line.equals("")){
+					int index = line.indexOf(" [")+1;
+					line = line.substring(index);   //per togliere il relational assertion dalla riga.
+					
 					line =line.substring(1, line.length()-1);
 					String[] stringAKPs = line.split(", ");  
 					Pattern[] AKPs = new Pattern[stringAKPs.length];
@@ -71,7 +75,9 @@ public class PatternGraph {
 			}
 			br.close();
 		}
-		catch(Exception e){System.out.println(e);}  
+		catch(Exception e){
+			Events.summarization().error(AKPsFile, e);
+		}  
 	}
 	 
 	
@@ -79,14 +85,22 @@ public class PatternGraph {
  /*Entrypoint del processo di creazione del pattern graph e del conteggio delle istanze.
 * Riceve in ingresso un insieme di AKP sotto forma di array */
 	private void contatoreIstanze(Pattern[] patterns) {
-		try{
-			for(int i = 0; i<(patterns.length ); i++){
+		for(int i = 0; i<(patterns.length ); i++){
+			try{
 				inferisciEintegra(patterns[i]);	
-				patterns[i] = returnV_patternGraph(patterns[i]);
 			}
-			conta(patterns);
+			catch(Exception e){
+				Events.summarization().error("Inference error: "+ patterns[i].toString(), e);
+			}
+			
+			patterns[i] = returnV_patternGraph(patterns[i]);
 		}
-		catch(Exception e) {System.out.println(e);}
+		try{
+		conta(patterns);
+		}
+		catch(Exception e){
+			Events.summarization().error("Counting instances number error: "+ patterns, e);
+		}
 	}
 	
 	    
@@ -280,7 +294,7 @@ public class PatternGraph {
 			fos.close();
 		}
 		catch(Exception e){
-			System.out.println("Eccezione stampaPatternsSuFile");
+			Events.summarization().error("Inferred patterns print error", e);
 		}
 	}
 	
@@ -292,7 +306,7 @@ public class PatternGraph {
 			fos.close();
 		}
 		catch(Exception e){
-			System.out.println("Eccezione stampaGrafoSuFile");
+			Events.summarization().error("PatternGraph print error", e);
 		}
 	}
 	
