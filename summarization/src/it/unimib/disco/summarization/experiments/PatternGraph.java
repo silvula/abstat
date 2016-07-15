@@ -2,17 +2,16 @@ package it.unimib.disco.summarization.experiments;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.JFrame;
 
-import org.apache.commons.io.FileUtils;
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 
+import com.hp.hpl.jena.ontology.OntProperty;
 
 import it.unimib.disco.summarization.export.Events;
 import it.unimib.disco.summarization.ontology.PropertyGraph;
@@ -26,14 +25,24 @@ public class PatternGraph {
 	private PropertyGraph propertyGraph;
 	private TypeGraphExperimental typeGraph;
 	private String type;
+	private HashSet<String> rootProperties = new HashSet<String>();
+	private boolean splitMode;
 	 
 
-	public PatternGraph(File ontology, String type){
-		//create type graph
+	public PatternGraph(File ontology, String type, boolean splitMode){
 		typeGraph = new TypeGraphExperimental(ontology);
-		//create property graph
 		propertyGraph = new PropertyGraph(ontology);
+		
+		//se sto costruendo solo la base del patterngraph in splitMode
+		if(splitMode)
+			for(OntProperty root : propertyGraph.findRoots())
+				rootProperties.add(root.getURI());
+		//se invece sto costruendo direttamente tutto il pattergraph tenendolo in memoria
+		else
+			propertyGraph.linkToTheoreticalProperties();
+
 		this.type = type;
+		this.splitMode = splitMode;
 	 }
 	
 	
@@ -85,12 +94,13 @@ public class PatternGraph {
 			
 			patterns[i] = returnV_graph(patterns[i]);
 		}
+		
 		try{
-		conta(patterns);
+			conta(patterns);
 		}
 		catch(Exception e){
 			Events.summarization().error("Counting instances number error: "+ patterns, e);
-		}
+		}		
 	}
 	
 	    
@@ -108,50 +118,69 @@ public class PatternGraph {
             obj = currentP.getObj();
             pred = currentP.getPred();
             
-            ArrayList<Concept> subjSupertipi = typeGraph.SuperTipo(subj, type, "subject");
+            
+            ArrayList<String> superProperties;
+            if(splitMode)
+            	superProperties = propertyGraph.superProperties(pred);
+            else
+            	superProperties = propertyGraph.superPropertiesFull(pred, type);
+            
+            if(superProperties!=null){
+            	
+            	//aggiorno rootProperties
+            	if(splitMode)
+            		if(superProperties.size()==0)
+            			this.rootProperties.add(pred);
+            	
+            	for(String superProp : superProperties){
+            		Pattern newPattern3 = new Pattern(subj, superProp, obj );
+            		
+            		if(patternGraph.containsVertex(newPattern3)== false){
+            			patternGraph.addVertex(newPattern3);
+            			patternGraph.addEdge(currentP, newPattern3);
+            			queue.put(newPattern3);
+            		}
+            		else{
+            			patternGraph.addEdge(currentP,returnV_graph(newPattern3));
+            		}
+            	}
+            }
+            
+            
+            ArrayList<Concept> subjSupertipi = typeGraph.superTipo(subj, type, "subject");
             if(subjSupertipi != null){
             	for(Concept subjSup : subjSupertipi){
                 	Pattern newPattern1 = new Pattern(subjSup, pred, obj );
+            		
                 	if(patternGraph.containsVertex(newPattern1)== false){//containVertex dice se esiste un vertice EQUIVALENTE(quindi un oggetto qualsiasi che abbia i suoi stessi parametri)
                 		patternGraph.addVertex(newPattern1);
                 		patternGraph.addEdge(currentP, newPattern1);
                     	queue.put(newPattern1);
                 	}
-                	else
+                	else{
                 		patternGraph.addEdge(currentP, returnV_graph(newPattern1));	//non voglio creare la relazione con il pattern che ho creato, ma con quello equivalente in MTG. 
+                	}
             	}
             }
 
-            ArrayList<Concept> objSupertipi = typeGraph.SuperTipo(obj, type, "object");
+            ArrayList<Concept> objSupertipi = typeGraph.superTipo(obj, type, "object");
             if(objSupertipi!=null){
             	for(Concept objSup : objSupertipi){
             		Pattern newPattern2 = new Pattern(subj, pred, objSup );
+            		
             		if(patternGraph.containsVertex(newPattern2)== false){
-            			patternGraph.addVertex(newPattern2);
+                		patternGraph.addVertex(newPattern2);
             			patternGraph.addEdge(currentP, newPattern2);
             	
             			queue.put(newPattern2);
             		}
-            		else
+            		else{
             			patternGraph.addEdge(currentP,returnV_graph(newPattern2));
-            	}
-            }
-      
-            
-            ArrayList<String> superProperties = propertyGraph.superProperties(pred, type);
-            if(superProperties!=null){
-            	for(String superProp : superProperties){
-            		Pattern newPattern3 = new Pattern(subj, superProp, obj );
-            		if(patternGraph.containsVertex(newPattern3)== false){
-            			patternGraph.addVertex(newPattern3);
-            			patternGraph.addEdge(currentP, newPattern3);
-            	
-            			queue.put(newPattern3);
             		}
-            		else
-            			patternGraph.addEdge(currentP,returnV_graph(newPattern3));
+
             	}
             }
+            
             
         }
     }
@@ -221,7 +250,21 @@ public class PatternGraph {
       }
      
       
-      
+      public void getHeadPatterns(File output_dir ) throws Exception{
+    	  FileOutputStream fos;
+    	  if(this.type.equals("datatype"))
+    		  fos = new FileOutputStream(new File(output_dir.getAbsolutePath() + "/headPatterns_datatype.txt"), true);
+    	  else
+    		  fos = new FileOutputStream(new File(output_dir.getAbsolutePath() + "/headPatterns_object.txt"), true);
+    	  
+    	  for(Pattern vertex : this.patternGraph.vertexSet()){
+    		  String pred = vertex.getPred();
+    		  if(rootProperties.contains(pred))
+    				  fos.write( (vertex.getSubj().getURI()+"##"+vertex.getPred()+"##"+vertex.getObj().getURI()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes());
+    	  }
+    	  fos.close();
+      }
+
       
 	//------------------------------------------------------------ SECONDARI  -------------------------------------------------------------
     
@@ -296,6 +339,7 @@ public class PatternGraph {
 	    }
 	    return orfani;   
 	}
+	
 	
 	    
 }

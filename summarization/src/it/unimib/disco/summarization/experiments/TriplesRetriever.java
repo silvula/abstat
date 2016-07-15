@@ -21,11 +21,11 @@ public class TriplesRetriever implements Processing{
 		PatternGraph PG;
 		if(file.name().contains("datatype")){
 			outputFileSuffix = "_datatype.txt";
-			PG =  new PatternGraph(ontology, "datatype");
+			PG =  new PatternGraph(ontology, "datatype", true);
 		}
 		else{
 			outputFileSuffix = "_object.txt";
-			PG =  new PatternGraph(ontology, "object");
+			PG =  new PatternGraph(ontology, "object", true);
 		}
 
 		try{
@@ -56,6 +56,7 @@ public class TriplesRetriever implements Processing{
 		}  
 		
 		PG.stampaPatternsSuFile(output_dir + "/patterns_splitMode" + outputFileSuffix);
+		PG.getHeadPatterns(output_dir);
 	}
 
 	@Override

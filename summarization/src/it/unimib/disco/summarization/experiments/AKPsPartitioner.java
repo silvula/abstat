@@ -4,22 +4,28 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 
+import it.unimib.disco.summarization.ontology.PropertyGraph;
 
 public class AKPsPartitioner {
 
-	private File akps_file;
-	private File output_directory;
+	private PropertyGraph propertyGraph;
+	private List<HashSet<String>> pseudoSCS;
+	private ArrayList<String> externalProperties = new ArrayList<String>();  //struttura usata per dare indici (negativi) 
 	
-	public AKPsPartitioner(File input_f, File output_d){
-		akps_file = input_f;
-		output_directory = output_d;
+	
+	public AKPsPartitioner(File ontology) throws Exception{
+		propertyGraph = new PropertyGraph(ontology);
+		pseudoSCS = propertyGraph.convertPseudoSCS( propertyGraph.pseudoStronglyConnectedSets() );
 	}
 	
 	
-	public void partition() throws Exception{
-		BufferedReader br = new BufferedReader(new FileReader(akps_file));
+	public void AKPs_Grezzo_partition(File input_f, File output_dir, String suffix) throws Exception{
+		BufferedReader br = new BufferedReader(new FileReader(input_f));
 		String line;
 		while ((line = br.readLine()) != null) {
 			if(!line.equals("")){
@@ -28,12 +34,19 @@ public class AKPsPartitioner {
 				String tripla = line.substring(begin, end);
 				String predicate = tripla.split("##")[1];
 				
-				String suffix;
-				if(akps_file.getName().contains("datatype"))
-					suffix = "_datatype";
-				else
-					suffix = "_object";
-				File outputFile = new File (output_directory+"/"+ predicate.substring(predicate.indexOf("://")+3).replace("/", "-")+ suffix + ".txt");
+				int indexSet = -1;
+				for(HashSet<String> set : pseudoSCS){
+					if(set.contains(predicate))
+						indexSet = pseudoSCS.indexOf(set);	
+				}
+				
+				if(indexSet==-1){
+					if(!externalProperties.contains(predicate))
+						externalProperties.add(predicate);
+					indexSet = 0 - externalProperties.indexOf(predicate);
+				}
+				
+				File outputFile = new File (output_dir+"/"+ "predicateSet"+indexSet + suffix + ".txt");
 				FileOutputStream fos = new FileOutputStream(outputFile, true);
 				fos.write((line+"\n\n").getBytes());
 				fos.close();
@@ -41,5 +54,36 @@ public class AKPsPartitioner {
 		}
 		br.close();
 	}
+	
+	
+	public void AKPsPartion(File input_f, File output_dir, String suffix) throws Exception{
+		BufferedReader br = new BufferedReader(new FileReader(input_f));
+		String line;
+		while ((line = br.readLine()) != null) {
+			if(!line.equals("")){
+				String[] splitted = line.split("##");
+				String predicate = splitted[1];
+					
+				int indexSet = -1;
+				for(HashSet<String> set : pseudoSCS){
+					if(set.contains(predicate))
+							indexSet = pseudoSCS.indexOf(set);	
+				}
+					
+				if(indexSet==-1){
+					if(!externalProperties.contains(predicate))
+						externalProperties.add(predicate);
+					indexSet = 0 - externalProperties.indexOf(predicate);
+				}
+				
+				File outputFile = new File (output_dir+"/"+ "predicateSet"+indexSet + suffix + ".txt");
+				FileOutputStream fos = new FileOutputStream(outputFile, true);
+				fos.write((line+"\n\n").getBytes());
+				fos.close();
+			}
+		}
+		br.close();	
+	}
+	
 	
 }

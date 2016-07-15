@@ -18,6 +18,7 @@ fi
 
 DataDirectory=$1
 ResultsDirectory=$2
+
 AwkScriptsDirectory=awk-scripts
 TripleFile=dataset.nt
 
@@ -358,7 +359,7 @@ echo "---Start: Counting---"
 	mv "$ResultsDirectory/patterns/object-akp_grezzo_Sorted.txt" "$ResultsDirectory/patterns/object-akp_grezzo.txt"
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.CalculatePropertyMinimalization "$OntologyFile" "$ResultsDirectory/patterns/"
 
 	if [ $? -ne 0 ]
@@ -383,8 +384,9 @@ echo "---Start: Counting---"
 	rm "$ResultsDirectory/patterns/count-object-properties.txt"
 	mv  count-object-properties_Updated.txt "$ResultsDirectory/patterns/count-object-properties.txt"
 
+
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternInference "$OntologyFile" "$ResultsDirectory/patterns/"
 
 	if [ $? -ne 0 ]
@@ -394,8 +396,17 @@ echo "---Start: Counting---"
 	fi
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	mkdir "$ResultsDirectory/patterns/partizioni"
-	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.SplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/partizioni" "$OntologyFile"
+
+	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
+	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
+
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.SplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$ResultsDirectory/patterns/headAKPs-parts"  "$OntologyFile"
+
+	rm "$ResultsDirectory/patterns/headPatterns_datatype.txt"
+	rm "$ResultsDirectory/patterns/headPatterns_object.txt"
+	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
+	rm -r "$ResultsDirectory/patterns/headAKPs-parts"
+
 
 	if [ $? -ne 0 ]
 	then

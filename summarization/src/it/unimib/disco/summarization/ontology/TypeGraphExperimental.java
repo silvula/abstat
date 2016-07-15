@@ -85,8 +85,9 @@ public class TypeGraphExperimental {
 	    return orfani;   
 	}
 	
-	/*Ritorna i supertipi diretti del concetto in input*/
-    public ArrayList<Concept> SuperTipo(Concept arg, String type, String positionInPattern){
+	/*Ritorna i supertipi diretti del concetto in input
+	 * SE è Thing o Literal RITORNA NULL*/
+    public ArrayList<Concept> superTipo(Concept arg, String type, String positionInPattern){
     	
     	if(arg.getURI().equals("http://www.w3.org/2002/07/owl#Thing") || arg.getURI().equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
             return null;
@@ -97,7 +98,7 @@ public class TypeGraphExperimental {
     			output.add(returnV_typeGraph(new Concept("http://www.w3.org/2002/07/owl#Thing")));
     		else
     			output.add(new Concept("http://www.w3.org/2000/01/rdf-schema#Literal"));
-    		System.out.println(output.get(0)+" CONCEPT ESTERNOOOOOO-------------------- "+arg);
+    		//System.out.println(output.get(0)+" CONCEPT ESTERNOOOOOO-------------------- "+arg);
     		return output;
     	}
     	
