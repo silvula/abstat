@@ -18,6 +18,10 @@ fi
 
 DataDirectory=$1
 ResultsDirectory=$2
+propMin=$3
+inference=$4
+split_inference=$5
+
 AwkScriptsDirectory=awk-scripts
 TripleFile=dataset.nt
 
@@ -327,6 +331,8 @@ echo "---Start: Counting---"
 	    exit 1
 	fi
 
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.ProcessDatatypeRelationAssertions "${orgDatasetFile}" "$minTypeResult" "$ResultsDirectory/patterns/"  "${TmpDatasetFileResult}"
 
 	if [ $? -ne 0 ]
@@ -355,7 +361,10 @@ echo "---Start: Counting---"
 	mv "$ResultsDirectory/patterns/datatype-akp_grezzo_Sorted.txt" "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
 	mv "$ResultsDirectory/patterns/object-akp_grezzo_Sorted.txt" "$ResultsDirectory/patterns/object-akp_grezzo.txt"
 
-	
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+if [ ${propMin} = "1" ]	
+then
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.CalculatePropertyMinimalization "$OntologyFile" "$ResultsDirectory/patterns/"
 
 	if [ $? -ne 0 ]
@@ -377,10 +386,13 @@ echo "---Start: Counting---"
 
 	rm "$ResultsDirectory/patterns/count-datatype-properties.txt"
 	mv  count-datatype-properties_Updated.txt "$ResultsDirectory/patterns/count-datatype-properties.txt"
-	rm "$ResultsDirectory/patterns/count-object-properties_Updated.txt"
+	rm "$ResultsDirectory/patterns/count-object-properties.txt"
 	mv  count-object-properties_Updated.txt "$ResultsDirectory/patterns/count-object-properties.txt"
+fi
 
-	
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [ ${inference} = "1" ]	
+then
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternInference "$OntologyFile" "$ResultsDirectory/patterns/"
 
 	if [ $? -ne 0 ]
@@ -388,8 +400,28 @@ echo "---Start: Counting---"
 	    echo "App Failed during run"
 	    exit 1
 	fi
+fi
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [ ${split_inference} = "1" ]
+then
+	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
+	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
+
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.SplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$ResultsDirectory/patterns/headAKPs-parts"  "$OntologyFile"
+
+	rm "$ResultsDirectory/patterns/headPatterns_datatype.txt"
+	rm "$ResultsDirectory/patterns/headPatterns_object.txt"
+	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
+	rm -r "$ResultsDirectory/patterns/headAKPs-parts"
 
 
+	if [ $? -ne 0 ]
+	then
+	    echo "App Failed during run"
+	    exit 1
+	fi
+fi
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	endBlock=$SECONDS
 	if [ $debug -eq 1 ]
 	then
