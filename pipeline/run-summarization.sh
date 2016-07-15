@@ -18,6 +18,9 @@ fi
 
 DataDirectory=$1
 ResultsDirectory=$2
+propMin=$3
+inference=$4
+split_inference=$5
 
 AwkScriptsDirectory=awk-scripts
 TripleFile=dataset.nt
@@ -360,6 +363,8 @@ echo "---Start: Counting---"
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+if [ ${propMin} = "1" ]	
+then
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.CalculatePropertyMinimalization "$OntologyFile" "$ResultsDirectory/patterns/"
 
 	if [ $? -ne 0 ]
@@ -383,10 +388,11 @@ echo "---Start: Counting---"
 	mv  count-datatype-properties_Updated.txt "$ResultsDirectory/patterns/count-datatype-properties.txt"
 	rm "$ResultsDirectory/patterns/count-object-properties.txt"
 	mv  count-object-properties_Updated.txt "$ResultsDirectory/patterns/count-object-properties.txt"
-
+fi
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+if [ ${inference} = "1" ]	
+then
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternInference "$OntologyFile" "$ResultsDirectory/patterns/"
 
 	if [ $? -ne 0 ]
@@ -394,9 +400,10 @@ echo "---Start: Counting---"
 	    echo "App Failed during run"
 	    exit 1
 	fi
-
+fi
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+if [ ${split_inference} = "1" ]
+then
 	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
 	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
 
@@ -413,7 +420,7 @@ echo "---Start: Counting---"
 	    echo "App Failed during run"
 	    exit 1
 	fi
-
+fi
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	endBlock=$SECONDS
 	if [ $debug -eq 1 ]
