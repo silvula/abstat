@@ -7,7 +7,7 @@ import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 
-import.java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeUnit;
 
 public class SparqlEndpoint{
 	
