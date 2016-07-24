@@ -30,6 +30,7 @@ public class SparqlEndpoint{
 	public ResultSet execute(String query) {
 		Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
 		QueryExecution sparqlService = QueryExecutionFactory.sparqlService(host + "/sparql", jenaQuery);
-		return sparqlService.execSelect();
+		sparqlService.setTimeout(180000, Timeunit.MILLISECONDS);
+                return sparqlService.execSelect();
 	}
 }
