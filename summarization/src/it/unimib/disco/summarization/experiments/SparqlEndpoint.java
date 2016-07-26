@@ -7,6 +7,8 @@ import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 
+import java.util.concurrent.TimeUnit;
+
 public class SparqlEndpoint{
 	
 	public static SparqlEndpoint local(){
@@ -30,6 +32,7 @@ public class SparqlEndpoint{
 	public ResultSet execute(String query) {
 		Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
 		QueryExecution sparqlService = QueryExecutionFactory.sparqlService(host + "/sparql", jenaQuery);
-		return sparqlService.execSelect();
+		sparqlService.setTimeout(180000, TimeUnit.MILLISECONDS);
+                return sparqlService.execSelect();
 	}
 }
