@@ -66,7 +66,22 @@ public class PatternGraph {
 						String s = splitted[0];
 						String p = splitted[1];
 						String o = splitted[2];
-						AKPs[i] = new Pattern( new Concept(s), p, new Concept(o));
+						
+						Concept sConcept = typeGraph.returnV_typeGraph(new Concept(s));
+						if(sConcept ==  null){
+							sConcept = new Concept(s);
+							if(!s.equals("http://www.w3.org/2002/07/owl#Thing"))
+								sConcept.setDepth(1);
+						}
+							
+						Concept oConcept = typeGraph.returnV_typeGraph(new Concept(o));
+						if(oConcept ==  null){
+							oConcept = new Concept(o);
+							if(!o.equals("http://www.w3.org/2002/07/owl#Thing") && !o.equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
+								oConcept.setDepth(1);
+						}
+									
+						AKPs[i] = new Pattern( sConcept, p, oConcept);
 					}
 		    		
 					contatoreIstanze(AKPs);
@@ -289,7 +304,7 @@ public class PatternGraph {
 			Set<Pattern> vertices = new HashSet<Pattern>();
 			vertices.addAll(patternGraph.vertexSet());
 			for (Pattern vertex : vertices)    
-				fos.write( (vertex.getSubj().getURI()+"##"+vertex.getPred()+"##"+vertex.getObj().getURI()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
+				fos.write( (vertex.getSubj().toString()+"##"+vertex.getPred()+"##"+vertex.getObj().toString()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
 			fos.close();
 		}
 		catch(Exception e){

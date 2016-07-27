@@ -46,7 +46,7 @@ public class Pattern {
     
     public String toString(){
        // return  /*subj.getDepth()+","+ obj.getDepth()+*/+freq+","+instances+"("+subj.getName() +","+ pred+","+ obj.getName()+")"+ color+",";
-        return  freq+","+ instances+ "("+subj.getName() +","+ predShort+","+ obj.getName()+")";
+        return  freq+","+ instances+ "("+subj.getName().toString() +","+ pred+","+ obj.getName().toString()+")";
     }
    
    

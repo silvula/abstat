@@ -37,10 +37,11 @@ public class TypeGraphExperimental {
 			for(List<OntClass> subClasses : extractor.getConceptsSubclassOf().getConceptsSubclassOf()){
 				Concept tipo = new Concept(subClasses.get(0).getURI());
 				Concept supertipo = new Concept(subClasses.get(1).getURI());
-				addEdge(tipo, supertipo);
+				addEdgeWDepth(tipo, supertipo);
 			}
 			
 			forceUniqueRoot();
+			this.stampatypeGraphSuFile("typeGraph.txt");
 	 }
 	
 	   
@@ -65,6 +66,66 @@ public class TypeGraphExperimental {
 			graph.addEdge(tipo, supertipo);
 		}
 	}
+	
+	/*Costruisce il typegraph incrementalmente contando il DEPTH*/
+	private void addEdgeWDepth(Concept tipo, Concept supertipo){
+		if(graph.containsVertex(tipo)){
+			Concept source = returnV_typeGraph(tipo);
+			
+			if(graph.containsVertex(supertipo)){
+				Concept target = returnV_typeGraph(supertipo);
+				graph.addEdge( source, target );
+				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing"))	
+					source.setDepth(1);	
+				else
+					source.setDepth(target.getDepth() + 1);	
+				
+				Set<DefaultEdge> relatedEdges = graph.edgesOf(source);
+				for (DefaultEdge edge : relatedEdges){
+					Concept s = graph.getEdgeSource(edge);
+					Concept t = graph.getEdgeTarget(edge);
+					if(t.equals(source))
+						addEdgeWDepth(s, source);	
+				}
+			}
+			else{
+				graph.addVertex(supertipo);
+				graph.addEdge( source, supertipo );
+				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing")){	
+					source.setDepth(1);
+					
+					Set<DefaultEdge> relatedEdges = graph.edgesOf(source);
+					for (DefaultEdge edge : relatedEdges){
+						Concept s = graph.getEdgeSource(edge);
+						Concept t = graph.getEdgeTarget(edge);
+						if(t.equals(source))
+							addEdgeWDepth(s, source);	
+					}
+					
+				}			
+			}
+		}
+		
+		else{
+			graph.addVertex(tipo);
+			
+			if(graph.containsVertex(supertipo)){
+				Concept target = returnV_typeGraph(supertipo);
+				graph.addEdge( tipo, target );
+				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing"))
+					tipo.setDepth(1);
+				else
+					tipo.setDepth(target.getDepth() + 1);		
+			}
+			else{
+				graph.addVertex(supertipo);
+				graph.addEdge( tipo, supertipo);
+				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing"))
+					tipo.setDepth(1);	
+			}
+		}	
+	}
+	
 	
 	//Ritorna tutti i vertici orfani, ovvero senza un padre
 	public HashSet<Concept> findRoots(){
@@ -98,7 +159,6 @@ public class TypeGraphExperimental {
     			output.add(returnV_typeGraph(new Concept("http://www.w3.org/2002/07/owl#Thing")));
     		else
     			output.add(new Concept("http://www.w3.org/2000/01/rdf-schema#Literal"));
-    		//System.out.println(output.get(0)+" CONCEPT ESTERNOOOOOO-------------------- "+arg);
     		return output;
     	}
     	
@@ -109,7 +169,7 @@ public class TypeGraphExperimental {
             vertices.addAll(graph.vertexSet());
        
             for (Concept vertex : vertices) {
-                if(vertex.equals(arg)){        //cioè se ho toato il concetto nel typegraph
+                if(vertex.equals(arg)){        //cioè se ho trovato il concetto nel typegraph
                     Set<DefaultEdge> relatedEdges = graph.edgesOf(vertex);
                     for (DefaultEdge edge : relatedEdges) {
                         source = graph.getEdgeSource(edge);
@@ -127,10 +187,10 @@ public class TypeGraphExperimental {
     private void forceUniqueRoot(){
     	for(Concept c : findRoots()){
     		if(!c.getURI().equals("http://www.w3.org/2002/07/owl#Thing")){
+    			c.setDepth(1);
     			if(!graph.containsVertex(new Concept("http://www.w3.org/2002/07/owl#Thing")))
     				graph.addVertex(new Concept("http://www.w3.org/2002/07/owl#Thing"));
     			addEdge(c, returnV_typeGraph(new Concept("http://www.w3.org/2002/07/owl#Thing")));
-
     		}
     	}
     }
@@ -159,12 +219,12 @@ public class TypeGraphExperimental {
                     source = graph.getEdgeSource(edge);
                     target = graph.getEdgeTarget(edge);
                     if(source.equals(vertex)){
-                        fos.write((source.getURI() +"  "+ target.getURI()+"\n").getBytes());
+                        fos.write((source.getURI()+"$$"+source.getDepth() +"  "+ target.getURI()+"$$"+target.getDepth()+"\n").getBytes());
                         orfano = false;
                     }
                 }
 				if(orfano)
-					fos.write((vertex.getURI()+"\n").getBytes());
+					fos.write((vertex.getURI()+"$$"+vertex.getDepth()+"\n").getBytes());
 			}
 			fos.close();
 		
