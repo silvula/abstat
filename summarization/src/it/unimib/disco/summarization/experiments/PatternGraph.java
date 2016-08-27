@@ -11,8 +11,6 @@ import javax.swing.JFrame;
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 
-import com.hp.hpl.jena.ontology.OntProperty;
-
 import it.unimib.disco.summarization.export.Events;
 import it.unimib.disco.summarization.ontology.PropertyGraph;
 import it.unimib.disco.summarization.ontology.TypeGraphExperimental;
@@ -35,15 +33,18 @@ public class PatternGraph {
 		
 		//se sto costruendo solo la base del patterngraph in splitMode
 		if(splitMode)
-			for(OntProperty root : propertyGraph.findRoots())
+			for(Property root : propertyGraph.findRoots())
 				rootProperties.add(root.getURI());
+		
 		//se invece sto costruendo direttamente tutto il pattergraph tenendolo in memoria
-		else
+		else{
 			propertyGraph.linkToTheoreticalProperties();
-
+		}
+		
 		this.type = type;
 		this.splitMode = splitMode;
 	 }
+	
 	
 	
 	/*Legge un file txt dove per ogni relational assert nel dataset esiste una riga con i suoi AKP*/
@@ -67,18 +68,26 @@ public class PatternGraph {
 						String p = splitted[1];
 						String o = splitted[2];
 						
-						Concept sConcept = typeGraph.returnV_typeGraph(new Concept(s));
+						//se soggetto o oggetto sono esterni setto depth = 1
+						Concept sConcept = typeGraph.returnV_graph(new Concept(s));
 						if(sConcept ==  null){
 							sConcept = new Concept(s);
 							if(!s.equals("http://www.w3.org/2002/07/owl#Thing"))
 								sConcept.setDepth(1);
 						}
 							
-						Concept oConcept = typeGraph.returnV_typeGraph(new Concept(o));
+						Concept oConcept = typeGraph.returnV_graph(new Concept(o));
 						if(oConcept ==  null){
 							oConcept = new Concept(o);
 							if(!o.equals("http://www.w3.org/2002/07/owl#Thing") && !o.equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
 								oConcept.setDepth(1);
+						}
+						
+						Property property = propertyGraph.returnV_graph( propertyGraph.createProperty(p));
+						if(property == null){
+							property = propertyGraph.createProperty(p);
+							property.setDepth(1);
+							propertyGraph.linkExternalProperty(property, type);
 						}
 									
 						AKPs[i] = new Pattern( sConcept, p, oConcept);
@@ -135,8 +144,11 @@ public class PatternGraph {
             
             
             ArrayList<String> superProperties;
-            if(splitMode)
+            if(splitMode){
             	superProperties = propertyGraph.superProperties(pred);
+            	superProperties.remove("http://www.w3.org/2002/07/owl#topObjectProperty"); 
+            	superProperties.remove("http://www.w3.org/2002/07/owl#topDataProperty"); 
+            }
             else
             	superProperties = propertyGraph.superPropertiesFull(pred, type);
             
@@ -267,7 +279,7 @@ public class PatternGraph {
       
       public void getHeadPatterns(File output_dir ) throws Exception{
     	  FileOutputStream fos;
-    	  if(this.type.equals("datatype"))
+    	  if(type.equals("datatype"))
     		  fos = new FileOutputStream(new File(output_dir.getAbsolutePath() + "/headPatterns_datatype.txt"), true);
     	  else
     		  fos = new FileOutputStream(new File(output_dir.getAbsolutePath() + "/headPatterns_object.txt"), true);
@@ -280,6 +292,16 @@ public class PatternGraph {
     	  fos.close();
       }
 
+      
+      public PropertyGraph getPropertyGraph(){
+    	  return propertyGraph;
+      }
+
+      
+      public TypeGraphExperimental getTypeGraph(){
+    	  return typeGraph;
+      }
+      
       
 	//------------------------------------------------------------ SECONDARI  -------------------------------------------------------------
     
@@ -298,13 +320,19 @@ public class PatternGraph {
 
 	
 	//----------------------------------------------------------- UTILS -------------------------------------------------------------------------
-	public void stampaPatternsSuFile(String nomeFile){
+	public void stampaPatternsSuFile(String nomeFile, boolean depth){
 		try{
 			FileOutputStream fos = new FileOutputStream(new File(nomeFile), true);
 			Set<Pattern> vertices = new HashSet<Pattern>();
 			vertices.addAll(patternGraph.vertexSet());
-			for (Pattern vertex : vertices)    
-				fos.write( (vertex.getSubj().toString()+"##"+vertex.getPred()+"##"+vertex.getObj().toString()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
+			for (Pattern vertex : vertices){
+				Property pred = propertyGraph.returnV_graph(vertex.getPred());
+				
+				if(depth)
+					fos.write( (vertex.getSubj()+"$$"+vertex.getSubj().getDepth()+"##"+ pred + "$$" + pred.getDepth() + "##"+vertex.getObj()+"$$"+vertex.getObj().getDepth() + "##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
+				else
+					fos.write( (vertex.getSubj()+"##"+ pred + "##"+vertex.getObj()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
+			}
 			fos.close();
 		}
 		catch(Exception e){

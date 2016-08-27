@@ -14,10 +14,12 @@ then
 	propMin="1"
 	inference="1"
 	split_inference="1"
+	patterns_depth="1"
 else
 	propMin=$2
 	inference=$3
 	split_inference=$4
+	patterns_depth=$5
 fi
 
 data=$(as_absolute $current_directory/../data/datasets/$dataset)

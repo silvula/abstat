@@ -27,7 +27,7 @@ public class Concept {
 	}
 	
 	public String toString(){
-		return URI + "$$" + depth;
+		return URI;// + "$$" + depth;
 	}
 	
 	

@@ -21,6 +21,7 @@ ResultsDirectory=$2
 propMin=$3
 inference=$4
 split_inference=$5
+patterns_depth=$6
 
 AwkScriptsDirectory=awk-scripts
 TripleFile=dataset.nt
@@ -422,12 +423,34 @@ then
 	fi
 fi
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [ ${patterns_depth} = "1" ]
+then
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternDepth "$OntologyFile" "$ResultsDirectory/patterns/"
+
+	rm "$ResultsDirectory/patterns_splitMode_datatype.txt"
+	mv  patterns_datatype_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
+	rm patterns_datatype_WDepth.txt
+
+	rm "$ResultsDirectory/patterns_splitMode_object.txt"
+	mv  patterns_object_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
+	rm patterns_object_WDepth.txt
+	
+
+	if [ $? -ne 0 ]
+	then
+	    echo "App Failed during run"
+	    exit 1
+	fi
+fi
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 	endBlock=$SECONDS
 	if [ $debug -eq 1 ]
 	then
 		echo "Time: $((endBlock - startBlock)) secs."
 		echo ""
 	fi
+
 	echo "---End: Counting---"
 
 	echo ""

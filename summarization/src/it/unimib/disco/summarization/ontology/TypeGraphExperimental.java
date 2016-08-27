@@ -41,11 +41,10 @@ public class TypeGraphExperimental {
 			}
 			
 			forceUniqueRoot();
-			this.stampatypeGraphSuFile("typeGraph.txt");
 	 }
 	
 	   
-	public Concept returnV_typeGraph(Concept p){
+	public Concept returnV_graph(Concept p){
 		Set<Concept> vertices = new HashSet<Concept>();
 		   vertices.addAll(graph.vertexSet());
 		   for (Concept vertex : vertices)    
@@ -60,7 +59,7 @@ public class TypeGraphExperimental {
 			graph.addVertex(tipo);
 			
 		if(graph.containsVertex(supertipo))
-			graph.addEdge(tipo, returnV_typeGraph(supertipo));
+			graph.addEdge(tipo, returnV_graph(supertipo));
 		else{
 			graph.addVertex(supertipo);
 			graph.addEdge(tipo, supertipo);
@@ -70,10 +69,10 @@ public class TypeGraphExperimental {
 	/*Costruisce il typegraph incrementalmente contando il DEPTH*/
 	private void addEdgeWDepth(Concept tipo, Concept supertipo){
 		if(graph.containsVertex(tipo)){
-			Concept source = returnV_typeGraph(tipo);
+			Concept source = returnV_graph(tipo);
 			
 			if(graph.containsVertex(supertipo)){
-				Concept target = returnV_typeGraph(supertipo);
+				Concept target = returnV_graph(supertipo);
 				graph.addEdge( source, target );
 				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing"))	
 					source.setDepth(1);	
@@ -110,7 +109,7 @@ public class TypeGraphExperimental {
 			graph.addVertex(tipo);
 			
 			if(graph.containsVertex(supertipo)){
-				Concept target = returnV_typeGraph(supertipo);
+				Concept target = returnV_graph(supertipo);
 				graph.addEdge( tipo, target );
 				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing"))
 					tipo.setDepth(1);
@@ -156,7 +155,7 @@ public class TypeGraphExperimental {
     	else if(!graph.containsVertex(arg)){
     		ArrayList<Concept> output = new ArrayList<Concept>();
     		if(positionInPattern.equals("subject") || type.equals("object"))
-    			output.add(returnV_typeGraph(new Concept("http://www.w3.org/2002/07/owl#Thing")));
+    			output.add(returnV_graph(new Concept("http://www.w3.org/2002/07/owl#Thing")));
     		else
     			output.add(new Concept("http://www.w3.org/2000/01/rdf-schema#Literal"));
     		return output;
@@ -190,7 +189,7 @@ public class TypeGraphExperimental {
     			c.setDepth(1);
     			if(!graph.containsVertex(new Concept("http://www.w3.org/2002/07/owl#Thing")))
     				graph.addVertex(new Concept("http://www.w3.org/2002/07/owl#Thing"));
-    			addEdge(c, returnV_typeGraph(new Concept("http://www.w3.org/2002/07/owl#Thing")));
+    			addEdge(c, returnV_graph(new Concept("http://www.w3.org/2002/07/owl#Thing")));
     		}
     	}
     }
