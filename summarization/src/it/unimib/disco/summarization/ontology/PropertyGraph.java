@@ -120,11 +120,8 @@ public class PropertyGraph {
                     }
                 }
             }
-            
-       //     supertipi.remove("http://www.w3.org/2002/07/owl#topObjectProperty"); ///////////////////////////////////////////////
-         //   supertipi.remove("http://www.w3.org/2002/07/owl#topDataProperty");   /////////////////////////////////7/////////////
+  
             return supertipi;
-        
     }
     
     //Ritorna i superpredicati diretti del predicato in input

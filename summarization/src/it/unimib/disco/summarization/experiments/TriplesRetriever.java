@@ -37,7 +37,7 @@ public class TriplesRetriever implements Processing{
 					int index = line.indexOf(" [")+1;
 					line = line.substring(index);   //per togliere il relational assertion dalla riga.
 					
-					line =line.substring(1, line.length()-1);
+					line = line.substring(1, line.length()-1);
 					String[] stringAKPs = line.split(", ");  
 					Pattern[] AKPs = new Pattern[stringAKPs.length];
 		    		
@@ -56,21 +56,21 @@ public class TriplesRetriever implements Processing{
 						Concept sConcept = typeGraph.returnV_graph(new Concept(s));
 						if(sConcept ==  null){
 							sConcept = new Concept(s);
-							if(!s.equals("http://www.w3.org/2002/07/owl#Thing"))
-								sConcept.setDepth(1);
+				//			if(!s.equals("http://www.w3.org/2002/07/owl#Thing"))
+				//				sConcept.setDepth(1);
 						}
 							
 						Concept oConcept = typeGraph.returnV_graph(new Concept(o));
 						if(oConcept ==  null){
 							oConcept = new Concept(o);
-							if(!o.equals("http://www.w3.org/2002/07/owl#Thing") && !o.equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
-								oConcept.setDepth(1);
+				//			if(!o.equals("http://www.w3.org/2002/07/owl#Thing") && !o.equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
+				//				oConcept.setDepth(1);
 						}
 						
 						Property property = propertyGraph.returnV_graph( propertyGraph.createProperty(p));
 						if(property == null){
 							property = propertyGraph.createProperty(p);
-							property.setDepth(1);
+				//			property.setDepth(1);
 							propertyGraph.getGraph().addVertex(property);
 						}
 						

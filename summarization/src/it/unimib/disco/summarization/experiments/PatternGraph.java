@@ -148,30 +148,27 @@ public class PatternGraph {
             	superProperties = propertyGraph.superProperties(pred);
             	superProperties.remove("http://www.w3.org/2002/07/owl#topObjectProperty"); 
             	superProperties.remove("http://www.w3.org/2002/07/owl#topDataProperty"); 
+            	
+            	//aggiorno rootProperties
+        		if(superProperties.size()==0)
+        			this.rootProperties.add(pred);
             }
             else
             	superProperties = propertyGraph.superPropertiesFull(pred, type);
             
-            if(superProperties!=null){
-            	
-            	//aggiorno rootProperties
-            	if(splitMode)
-            		if(superProperties.size()==0)
-            			this.rootProperties.add(pred);
-            	
-            	for(String superProp : superProperties){
-            		Pattern newPattern3 = new Pattern(subj, superProp, obj );
+            for(String superProp : superProperties){
+            	Pattern newPattern3 = new Pattern(subj, superProp, obj );
             		
-            		if(patternGraph.containsVertex(newPattern3)== false){
-            			patternGraph.addVertex(newPattern3);
-            			patternGraph.addEdge(currentP, newPattern3);
-            			queue.put(newPattern3);
-            		}
-            		else{
-            			patternGraph.addEdge(currentP,returnV_graph(newPattern3));
-            		}
+            	if(patternGraph.containsVertex(newPattern3)== false){
+            		patternGraph.addVertex(newPattern3);
+            		patternGraph.addEdge(currentP, newPattern3);
+            		queue.put(newPattern3);
             	}
+            		
+            	else
+            		patternGraph.addEdge(currentP,returnV_graph(newPattern3));
             }
+            
             
             
             ArrayList<Concept> subjSupertipi = typeGraph.superTipo(subj, type, "subject");
@@ -184,9 +181,8 @@ public class PatternGraph {
                 		patternGraph.addEdge(currentP, newPattern1);
                     	queue.put(newPattern1);
                 	}
-                	else{
-                		patternGraph.addEdge(currentP, returnV_graph(newPattern1));	//non voglio creare la relazione con il pattern che ho creato, ma con quello equivalente in MTG. 
-                	}
+                	else
+                		patternGraph.addEdge(currentP, returnV_graph(newPattern1));	//non voglio creare la relazione con il pattern che ho creato, ma con quello equivalente in MTG.         
             	}
             }
 
@@ -201,10 +197,8 @@ public class PatternGraph {
             	
             			queue.put(newPattern2);
             		}
-            		else{
+            		else
             			patternGraph.addEdge(currentP,returnV_graph(newPattern2));
-            		}
-
             	}
             }
             
