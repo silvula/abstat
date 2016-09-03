@@ -22,10 +22,13 @@ public class PatternInference {
 		PGMakerDatatype.readTriplesAKPs(args[1]+"datatype-akp_grezzo.txt");
 		PGMakerDatatype.stampaPatternsSuFile(args[1]+"patterns_datatype.txt", false);
 	
+		PGMakerDatatype = null;                   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////77
 		
 		PatternGraph PGMakerObject = new PatternGraph(ontology, "object", false);
 		PGMakerObject.readTriplesAKPs(args[1]+"object-akp_grezzo.txt");
 		PGMakerObject.stampaPatternsSuFile(args[1]+"patterns_object.txt", false);
+		
+		
 	}
 		
 }

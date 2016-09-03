@@ -33,7 +33,7 @@ echo "With data from $data"
 echo "Saving results in $results"
 
 cd $current_directory
-./run-summarization.sh $data $results $propMin $inference $split_inference
+./run-summarization.sh $data $results $propMin $inference $split_inference $patterns_depth
 
 echo "Done"
 

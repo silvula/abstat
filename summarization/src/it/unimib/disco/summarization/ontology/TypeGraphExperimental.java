@@ -74,7 +74,7 @@ public class TypeGraphExperimental {
 			if(graph.containsVertex(supertipo)){
 				Concept target = returnV_graph(supertipo);
 				graph.addEdge( source, target );
-				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing"))	
+				if(supertipo.getURI().equals("http://www.w3.org/2002/07/owl#Thing"))	
 					source.setDepth(1);	
 				else
 					source.setDepth(target.getDepth() + 1);	
@@ -90,7 +90,7 @@ public class TypeGraphExperimental {
 			else{
 				graph.addVertex(supertipo);
 				graph.addEdge( source, supertipo );
-				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing")){	
+				if(supertipo.getURI().equals("http://www.w3.org/2002/07/owl#Thing")){	
 					source.setDepth(1);
 					
 					Set<DefaultEdge> relatedEdges = graph.edgesOf(source);
@@ -111,7 +111,7 @@ public class TypeGraphExperimental {
 			if(graph.containsVertex(supertipo)){
 				Concept target = returnV_graph(supertipo);
 				graph.addEdge( tipo, target );
-				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing"))
+				if(supertipo.getURI().equals("http://www.w3.org/2002/07/owl#Thing"))
 					tipo.setDepth(1);
 				else
 					tipo.setDepth(target.getDepth() + 1);		
@@ -119,7 +119,7 @@ public class TypeGraphExperimental {
 			else{
 				graph.addVertex(supertipo);
 				graph.addEdge( tipo, supertipo);
-				if(supertipo.getName().equals("http://www.w3.org/2002/07/owl#Thing"))
+				if(supertipo.getURI().equals("http://www.w3.org/2002/07/owl#Thing"))
 					tipo.setDepth(1);	
 			}
 		}	
