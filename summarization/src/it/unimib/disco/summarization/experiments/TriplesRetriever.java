@@ -5,6 +5,8 @@ import java.io.File;
 import it.unimib.disco.summarization.dataset.InputFile;
 import it.unimib.disco.summarization.dataset.Processing;
 import it.unimib.disco.summarization.export.Events;
+import it.unimib.disco.summarization.ontology.PropertyGraph;
+import it.unimib.disco.summarization.ontology.TypeGraphExperimental;
 
 public class TriplesRetriever implements Processing{
 	private File ontology;
@@ -32,22 +34,38 @@ public class TriplesRetriever implements Processing{
 			while (file.hasNextLine()) {
 				String line = file.nextLine();
 				if(!line.equals("")){
-					int index = line.indexOf(" [")+1;
-					line = line.substring(index);   //per togliere il relational assertion dalla riga.
+					line = line.substring( line.indexOf(" [")+1 );   //per togliere il relational assertion dalla riga.
 					
-					line =line.substring(1, line.length()-1);
+					line = line.substring(1, line.length()-1);
 					String[] stringAKPs = line.split(", ");  
 					Pattern[] AKPs = new Pattern[stringAKPs.length];
 		    		
+					
 					for(int i=0; i<stringAKPs.length;i++){
 						String[] splitted = stringAKPs[i].split("##");
 						String s = splitted[0];
 						String p = splitted[1];
-						String o = splitted[2];
+						String o = splitted[2];	
+						
+						Concept sConcept = PG.getTypeGraph().returnV(new Concept(s));
+						if(sConcept ==  null)
+							sConcept = new Concept(s);
+						
+						Concept oConcept = PG.getTypeGraph().returnV(new Concept(o));
+						if(oConcept ==  null)
+							oConcept = new Concept(o);
+						
+						Property property = PG.getPropertyGraph().returnV( PG.getPropertyGraph().createProperty(p));
+						if(property == null){
+							property = PG.getPropertyGraph().createProperty(p);
+							PG.getPropertyGraph().getGraph().addVertex(property);
+						}
+						
 						AKPs[i] = new Pattern( new Concept(s), p, new Concept(o));
 					}
-		    		
+					
 					PG.contatoreIstanze(AKPs);
+					
 				}
 			}
 		}
@@ -55,7 +73,7 @@ public class TriplesRetriever implements Processing{
 			Events.summarization().error(file, e);
 		}  
 		
-		PG.stampaPatternsSuFile(output_dir + "/patterns_splitMode" + outputFileSuffix);
+		PG.stampaPatternsSuFile(output_dir + "/patterns_splitMode" + outputFileSuffix, false);
 		PG.getHeadPatterns(output_dir);
 	}
 

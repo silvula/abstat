@@ -3,31 +3,22 @@ package it.unimib.disco.summarization.experiments;
 public class Concept {
 	
 	private String URI;
-	private String name; //stringa che contiene solo il nome del Concetto
-	//private int depth;
+	private int depth;
 	
 	public Concept(String URI){
 		this.URI = URI;
-		name = obtainName(URI);
-	//	depth= 0;
+		depth = 0;
 	}
 	
 	public String getURI(){ return URI; }
 	public void setURI(String arg) { URI = arg; } 
 	
-	public String getName(){ return name; }
-	public void setName(String arg) { name = arg; } 
+	public int getDepth(){ return depth; }
+	public void setDepth(int arg) { depth = arg; } 
 	
-	//public int getDepth(){ return depth; }
-	//public void setDepth(int arg) { depth = arg; } 
-	
-	private static String obtainName(String arg){
-		int index = arg.lastIndexOf("/");
-		return arg.substring(index + 1);
-	}
 	
 	public String toString(){
-		return URI;
+		return URI;// + "$$" + depth;
 	}
 	
 	

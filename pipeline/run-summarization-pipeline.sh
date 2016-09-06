@@ -14,10 +14,14 @@ then
 	propMin="1"
 	inference="1"
 	split_inference="1"
+	split_inference_2="1"
+	patterns_depth="1"
 else
 	propMin=$2
 	inference=$3
 	split_inference=$4
+	split_inference_2=$5
+	patterns_depth=$6
 fi
 
 data=$(as_absolute $current_directory/../data/datasets/$dataset)
@@ -31,7 +35,7 @@ echo "With data from $data"
 echo "Saving results in $results"
 
 cd $current_directory
-./run-summarization.sh $data $results $propMin $inference $split_inference
+./run-summarization.sh $data $results $propMin $inference $split_inference  $split_inference_2 $patterns_depth
 
 echo "Done"
 

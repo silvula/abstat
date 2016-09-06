@@ -21,6 +21,8 @@ ResultsDirectory=$2
 propMin=$3
 inference=$4
 split_inference=$5
+split_inference_2=$6
+patterns_depth=$7
 
 AwkScriptsDirectory=awk-scripts
 TripleFile=dataset.nt
@@ -333,7 +335,7 @@ echo "---Start: Counting---"
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.ProcessDatatypeRelationAssertions "${orgDatasetFile}" "$minTypeResult" "$ResultsDirectory/patterns/"  "${TmpDatasetFileResult}"
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m  -cp summarization.jar it.unimib.disco.summarization.export.ProcessDatatypeRelationAssertions "${orgDatasetFile}" "$minTypeResult" "$ResultsDirectory/patterns/"  "${TmpDatasetFileResult}"
 
 	if [ $? -ne 0 ]
 	then
@@ -350,9 +352,15 @@ echo "---Start: Counting---"
 	fi
 
 
-	#Muovi da summarization a tmp-data-for-computation
+	#Muovi da summarization a pattens
 	mv datatype-akp_grezzo.txt  "$ResultsDirectory/patterns/datatype-akp_grezzo.txt" 
 	mv object-akp_grezzo.txt  "$ResultsDirectory/patterns/object-akp_grezzo.txt"
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+if [ ${propMin} = "1" ]	
+then
+
 	#ordina akps_grezzo  
 	sort "$ResultsDirectory/patterns/datatype-akp_grezzo.txt" > "$ResultsDirectory/patterns/datatype-akp_grezzo_Sorted.txt"
 	sort "$ResultsDirectory/patterns/object-akp_grezzo.txt" > "$ResultsDirectory/patterns/object-akp_grezzo_Sorted.txt"
@@ -361,10 +369,8 @@ echo "---Start: Counting---"
 	mv "$ResultsDirectory/patterns/datatype-akp_grezzo_Sorted.txt" "$ResultsDirectory/patterns/datatype-akp_grezzo.txt"
 	mv "$ResultsDirectory/patterns/object-akp_grezzo_Sorted.txt" "$ResultsDirectory/patterns/object-akp_grezzo.txt"
 
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-if [ ${propMin} = "1" ]	
-then
+
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.CalculatePropertyMinimalization "$OntologyFile" "$ResultsDirectory/patterns/"
 
 	if [ $? -ne 0 ]
@@ -421,13 +427,74 @@ then
 	    exit 1
 	fi
 fi
+
+#-----------------------------------------------------------------
+if [ ${split_inference_2} = "1" ]
+then
+	mv "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"  "$ResultsDirectory/patterns/patterns_splitMode_datatype_ORIGINALE.txt"
+	mv "$ResultsDirectory/patterns/patterns_splitMode_object.txt" "$ResultsDirectory/patterns/patterns_splitMode_object_ORIGINALE.txt"
+
+
+	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
+	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
+
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.DatatypeSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$ResultsDirectory/patterns/headAKPs-parts"  "$OntologyFile"
+	if [ $? -ne 0 ]
+	then
+	    echo "App Failed during run"
+	    exit 1
+	fi
+
+	rm "$ResultsDirectory/patterns/headPatterns_datatype.txt"
+##	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
+	rm -r "$ResultsDirectory/patterns/headAKPs-parts"
+
+#------------------------------------------
+
+##	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
+	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
+
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.ObjectSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$ResultsDirectory/patterns/headAKPs-parts"  "$OntologyFile"
+	if [ $? -ne 0 ]
+	then
+	    echo "App Failed during run"
+	    exit 1
+	fi
+
+	rm "$ResultsDirectory/patterns/headPatterns_object.txt"
+##	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
+	rm -r "$ResultsDirectory/patterns/headAKPs-parts"
+
+
+
+fi
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [ ${patterns_depth} = "1" ]
+then
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternDepth "$OntologyFile" "$ResultsDirectory/patterns/"
+
+	rm "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
+	mv  patterns_datatype_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
+
+	rm "$ResultsDirectory//patterns/patterns_splitMode_object.txt"
+	mv  patterns_object_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
+	
+
+	if [ $? -ne 0 ]
+	then
+	    echo "App Failed during run"
+	    exit 1
+	fi
+fi
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 	endBlock=$SECONDS
 	if [ $debug -eq 1 ]
 	then
 		echo "Time: $((endBlock - startBlock)) secs."
 		echo ""
 	fi
+
 	echo "---End: Counting---"
 
 	echo ""

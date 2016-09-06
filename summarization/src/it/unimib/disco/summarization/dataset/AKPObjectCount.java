@@ -44,7 +44,7 @@ public class AKPObjectCount implements NTripleAnalysis{
 	public void write_akps_grezzo(String subject, String property, String object, String akpsList){
 		try{
 			FileOutputStream fos = new FileOutputStream("object-akp_grezzo.txt", true);
-			String riga = "<"+subject+"##"+ property+"##"+ object+"> " + akpsList+"\n\n";
+			String riga = "<"+subject+"##"+ property+"##"+ object+"> " + akpsList+"\n";
 			fos.write(riga.getBytes());
 			fos.close();
 		}

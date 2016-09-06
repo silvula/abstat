@@ -5,7 +5,6 @@ public class Pattern {
     private String pred;
     private Concept obj;
     private String color;
-    private String predShort;
     private int instances;
     private int freq;
    
@@ -16,7 +15,6 @@ public class Pattern {
         color = "B";
         instances = 0;
         freq = 0;
-        predShort = obtainPredShort(pred);
     }
    
     
@@ -38,15 +36,10 @@ public class Pattern {
     public int getFreq(){ return freq; }
     public void setFreq(int value){ freq = value; }
     
-    private static String obtainPredShort(String arg){
-		int index = arg.lastIndexOf("/");
-		return arg.substring(index + 1);
-	}
-   
     
     public String toString(){
        // return  /*subj.getDepth()+","+ obj.getDepth()+*/+freq+","+instances+"("+subj.getName() +","+ pred+","+ obj.getName()+")"+ color+",";
-        return  freq+","+ instances+ "("+subj.getName() +","+ predShort+","+ obj.getName()+")";
+        return  freq+","+ instances+ "("+subj.toString() +","+ pred+","+ obj.toString()+")";
     }
    
    

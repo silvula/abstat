@@ -17,15 +17,16 @@ import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
 
 import it.unimib.disco.summarization.experiments.JgraphGUI;
+import it.unimib.disco.summarization.experiments.Property;
 
 
 
 public class PropertyGraph {
 
-	DirectedAcyclicGraph<OntProperty, DefaultEdge> graph = new DirectedAcyclicGraph<OntProperty, DefaultEdge>(DefaultEdge.class);
+	DirectedAcyclicGraph<Property, DefaultEdge> graph = new DirectedAcyclicGraph<Property, DefaultEdge>(DefaultEdge.class);
 	OntModel ontologyModel;
 	
-	public PropertyGraph(File ontology){			
+	public PropertyGraph(File ontology) {			
 		ontologyModel = new Model(ontology.getAbsolutePath(),"RDF/XML").getOntologyModel();
 			
 		PropertyExtractor pExtract = new PropertyExtractor();
@@ -39,50 +40,62 @@ public class PropertyGraph {
 		
 		
 		//utile in caso ci siano predicati senza figli e senza padri: il for dopo non li rappresenterebbe nel property graph
-		for (OntProperty prop : properties.getExtractedProperty()){
+		for (OntProperty property : properties.getExtractedProperty()){
+			Property prop = new Property(property);
 			if(!graph.containsVertex(prop))
 				graph.addVertex(prop);
 		}
 		
 		//link tra due predicati che rispettano la relazione subPropertyOf
 		for(List<OntProperty> subProperties : extractor.getSubPropertyOfs()){
-			addEdge(subProperties.get(0), subProperties.get(1));
+			addEdgeWDepth( new Property(subProperties.get(0)), new Property(subProperties.get(1)) );
 			//System.out.println(subProperties.get(0) + " ## " + subProperties.get(1));
 		}
 	}
 	
 	
 	public void linkToTheoreticalProperties(){
-		for(OntProperty prop : findRoots()){
-			if(prop.isDatatypeProperty())
-				addEdge(prop, ontologyModel.createOntProperty("http://www.w3.org/2002/07/owl#topDataProperty") );
-			else
-				addEdge(prop, ontologyModel.createOntProperty("http://www.w3.org/2002/07/owl#topObjectProperty") );
+		for(Property prop : findRoots()){
+			if(prop.getOntProp().isDatatypeProperty()){
+				Property topDataProperty = new Property( ontologyModel.createOntProperty("http://www.w3.org/2002/07/owl#topDataProperty"), 0);
+				addEdgeWDepth(prop, topDataProperty );
+			}
+			else{
+				Property topObjectProperty = new Property( ontologyModel.createOntProperty("http://www.w3.org/2002/07/owl#topObjectProperty"), 0); 
+				addEdgeWDepth(prop, topObjectProperty);
+			}
 		}
 	}
 	
 
-	
-	public List<List<OntProperty>> pathsBetween(String v1, String v2){
-		OntProperty vertex = ontologyModel.createOntProperty(v1);
-		OntProperty orfano = ontologyModel.createOntProperty(v2);
+	public void linkExternalProperty(Property prop, String type){
+		if(type.equals("datatype"))
+			addEdgeWDepth(prop, returnV("http://www.w3.org/2002/07/owl#topDataProperty"));
+		else
+			addEdgeWDepth(prop, returnV("http://www.w3.org/2002/07/owl#topObjectProperty"));
 		
-		ArrayList<List<OntProperty>> paths = new ArrayList<List<OntProperty>>();
+	}
+	
+	public List<List<Property>> pathsBetween(String v1, String v2){
+		Property vertex = new Property( ontologyModel.createOntProperty(v1) );
+		Property orfano = new Property( ontologyModel.createOntProperty(v2) );
+		
+		ArrayList<List<Property>> paths = new ArrayList<List<Property>>();
 		if(graph.containsVertex(vertex) && graph.containsVertex(orfano)){
-			inOrderTraversal(vertex, orfano, new ArrayList<OntProperty>(), paths);
+			inOrderTraversal(vertex, orfano, new ArrayList<Property>(), paths);
 		}
 		return paths;
 	}
 	
 	
-	private void inOrderTraversal(OntProperty vertex, OntProperty orfano, List<OntProperty> currentPath, ArrayList<List<OntProperty>> paths){
-		ArrayList<OntProperty> path = new ArrayList<OntProperty>(currentPath);
+	private void inOrderTraversal(Property vertex, Property orfano, List<Property> currentPath, ArrayList<List<Property>> paths){
+		ArrayList<Property> path = new ArrayList<Property>(currentPath);
 		path.add(vertex);
 		if(vertex.equals(orfano)){
 			paths.add(path);
 		}
 		for(DefaultEdge edgeToSuperType : graph.outgoingEdgesOf(vertex)){
-			OntProperty superType = graph.getEdgeTarget(edgeToSuperType);
+			Property superType = graph.getEdgeTarget(edgeToSuperType);
 			inOrderTraversal(superType, orfano, path, paths);
 		}
 	}
@@ -91,71 +104,66 @@ public class PropertyGraph {
 	
     //Ritorna i superpredicati diretti del predicato in input
     public ArrayList<String> superProperties(String arg){
-        	ArrayList<String> supertipi = new ArrayList<String>();
-          	OntProperty source, target;
-            Set<OntProperty> vertices = new HashSet<OntProperty>();
+        	ArrayList<String> superprops = new ArrayList<String>();
+          	Property source, target;
+            Set<Property> vertices = new HashSet<Property>();
             vertices.addAll(graph.vertexSet());
        
-            for (OntProperty vertex : vertices) {
+            for (Property vertex : vertices) {
                 if(vertex.getURI().equals(arg)){        //cioè se ho trovato il concetto nel propertyGraph
                     Set<DefaultEdge> relatedEdges = graph.edgesOf(vertex);
                     for (DefaultEdge edge : relatedEdges) {
                         source = graph.getEdgeSource(edge);
                         target = graph.getEdgeTarget(edge);
                         if(source.equals(vertex))
-                            supertipi.add(target.getURI());     
+                            superprops.add(target.getURI());     
                     }
                 }
             }
-            
-            return supertipi;
-        
+  
+            return superprops;
     }
     
     //Ritorna i superpredicati diretti del predicato in input
     public ArrayList<String> superPropertiesFull(String arg, String type){
-    	if(!graph.containsVertex(this.ontologyModel.createOntProperty(arg))){
+    	if(!graph.containsVertex( new Property( ontologyModel.createOntProperty(arg)) )){
     		ArrayList<String> output = new ArrayList<String>();
     		if(type.equals("object"))
     			output.add("http://www.w3.org/2002/07/owl#topObjectProperty");
     		else
     			output.add("http://www.w3.org/2002/07/owl#topDataProperty");
     		return output;
-    	}
-    
-    	else if(arg.equals("universalProperty"))
-            return null;
-    	
+    	}  	
         else
         	return superProperties(arg);
     }
 	
     
-	public DirectedAcyclicGraph<OntProperty, DefaultEdge> getGraph(){
+	public DirectedAcyclicGraph<Property, DefaultEdge> getGraph(){
 		return graph;
 	}
 	
 	
-	public List<HashSet<OntProperty>> pseudoStronglyConnectedSets(){
-		HashMap<OntProperty, HashSet<OntProperty>> map = new HashMap<OntProperty, HashSet<OntProperty>>();
-		List<HashSet<OntProperty>> rootFamilies = new ArrayList<HashSet<OntProperty>>();
+	public List<HashSet<Property>> pseudoStronglyConnectedSets(){
+		HashMap<Property, HashSet<Property>> map = new HashMap<Property, HashSet<Property>>();
+		List<HashSet<Property>> rootFamilies = new ArrayList<HashSet<Property>>();
 		
 		//HashSet<ArrayList<OntProperty>> rootsOfVertices = new HashSet<ArrayList<OntProperty>>();//ogni lista mi dice i valori di tali root in map in realtà stanno nello stesso grafo
-		for(OntProperty vertex : graph.vertexSet()){
+		for(Property vertex : graph.vertexSet()){
 			
-			HashSet<OntProperty> fartherAncestors = new HashSet<OntProperty>();
-			for(List<OntProperty> path : pathsToFartherAncestors(vertex)){
+			HashSet<Property> fartherAncestors = new HashSet<Property>();
+			for(List<Property> path : pathsToFartherAncestors(vertex)){
 				//ricavo il root di path e lo inserisco tra i root di vertex
-				OntProperty ancestor = path.get(path.size()-1);
+				Property ancestor = path.get(path.size()-1);
 				fartherAncestors.add(ancestor);
 				
 				//mappa il root di path con i nodi di path, compreso root
-				HashSet<OntProperty> set = new HashSet<OntProperty>();
-				for(OntProperty prop : path){
+				HashSet<Property> set = new HashSet<Property>();
+				for(Property prop : path){
 					set.add(prop);
 				}
 				if(map.containsKey(ancestor)){
-					HashSet<OntProperty> value = map.get(ancestor);
+					HashSet<Property> value = map.get(ancestor);
 					value.addAll(set);
 					map.put(ancestor, value);
 				}
@@ -164,9 +172,9 @@ public class PropertyGraph {
 			}
 			
 			
-			HashSet<HashSet<OntProperty>> daUnire = new HashSet<HashSet<OntProperty>>();
-			for(OntProperty root : fartherAncestors){
-				for(HashSet<OntProperty> rootFamily : rootFamilies)
+			HashSet<HashSet<Property>> daUnire = new HashSet<HashSet<Property>>();
+			for(Property root : fartherAncestors){
+				for(HashSet<Property> rootFamily : rootFamilies)
 					if(rootFamily.contains(root)){
 						daUnire.add(rootFamily);
 						}
@@ -177,9 +185,9 @@ public class PropertyGraph {
 				rootFamilies.add(fartherAncestors);
 			}
 			else{
-				HashSet<OntProperty> famMerged = new HashSet<OntProperty>();
+				HashSet<Property> famMerged = new HashSet<Property>();
 				famMerged.addAll(fartherAncestors);
-				for(HashSet<OntProperty> set : daUnire)
+				for(HashSet<Property> set : daUnire)
 					famMerged.addAll(set);
 				rootFamilies.removeAll(daUnire);
 				rootFamilies.add(famMerged);
@@ -231,10 +239,10 @@ public class PropertyGraph {
 		
 		*/
 		
-		ArrayList<HashSet<OntProperty>> pseudoSCS = new  ArrayList<HashSet<OntProperty>>();
-		for(HashSet<OntProperty> rootFamily : rootFamilies){
-			HashSet<OntProperty> connectedSet = new HashSet<OntProperty>();
-			for(OntProperty root : rootFamily){
+		ArrayList<HashSet<Property>> pseudoSCS = new  ArrayList<HashSet<Property>>();
+		for(HashSet<Property> rootFamily : rootFamilies){
+			HashSet<Property> connectedSet = new HashSet<Property>();
+			for(Property root : rootFamily){
 				connectedSet.addAll(map.get(root));
 				connectedSet.add(root);
 			}
@@ -249,17 +257,26 @@ public class PropertyGraph {
 	
 //------------------------------------------------------------ SECONDARI ----------------------------------------------------------------------	
 	
-	public OntProperty returnV_graph(OntProperty p){
-		Set<OntProperty> vertices = new HashSet<OntProperty>();
+	public Property returnV(Property p){
+		Set<Property> vertices = new HashSet<Property>();
 	    vertices.addAll(graph.vertexSet());
-	    for (OntProperty vertex : vertices)    
+	    for (Property vertex : vertices)    
 	    	if(p.equals(vertex))
 	    		return vertex; 
 	    return null;
 	}
 	
+	public Property returnV(String p){
+		return returnV( new Property(ontologyModel.createOntProperty(p) ));
+	}
 	
-	public void addEdge(OntProperty property, OntProperty superProperty){
+	
+	public Property createProperty(String propertyURI){
+		return new Property( ontologyModel.createOntProperty(propertyURI));
+	}
+	
+	/*
+	public void addEdge(Property property, Property superProperty){
 		if(!graph.containsVertex(property))
 			graph.addVertex(property);
 		
@@ -270,14 +287,74 @@ public class PropertyGraph {
 			graph.addEdge(property, superProperty);
 		}
 	}
+	*/
+	
+	//Costruisce il typegraph incrementalmente contando il DEPTH
+	private void addEdgeWDepth(Property property, Property superProperty){
+		if(graph.containsVertex(property)){
+			Property source = returnV(property);
+			
+			if(graph.containsVertex(superProperty)){
+				Property target = returnV(superProperty);
+				graph.addEdge( source, target );
+				if(superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topDataProperty") || superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topObjectProperty"))	
+					source.setDepth(1);	
+				else
+					source.setDepth(target.getDepth() + 1);	
+				
+				Set<DefaultEdge> relatedEdges = graph.edgesOf(source);
+				for (DefaultEdge edge : relatedEdges){
+					Property s = graph.getEdgeSource(edge);
+					Property t = graph.getEdgeTarget(edge);
+					if(t.equals(source))
+						addEdgeWDepth(s, source);	
+				}
+			}
+			else{
+				graph.addVertex(superProperty);
+				graph.addEdge( source, superProperty );
+				if(superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topDataProperty") || superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topObjectProperty")){	
+					source.setDepth(1);
+					
+					Set<DefaultEdge> relatedEdges = graph.edgesOf(source);
+					for (DefaultEdge edge : relatedEdges){
+						Property s = graph.getEdgeSource(edge);
+						Property t = graph.getEdgeTarget(edge);
+						if(t.equals(source))
+							addEdgeWDepth(s, source);	
+					}
+					
+				}			
+			}
+		}
+		
+		else{
+			graph.addVertex(property);
+			
+			if(graph.containsVertex(superProperty)){
+				Property target = returnV(superProperty);
+				graph.addEdge( property, target );
+				if(superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topDataProperty") || superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topObjectProperty"))
+					property.setDepth(1);
+				else
+					property.setDepth(target.getDepth() + 1);		
+			}
+			else{
+				graph.addVertex(superProperty);
+				graph.addEdge( property, superProperty);
+				if(superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topDataProperty") || superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topObjectProperty"))
+					property.setDepth(1);	
+			}
+		}	
+	}
 	
 	//Ritorna tutti i vertici orfani, ovvero senza un padre
-	public HashSet<OntProperty> findRoots(){
-		HashSet<OntProperty> orfani = new HashSet<OntProperty>();
+	public HashSet<Property> findRoots(){
+		HashSet<Property> orfani = new HashSet<Property>();
 		
-		Set<OntProperty> vertices = new HashSet<OntProperty>();
+		Set<Property> vertices = new HashSet<Property>();
 	    vertices.addAll(graph.vertexSet());
-	    for (OntProperty vertex : vertices) { 
+	    for (Property vertex : vertices) { 
 	    	boolean isOrphan = true;
 	    	Set<DefaultEdge> relatedEdges = graph.edgesOf(vertex);
 			for (DefaultEdge edge : relatedEdges) {
@@ -291,11 +368,11 @@ public class PropertyGraph {
 	}
 	
 	
-	public List<HashSet<String>> convertPseudoSCS(List<HashSet<OntProperty>> pseudoSCS){
+	public List<HashSet<String>> convertPseudoSCS(List<HashSet<Property>> pseudoSCS){
 		List<HashSet<String>> out = new ArrayList<HashSet<String>>();
-		for(HashSet<OntProperty> set : pseudoSCS){
+		for(HashSet<Property> set : pseudoSCS){
 			HashSet<String> setCopy = new HashSet<String>();
-			for(OntProperty prop : set){
+			for(Property prop : set){
 				setCopy.add(prop.getURI());
 			}
 			out.add(setCopy);
@@ -308,33 +385,33 @@ public class PropertyGraph {
 	
 	public void discendenza() throws Exception{
 		FileOutputStream fos = new FileOutputStream(new File("DiscendenzaPredicati.txt"));
-		Set<OntProperty> vertices = new HashSet<OntProperty>();
+		Set<Property> vertices = new HashSet<Property>();
 	    vertices.addAll(graph.vertexSet());
-	    for (OntProperty vertex : vertices) { 
-	    	List<List<OntProperty>> paths = pathsToFartherAncestors(vertex);
-	    	for(List<OntProperty> path : paths){
+	    for (Property vertex : vertices) { 
+	    	List<List<Property>> paths = pathsToFartherAncestors(vertex);
+	    	for(List<Property> path : paths){
 	    		fos.write((path.toString()+"\n").getBytes());
 	    	}
 	    }
 	    fos.close();
 	}
 	
-	public List<List<OntProperty>> pathsToFartherAncestors(OntProperty vertex){
-		ArrayList<List<OntProperty>> paths = new ArrayList<List<OntProperty>>();
+	public List<List<Property>> pathsToFartherAncestors(Property vertex){
+		ArrayList<List<Property>> paths = new ArrayList<List<Property>>();
 		if(graph.containsVertex(vertex)){
-			inOrderTraversal(vertex, new ArrayList<OntProperty>(), paths);
+			inOrderTraversal(vertex, new ArrayList<Property>(), paths);
 		}
 		return paths;
 	}
 	
-	private void inOrderTraversal(OntProperty vertex, List<OntProperty> currentPath, List<List<OntProperty>> paths){
-		ArrayList<OntProperty> path = new ArrayList<OntProperty>(currentPath);
+	private void inOrderTraversal(Property vertex, List<Property> currentPath, List<List<Property>> paths){
+		ArrayList<Property> path = new ArrayList<Property>(currentPath);
 		path.add(vertex);
 		if(graph.outgoingEdgesOf(vertex).isEmpty()){
 			paths.add(path);
 		}
 		for(DefaultEdge edgeToSuperProperty : graph.outgoingEdgesOf(vertex)){
-			OntProperty superProperty = graph.getEdgeTarget(edgeToSuperProperty);
+			Property superProperty = graph.getEdgeTarget(edgeToSuperProperty);
 			inOrderTraversal(superProperty, path, paths);
 		}
 	}
@@ -342,20 +419,49 @@ public class PropertyGraph {
 
 	public void stampaPadriProperties() throws Exception{
 		FileOutputStream fos = new FileOutputStream(new File("PadriProperties.txt"));
-		Set<OntProperty> vertices = new HashSet<OntProperty>();
+		Set<Property> vertices = new HashSet<Property>();
 	    vertices.addAll(graph.vertexSet());
-	    for (OntProperty vertex : vertices) {   
+	    for (Property vertex : vertices) {   
 	    	Set<DefaultEdge> relatedEdges = graph.edgesOf(vertex);
-	    	fos.write(("\n"+ vertex.getURI()).getBytes());
+	    	fos.write(("\n"+ vertex.toString()).getBytes());
         	for (DefaultEdge edge : relatedEdges) {
         		if(vertex.equals( graph.getEdgeSource(edge) )){
-        			OntProperty target = graph.getEdgeTarget(edge);
-        			fos.write(("##"+target.getURI()).getBytes());
+        			Property target = graph.getEdgeTarget(edge);
+        			fos.write(("##"+target.toString()).getBytes());
         		}
         	}
 	    }
 	    fos.close();
 	}
+	public void stampaPropertyGraphSuFile(String nomeFile){	
+		try{
+			FileOutputStream fos = new FileOutputStream(new File(nomeFile));
+			
+			Property source, target;
+			Set<Property> vertices = new HashSet<Property>();
+			vertices.addAll(graph.vertexSet());
+   
+			for (Property vertex : vertices) {
+				boolean orfano = true;
+				Set<DefaultEdge> relatedEdges = graph.edgesOf(vertex);
+				for (DefaultEdge edge : relatedEdges) {
+                    source = graph.getEdgeSource(edge);
+                    target = graph.getEdgeTarget(edge);
+                    if(source.equals(vertex)){
+                        fos.write((source.getURI()+"$$"+source.getDepth() +"  "+ target.getURI()+"$$"+target.getDepth()+"\n").getBytes());
+                        orfano = false;
+                    }
+                }
+				if(orfano)
+					fos.write((vertex.getURI()+"$$"+vertex.getDepth()+"\n").getBytes());
+			}
+			fos.close();
+		
+		}
+		catch(Exception e){
+			System.out.println("Eccezione stampatypeGraphSuFile");
+		}
+	}	
 	
 	public void disegna(){
 		JgraphGUI gui = new JgraphGUI(graph);
@@ -369,16 +475,16 @@ public class PropertyGraph {
 	
 	
 	public void verificaCorrettezza(){
-		List<HashSet<OntProperty>> pseudoSCS = pseudoStronglyConnectedSets();
-		for(OntProperty vertex : graph.vertexSet()){
+		List<HashSet<Property>> pseudoSCS = pseudoStronglyConnectedSets();
+		for(Property vertex : graph.vertexSet()){
 			int cont=0;
-			for(HashSet<OntProperty> set : pseudoSCS){
+			for(HashSet<Property> set : pseudoSCS){
 				if(set.contains(vertex))
 					cont++;
 				
 				if(set.size()==1){
-					OntProperty prop = (OntProperty)set.toArray()[0];
-					Set<DefaultEdge> edges = graph.edgesOf(this.returnV_graph(prop));
+					Property prop = (Property)set.toArray()[0];
+					Set<DefaultEdge> edges = graph.edgesOf(returnV(prop));
 					if(edges.size()!=0)
 						System.out.println("SINGOLO HA ARCHI!: "+ edges.size()+ "  "+ prop);
 				}
@@ -390,10 +496,10 @@ public class PropertyGraph {
 	}
 	
 	public void verificaCorrettezza2(){
-		List<HashSet<OntProperty>> pseudoSCS = pseudoStronglyConnectedSets();
-		for(HashSet<OntProperty> set : pseudoSCS){
-			for(OntProperty prop : set){
-				for(List<OntProperty> path  : pathsToFartherAncestors(prop)){
+		List<HashSet<Property>> pseudoSCS = pseudoStronglyConnectedSets();
+		for(HashSet<Property> set : pseudoSCS){
+			for(Property prop : set){
+				for(List<Property> path  : pathsToFartherAncestors(prop)){
 					Object[] array = path.toArray();
 					if(!set.contains( (OntProperty)array[array.length-1] ))
 						System.out.println(prop +"   NON contiene il suo root "+ " "+array[array.length-1].toString() +"  nel suo set");
