@@ -23,7 +23,7 @@ public class SplittedPatternInference {
 		File folder = new File(args[3]);
 		Collection<File> listOfFiles = FileUtils.listFiles(folder, new String[]{"owl"}, false);
 		File ontology = listOfFiles.iterator().next();
-		
+
 		
 //-----------------------------------------------------------      Base of patternGraph      -------------------------------------------------------------------------------		
 		
@@ -54,7 +54,7 @@ public class SplittedPatternInference {
 		
 		TopPatternGraph topPGObject = new TopPatternGraph(ontology, "object",  new File(akps_dir + "/patterns_splitMode_object.txt"));
 		topPGObject.readAKPs(headAKPs_splitted_dir, "_object.txt");
-
+		
 	}
 	
 }

@@ -28,9 +28,7 @@ public class TopPatternGraph {
 	private File output_f;
 	
 	public TopPatternGraph(File ontology, String type, File output_f){
-		//create type graph
 		typeGraph = new TypeGraphExperimental(ontology);
-		//create property graph
 		propertyGraph = new PropertyGraph(ontology);
 
 		propertyGraph.linkToTheoreticalProperties();
@@ -67,25 +65,23 @@ public class TopPatternGraph {
 				Events.summarization().error(headAKPs_splitted_dir, e);
 			}
 			
-			Pattern[] patternsArray = new Pattern[patternsList.size()];
-			patternsList.toArray(patternsArray);
-			contatoreIstanze(patternsArray);
+			contatoreIstanze(patternsList);
 			
 		}
-		//non ha effetto nell'output finale ma collega tutti i vertici alla radice
-		linkToTheTop(); 
+		
+		//linkToTheTop();   //non ha effetto nell'output finale ma collega tutti i vertici alla radice
 		
 		stampaPatternsSuFile();	
 	}
 	
 	
-	public void contatoreIstanze(Pattern[] patterns) throws Exception {
-		for(int i = 0; i<(patterns.length ); i++){
+	public void contatoreIstanze(ArrayList<Pattern> patterns) throws Exception {
+		for(int i = 0; i<(patterns.size() ); i++){
 			try{
-				inferisciEintegra(patterns[i]);	
+				inferisciEintegra(patterns.get(i));	
 			}
 			catch(Exception e){
-				Events.summarization().error("Inference error: "+ patterns[i].toString(), e);
+				Events.summarization().error("Inference error: "+ patterns.get(i).toString(), e);
 			}
 		}
 		

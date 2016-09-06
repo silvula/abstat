@@ -15,40 +15,42 @@ public class AKPsPartitioner {
 
 	private PropertyGraph propertyGraph;
 	private List<HashSet<String>> pseudoSCS;
-	private ArrayList<String> externalProperties = new ArrayList<String>();  //struttura usata per dare indici (negativi) 
+	private ArrayList<String> externalProperties;  //struttura usata per dare indici (negativi) 
 	
 	
 	public AKPsPartitioner(File ontology) throws Exception{
 		propertyGraph = new PropertyGraph(ontology);
 		pseudoSCS = propertyGraph.convertPseudoSCS( propertyGraph.pseudoStronglyConnectedSets() );
+		externalProperties = new ArrayList<String>();
 	}
 	
 	
+	/* Legge il file AKP_Grezzo e smista le sue righe (tripla ->akps) in files. Un file di output contiene solo triple con predicati che stanno nella stesso stesso pseudoSCS*/
 	public void AKPs_Grezzo_partition(File input_f, File output_dir, String suffix) throws Exception{
 		BufferedReader br = new BufferedReader(new FileReader(input_f));
 		String line;
 		while ((line = br.readLine()) != null) {
 			if(!line.equals("")){
-				int begin = line.indexOf("<");
-				int end = line.indexOf(">");
-				String tripla = line.substring(begin, end);
+				String tripla = line.substring( line.indexOf("<"), line.indexOf(">"));
 				String predicate = tripla.split("##")[1];
 				
 				int indexSet = -1;
 				for(HashSet<String> set : pseudoSCS){
-					if(set.contains(predicate))
-						indexSet = pseudoSCS.indexOf(set);	
+					if(set.contains(predicate)){
+						indexSet = pseudoSCS.indexOf(set);
+						break;
+					}
 				}
 				
 				if(indexSet==-1){
 					if(!externalProperties.contains(predicate))
 						externalProperties.add(predicate);
-					indexSet = 0 - externalProperties.indexOf(predicate);
+					indexSet = 0 - externalProperties.indexOf(predicate) -1;  //il -1 perchè lo 0 appartiene a quelli interni
 				}
 				
 				File outputFile = new File (output_dir+"/"+ "predicateSet"+indexSet + suffix + ".txt");
 				FileOutputStream fos = new FileOutputStream(outputFile, true);
-				fos.write((line+"\n\n").getBytes());
+				fos.write((line+"\n").getBytes());
 				fos.close();
 			}
 		}
@@ -66,19 +68,21 @@ public class AKPsPartitioner {
 					
 				int indexSet = -1;
 				for(HashSet<String> set : pseudoSCS){
-					if(set.contains(predicate))
+					if(set.contains(predicate)){
 							indexSet = pseudoSCS.indexOf(set);	
+							break;
+					}
 				}
 					
 				if(indexSet==-1){
 					if(!externalProperties.contains(predicate))
 						externalProperties.add(predicate);
-					indexSet = 0 - externalProperties.indexOf(predicate);
+					indexSet = 0 - externalProperties.indexOf(predicate)-1;
 				}
 				
 				File outputFile = new File (output_dir+"/"+ "predicateSet"+indexSet + suffix + ".txt");
 				FileOutputStream fos = new FileOutputStream(outputFile, true);
-				fos.write((line+"\n\n").getBytes());
+				fos.write((line+"\n").getBytes());
 				fos.close();
 			}
 		}

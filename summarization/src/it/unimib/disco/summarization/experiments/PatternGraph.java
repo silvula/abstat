@@ -69,21 +69,21 @@ public class PatternGraph {
 						String o = splitted[2];
 						
 						//se soggetto o oggetto sono esterni setto depth = 1
-						Concept sConcept = typeGraph.returnV_graph(new Concept(s));
+						Concept sConcept = typeGraph.returnV(new Concept(s));
 						if(sConcept ==  null){
 							sConcept = new Concept(s);
 							if(!s.equals("http://www.w3.org/2002/07/owl#Thing"))
 								sConcept.setDepth(1);
 						}
 							
-						Concept oConcept = typeGraph.returnV_graph(new Concept(o));
+						Concept oConcept = typeGraph.returnV(new Concept(o));
 						if(oConcept ==  null){
 							oConcept = new Concept(o);
 							if(!o.equals("http://www.w3.org/2002/07/owl#Thing") && !o.equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
 								oConcept.setDepth(1);
 						}
 						
-						Property property = propertyGraph.returnV_graph( propertyGraph.createProperty(p));
+						Property property = propertyGraph.returnV( propertyGraph.createProperty(p));
 						if(property == null){
 							property = propertyGraph.createProperty(p);
 							property.setDepth(1);
@@ -108,7 +108,7 @@ public class PatternGraph {
     /*Entrypoint del processo di creazione del pattern graph e del conteggio delle istanze.
      * Riceve in ingresso un insieme di AKP sotto forma di array */
 	public void contatoreIstanze(Pattern[] patterns) {
-		for(int i = 0; i<(patterns.length ); i++){
+		for(int i = 0; i<(patterns.length); i++){
 			try{
 				inferisciEintegra(patterns[i]);	
 			}
@@ -116,7 +116,7 @@ public class PatternGraph {
 				Events.summarization().error("Inference error: "+ patterns[i].toString(), e);
 			}
 			
-			patterns[i] = returnV_graph(patterns[i]);
+			patterns[i] = returnV(patterns[i]);
 		}
 		
 		try{
@@ -130,83 +130,84 @@ public class PatternGraph {
 	    
     /*Dato un Pattern INTEGRA il grafo dei suoi superpattern con il grafo patternGraph*/
     private void inferisciEintegra(Pattern p) throws Exception{
-    	patternGraph.addVertex(p);
-        String  pred;
-        Concept subj, obj;
-       
-        LinkedBlockingQueue<Pattern> queue = new LinkedBlockingQueue<Pattern>();
-        queue.put(p);
-        while(queue.size() != 0 ){
-            Pattern currentP = queue.poll();
-            subj = currentP.getSubj();
-            obj = currentP.getObj();
-            pred = currentP.getPred();
-            
-            
-            ArrayList<String> superProperties;
-            if(splitMode){
-            	superProperties = propertyGraph.superProperties(pred);
-            	superProperties.remove("http://www.w3.org/2002/07/owl#topObjectProperty"); 
-            	superProperties.remove("http://www.w3.org/2002/07/owl#topDataProperty"); 
-            	
-            	//aggiorno rootProperties
-        		if(superProperties.size()==0)
-        			this.rootProperties.add(pred);
-            }
-            else
-            	superProperties = propertyGraph.superPropertiesFull(pred, type);
-            
-            for(String superProp : superProperties){
-            	Pattern newPattern3 = new Pattern(subj, superProp, obj );
-            		
-            	if(patternGraph.containsVertex(newPattern3)== false){
-            		patternGraph.addVertex(newPattern3);
-            		patternGraph.addEdge(currentP, newPattern3);
-            		queue.put(newPattern3);
-            	}
-            		
-            	else
-            		patternGraph.addEdge(currentP,returnV_graph(newPattern3));
-            }
-            
-            
-            
-            ArrayList<Concept> subjSupertipi = typeGraph.superTipo(subj, type, "subject");
-            if(subjSupertipi != null){
-            	for(Concept subjSup : subjSupertipi){
-                	Pattern newPattern1 = new Pattern(subjSup, pred, obj );
-            		
-                	if(patternGraph.containsVertex(newPattern1)== false){//containVertex dice se esiste un vertice EQUIVALENTE(quindi un oggetto qualsiasi che abbia i suoi stessi parametri)
-                		patternGraph.addVertex(newPattern1);
-                		patternGraph.addEdge(currentP, newPattern1);
-                    	queue.put(newPattern1);
+    	if(!patternGraph.containsVertex(p)){
+        	patternGraph.addVertex(p);
+            String  pred;
+            Concept subj, obj;
+           
+            LinkedBlockingQueue<Pattern> queue = new LinkedBlockingQueue<Pattern>();
+            queue.put(p);
+            while(queue.size() != 0 ){
+                Pattern currentP = queue.poll();
+                subj = currentP.getSubj();
+                obj = currentP.getObj();
+                pred = currentP.getPred();
+                
+                
+                ArrayList<String> superProperties;
+                if(splitMode){
+                	superProperties = propertyGraph.superProperties(pred);
+                	superProperties.remove("http://www.w3.org/2002/07/owl#topObjectProperty"); 
+                	superProperties.remove("http://www.w3.org/2002/07/owl#topDataProperty"); 
+                	
+                	//aggiorno rootProperties
+            		if(superProperties.size()==0)
+            			this.rootProperties.add(pred);
+                }
+                else
+                	superProperties = propertyGraph.superPropertiesFull(pred, type);
+                
+                for(String superProp : superProperties){
+                	Pattern newPattern3 = new Pattern(subj, superProp, obj );
+                		
+                	if(patternGraph.containsVertex(newPattern3)== false){
+                		patternGraph.addVertex(newPattern3);
+                		patternGraph.addEdge(currentP, newPattern3);
+                		queue.put(newPattern3);
                 	}
+                		
                 	else
-                		patternGraph.addEdge(currentP, returnV_graph(newPattern1));	//non voglio creare la relazione con il pattern che ho creato, ma con quello equivalente in MTG.         
-            	}
-            }
+                		patternGraph.addEdge(currentP,returnV(newPattern3));
+                }
+                
+                
+                
+                ArrayList<Concept> subjSupertipi = typeGraph.superTipo(subj, type, "subject");
+                if(subjSupertipi != null){
+                	for(Concept subjSup : subjSupertipi){
+                    	Pattern newPattern1 = new Pattern(subjSup, pred, obj );
+                		
+                    	if(patternGraph.containsVertex(newPattern1)== false){//containVertex dice se esiste un vertice EQUIVALENTE(quindi un oggetto qualsiasi che abbia i suoi stessi parametri)
+                    		patternGraph.addVertex(newPattern1);
+                    		patternGraph.addEdge(currentP, newPattern1);
+                        	queue.put(newPattern1);
+                    	}
+                    	else
+                    		patternGraph.addEdge(currentP, returnV(newPattern1));	//non voglio creare la relazione con il pattern che ho creato, ma con quello equivalente in MTG.         
+                	}
+                }
 
-            ArrayList<Concept> objSupertipi = typeGraph.superTipo(obj, type, "object");
-            if(objSupertipi!=null){
-            	for(Concept objSup : objSupertipi){
-            		Pattern newPattern2 = new Pattern(subj, pred, objSup );
-            		
-            		if(patternGraph.containsVertex(newPattern2)== false){
-                		patternGraph.addVertex(newPattern2);
-            			patternGraph.addEdge(currentP, newPattern2);
-            	
-            			queue.put(newPattern2);
-            		}
-            		else
-            			patternGraph.addEdge(currentP,returnV_graph(newPattern2));
-            	}
+                ArrayList<Concept> objSupertipi = typeGraph.superTipo(obj, type, "object");
+                if(objSupertipi!=null){
+                	for(Concept objSup : objSupertipi){
+                		Pattern newPattern2 = new Pattern(subj, pred, objSup );
+                		
+                		if(patternGraph.containsVertex(newPattern2)== false){
+                    		patternGraph.addVertex(newPattern2);
+                			patternGraph.addEdge(currentP, newPattern2);
+                	
+                			queue.put(newPattern2);
+                		}
+                		else
+                			patternGraph.addEdge(currentP,returnV(newPattern2));
+                	}
+                }
+                
+                
             }
-            
-            
-        }
+        
+    	}
     }
-    
-
 	
     /*aggiorna la frequenza dei pattern in input e aggiorna i contatori di istantze di
      *tutti i superpattern di un insieme di AKP*/
@@ -278,7 +279,7 @@ public class PatternGraph {
     	  else
     		  fos = new FileOutputStream(new File(output_dir.getAbsolutePath() + "/headPatterns_object.txt"), true);
     	  
-    	  for(Pattern vertex : this.patternGraph.vertexSet()){
+    	  for(Pattern vertex : patternGraph.vertexSet()){
     		  String pred = vertex.getPred();
     		  if(rootProperties.contains(pred))
     				  fos.write( (vertex.getSubj().getURI()+"##"+vertex.getPred()+"##"+vertex.getObj().getURI()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes());
@@ -302,7 +303,7 @@ public class PatternGraph {
 	
 	/*Riceve un input un Pattern. L'algoritmo cerca un vertice nel grafo che
 	*abbia le stesse caratteristiche, se lo trova torna QUEL vertice*/
-	private  Pattern returnV_graph(Pattern p){
+	private  Pattern returnV(Pattern p){
 		Set<Pattern> vertices = new HashSet<Pattern>();
 	    vertices.addAll(patternGraph.vertexSet());
 	    for (Pattern vertex : vertices)    
@@ -320,7 +321,7 @@ public class PatternGraph {
 			Set<Pattern> vertices = new HashSet<Pattern>();
 			vertices.addAll(patternGraph.vertexSet());
 			for (Pattern vertex : vertices){
-				Property pred = propertyGraph.returnV_graph(vertex.getPred());
+				Property pred = propertyGraph.returnV(vertex.getPred());
 				
 				if(depth)
 					fos.write( (vertex.getSubj()+"$$"+vertex.getSubj().getDepth()+"##"+ pred + "$$" + pred.getDepth() + "##"+vertex.getObj()+"$$"+vertex.getObj().getDepth() + "##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );

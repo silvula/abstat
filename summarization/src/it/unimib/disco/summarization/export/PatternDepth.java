@@ -46,7 +46,7 @@ public class PatternDepth {
 				
 				outputLine += "\n" + s +"$$";
 				//se soggetto o oggetto sono esterni setto depth = 1
-				Concept sConcept = typeGraph.returnV_graph(new Concept(s));
+				Concept sConcept = typeGraph.returnV(new Concept(s));
 				if(sConcept ==  null)
 					outputLine += 1 + "##";
 				else
@@ -54,7 +54,7 @@ public class PatternDepth {
 				
 				
 				outputLine += p + "$$"; 	
-				Property property = propertyGraph.returnV_graph( propertyGraph.createProperty(p));
+				Property property = propertyGraph.returnV( propertyGraph.createProperty(p));
 				if(property == null)
 					outputLine += 1 + "##";
 				else
@@ -62,7 +62,7 @@ public class PatternDepth {
 				
 				
 				outputLine += o +"$$";
-				Concept oConcept = typeGraph.returnV_graph(new Concept(o));
+				Concept oConcept = typeGraph.returnV(new Concept(o));
 				if(oConcept ==  null){
 					if(o.equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
 						outputLine += 0;

@@ -34,8 +34,7 @@ public class TriplesRetriever implements Processing{
 			while (file.hasNextLine()) {
 				String line = file.nextLine();
 				if(!line.equals("")){
-					int index = line.indexOf(" [")+1;
-					line = line.substring(index);   //per togliere il relational assertion dalla riga.
+					line = line.substring( line.indexOf(" [")+1 );   //per togliere il relational assertion dalla riga.
 					
 					line = line.substring(1, line.length()-1);
 					String[] stringAKPs = line.split(", ");  
@@ -46,38 +45,27 @@ public class TriplesRetriever implements Processing{
 						String[] splitted = stringAKPs[i].split("##");
 						String s = splitted[0];
 						String p = splitted[1];
-						String o = splitted[2];
+						String o = splitted[2];	
 						
-
-						TypeGraphExperimental typeGraph = PG.getTypeGraph();
-						PropertyGraph propertyGraph = PG.getPropertyGraph();
-						
-						//se soggetto o oggetto sono esterni setto depth = 1
-						Concept sConcept = typeGraph.returnV_graph(new Concept(s));
-						if(sConcept ==  null){
+						Concept sConcept = PG.getTypeGraph().returnV(new Concept(s));
+						if(sConcept ==  null)
 							sConcept = new Concept(s);
-				//			if(!s.equals("http://www.w3.org/2002/07/owl#Thing"))
-				//				sConcept.setDepth(1);
-						}
-							
-						Concept oConcept = typeGraph.returnV_graph(new Concept(o));
-						if(oConcept ==  null){
-							oConcept = new Concept(o);
-				//			if(!o.equals("http://www.w3.org/2002/07/owl#Thing") && !o.equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
-				//				oConcept.setDepth(1);
-						}
 						
-						Property property = propertyGraph.returnV_graph( propertyGraph.createProperty(p));
+						Concept oConcept = PG.getTypeGraph().returnV(new Concept(o));
+						if(oConcept ==  null)
+							oConcept = new Concept(o);
+						
+						Property property = PG.getPropertyGraph().returnV( PG.getPropertyGraph().createProperty(p));
 						if(property == null){
-							property = propertyGraph.createProperty(p);
-				//			property.setDepth(1);
-							propertyGraph.getGraph().addVertex(property);
+							property = PG.getPropertyGraph().createProperty(p);
+							PG.getPropertyGraph().getGraph().addVertex(property);
 						}
 						
 						AKPs[i] = new Pattern( new Concept(s), p, new Concept(o));
 					}
-		    		
+					
 					PG.contatoreIstanze(AKPs);
+					
 				}
 			}
 		}

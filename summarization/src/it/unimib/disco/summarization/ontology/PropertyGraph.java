@@ -70,9 +70,9 @@ public class PropertyGraph {
 
 	public void linkExternalProperty(Property prop, String type){
 		if(type.equals("datatype"))
-			addEdgeWDepth(prop, returnV_graph("http://www.w3.org/2002/07/owl#topDataProperty"));
+			addEdgeWDepth(prop, returnV("http://www.w3.org/2002/07/owl#topDataProperty"));
 		else
-			addEdgeWDepth(prop, returnV_graph("http://www.w3.org/2002/07/owl#topObjectProperty"));
+			addEdgeWDepth(prop, returnV("http://www.w3.org/2002/07/owl#topObjectProperty"));
 		
 	}
 	
@@ -104,7 +104,7 @@ public class PropertyGraph {
 	
     //Ritorna i superpredicati diretti del predicato in input
     public ArrayList<String> superProperties(String arg){
-        	ArrayList<String> supertipi = new ArrayList<String>();
+        	ArrayList<String> superprops = new ArrayList<String>();
           	Property source, target;
             Set<Property> vertices = new HashSet<Property>();
             vertices.addAll(graph.vertexSet());
@@ -116,12 +116,12 @@ public class PropertyGraph {
                         source = graph.getEdgeSource(edge);
                         target = graph.getEdgeTarget(edge);
                         if(source.equals(vertex))
-                            supertipi.add(target.getURI());     
+                            superprops.add(target.getURI());     
                     }
                 }
             }
   
-            return supertipi;
+            return superprops;
     }
     
     //Ritorna i superpredicati diretti del predicato in input
@@ -133,11 +133,7 @@ public class PropertyGraph {
     		else
     			output.add("http://www.w3.org/2002/07/owl#topDataProperty");
     		return output;
-    	}
-    
-    	else if(arg.equals("universalProperty"))
-            return null;
-    	
+    	}  	
         else
         	return superProperties(arg);
     }
@@ -261,7 +257,7 @@ public class PropertyGraph {
 	
 //------------------------------------------------------------ SECONDARI ----------------------------------------------------------------------	
 	
-	public Property returnV_graph(Property p){
+	public Property returnV(Property p){
 		Set<Property> vertices = new HashSet<Property>();
 	    vertices.addAll(graph.vertexSet());
 	    for (Property vertex : vertices)    
@@ -270,8 +266,8 @@ public class PropertyGraph {
 	    return null;
 	}
 	
-	public Property returnV_graph(String p){
-		return returnV_graph( new Property(ontologyModel.createOntProperty(p) ));
+	public Property returnV(String p){
+		return returnV( new Property(ontologyModel.createOntProperty(p) ));
 	}
 	
 	
@@ -296,10 +292,10 @@ public class PropertyGraph {
 	//Costruisce il typegraph incrementalmente contando il DEPTH
 	private void addEdgeWDepth(Property property, Property superProperty){
 		if(graph.containsVertex(property)){
-			Property source = returnV_graph(property);
+			Property source = returnV(property);
 			
 			if(graph.containsVertex(superProperty)){
-				Property target = returnV_graph(superProperty);
+				Property target = returnV(superProperty);
 				graph.addEdge( source, target );
 				if(superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topDataProperty") || superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topObjectProperty"))	
 					source.setDepth(1);	
@@ -336,7 +332,7 @@ public class PropertyGraph {
 			graph.addVertex(property);
 			
 			if(graph.containsVertex(superProperty)){
-				Property target = returnV_graph(superProperty);
+				Property target = returnV(superProperty);
 				graph.addEdge( property, target );
 				if(superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topDataProperty") || superProperty.getURI().equals("http://www.w3.org/2002/07/owl#topObjectProperty"))
 					property.setDepth(1);
@@ -488,7 +484,7 @@ public class PropertyGraph {
 				
 				if(set.size()==1){
 					Property prop = (Property)set.toArray()[0];
-					Set<DefaultEdge> edges = graph.edgesOf(this.returnV_graph(prop));
+					Set<DefaultEdge> edges = graph.edgesOf(returnV(prop));
 					if(edges.size()!=0)
 						System.out.println("SINGOLO HA ARCHI!: "+ edges.size()+ "  "+ prop);
 				}
