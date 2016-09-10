@@ -148,7 +148,6 @@ public class PropertyGraph {
 		HashMap<Property, HashSet<Property>> map = new HashMap<Property, HashSet<Property>>();
 		List<HashSet<Property>> rootFamilies = new ArrayList<HashSet<Property>>();
 		
-		//HashSet<ArrayList<OntProperty>> rootsOfVertices = new HashSet<ArrayList<OntProperty>>();//ogni lista mi dice i valori di tali root in map in realtà stanno nello stesso grafo
 		for(Property vertex : graph.vertexSet()){
 			
 			HashSet<Property> fartherAncestors = new HashSet<Property>();

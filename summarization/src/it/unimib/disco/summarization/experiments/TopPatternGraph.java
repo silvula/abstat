@@ -85,10 +85,10 @@ public class TopPatternGraph {
 			}
 		}
 		
-		for(Pattern vertex : this.topPatternGraph.vertexSet())
-			this.returnV_graph(vertex).setColor("B");
+		for(Pattern vertex : topPatternGraph.vertexSet())
+			returnV_graph(vertex).setColor("B");
 		for(Pattern p : patterns)
-			this.topPatternGraph.removeVertex(returnV_graph(p));
+			topPatternGraph.removeVertex(returnV_graph(p));
 			
 	}
 	
