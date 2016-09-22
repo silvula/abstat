@@ -437,6 +437,8 @@ then
 
 	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
 	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
+	mkdir "$ResultsDirectory/patterns/patterns-datatype_parts"
+	mkdir "$ResultsDirectory/patterns/patterns-object_parts"
 
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.DatatypeSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$ResultsDirectory/patterns/headAKPs-parts"  "$OntologyFile"
 	if [ $? -ne 0 ]
@@ -444,6 +446,10 @@ then
 	    echo "App Failed during run"
 	    exit 1
 	fi
+	
+	cat "$ResultsDirectory/patterns/patterns-datatype_parts/"*.txt  "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"  > "$ResultsDirectory/patterns/patterns_splitMode_datatypeMERGED.txt"
+	rm "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
+	mv "$ResultsDirectory/patterns/patterns_splitMode_datatypeMERGED.txt" "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
 
 	rm "$ResultsDirectory/patterns/headPatterns_datatype.txt"
 ##	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
@@ -460,8 +466,12 @@ then
 	    echo "App Failed during run"
 	    exit 1
 	fi
+	cat "$ResultsDirectory/patterns/patterns-object_parts/"*.txt  "$ResultsDirectory/patterns/patterns_splitMode_object.txt"  > "$ResultsDirectory/patterns/patterns_splitMode_objectMERGED.txt"
+	rm "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
+	mv "$ResultsDirectory/patterns/patterns_splitMode_objectMERGED.txt" "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
 
-	rm "$ResultsDirectory/patterns/headPatterns_object.txt"
+
+##	rm "$ResultsDirectory/patterns/headPatterns_object.txt"
 ##	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
 	rm -r "$ResultsDirectory/patterns/headAKPs-parts"
 
@@ -476,7 +486,7 @@ then
 	rm "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
 	mv  patterns_datatype_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
 
-	rm "$ResultsDirectory//patterns/patterns_splitMode_object.txt"
+	rm "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
 	mv  patterns_object_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
 	
 

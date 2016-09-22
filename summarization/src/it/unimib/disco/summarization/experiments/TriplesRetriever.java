@@ -19,6 +19,9 @@ public class TriplesRetriever implements Processing{
 	
 	@Override
 	public void process(InputFile file) throws Exception {
+		double startTime = System.currentTimeMillis();
+	
+		
 		String outputFileSuffix;
 		PatternGraph PG;
 		if(file.name().contains("datatype")){
@@ -34,9 +37,8 @@ public class TriplesRetriever implements Processing{
 			while (file.hasNextLine()) {
 				String line = file.nextLine();
 				if(!line.equals("")){
-					line = line.substring( line.indexOf(" [")+1 );   //per togliere il relational assertion dalla riga.
-					
-					line = line.substring(1, line.length()-1);
+					line = line.substring( line.indexOf("> [") + 3, line.length()-1);   //per togliere il relational assertion dalla riga.
+
 					String[] stringAKPs = line.split(", ");  
 					Pattern[] AKPs = new Pattern[stringAKPs.length];
 		    		
@@ -61,7 +63,8 @@ public class TriplesRetriever implements Processing{
 							PG.getPropertyGraph().getGraph().addVertex(property);
 						}
 						
-						AKPs[i] = new Pattern( new Concept(s), p, new Concept(o));
+						AKPs[i] = new Pattern( sConcept, p, oConcept);
+						
 					}
 					
 					PG.contatoreIstanze(AKPs);
@@ -72,9 +75,16 @@ public class TriplesRetriever implements Processing{
 		catch(Exception e){
 			Events.summarization().error(file, e);
 		}  
-		
-		PG.stampaPatternsSuFile(output_dir + "/patterns_splitMode" + outputFileSuffix, false);
+
+		if(file.name().contains("datatype"))
+			PG.stampaPatternsSuFile(output_dir + "/patterns-datatype_parts/"+ file.name().substring(file.name().lastIndexOf("/")), false);
+		else
+			PG.stampaPatternsSuFile(output_dir + "/patterns-object_parts/"+ file.name().substring(file.name().lastIndexOf("/")), false);
+
 		PG.getHeadPatterns(output_dir);
+		
+		double endTime   = System.currentTimeMillis();
+		Events.summarization().info( (endTime - startTime)/1000 +"s  ..." + file.name().substring(file.name().lastIndexOf("/"))); 	
 	}
 
 	@Override

@@ -26,6 +26,7 @@ public class TopPatternGraph {
 	private TypeGraphExperimental typeGraph;
 	private String type;
 	private File output_f;
+	private File patternsContribuentiRoot;
 	
 	public TopPatternGraph(File ontology, String type, File output_f){
 		typeGraph = new TypeGraphExperimental(ontology);
@@ -34,6 +35,10 @@ public class TopPatternGraph {
 		propertyGraph.linkToTheoreticalProperties();
 		this.type = type;
 		this.output_f = output_f;
+		if(type.equals("datatype"))
+			this.patternsContribuentiRoot = new File("datatypePatternsContribuentiRoot.txt");
+		else
+			this.patternsContribuentiRoot = new File("objectpePatternsContribuentiRoot.txt");
 	 }
 	
 	
@@ -93,8 +98,10 @@ public class TopPatternGraph {
 	}
 	
 	
-    /*Dato un Pattern INTEGRA il grafo dei suoi superpattern con il grafo patternGraph*/
+    /*Viene fatta infrenza solo sui predicati, */
     private void inferisciEintegra(Pattern p) throws Exception{
+    	FileOutputStream fos = new FileOutputStream(this.patternsContribuentiRoot, true);
+    	
     	topPatternGraph.addVertex(p);
         String  pred;
         Concept subj, obj;
@@ -107,10 +114,28 @@ public class TopPatternGraph {
             obj = currentP.getObj();
             pred = currentP.getPred();
             
-            ArrayList<String> superProperties = propertyGraph.superPropertiesFull(pred, type);
+            
+            ArrayList<String> superProperties = null;
+            if(type.equals("datatype")){
+            	if(!pred.equals("http://www.w3.org/2002/07/owl#topDataProperty")){
+            		superProperties = new ArrayList<String>();
+            		superProperties.add("http://www.w3.org/2002/07/owl#topDataProperty");
+            	}
+            }
+            else{
+            	if(!pred.equals("http://www.w3.org/2002/07/owl#topObjectProperty")){
+            		superProperties = new ArrayList<String>();
+            		superProperties.add("http://www.w3.org/2002/07/owl#topObjectProperty");
+            	}
+            }
+            
+   //         ArrayList<String> superProperties = propertyGraph.superPropertiesFull(pred, type);
             if(superProperties!=null){
             	for(String superProp : superProperties){
             		Pattern newPattern3 = new Pattern(subj, superProp, obj );
+            		
+            		
+            		
     		
             		if(topPatternGraph.containsVertex(newPattern3)== false){
 
@@ -120,19 +145,28 @@ public class TopPatternGraph {
               
             			topPatternGraph.addVertex(newPattern3);
             			topPatternGraph.addEdge(currentP, newPattern3);
+            			
+           // 			if(currentP.getSubj().getURI().equals("http://www.w3.org/2002/07/owl#Thing") && (currentP.getObj().getURI().equals("http://www.w3.org/2002/07/owl#Thing") || currentP.getObj().getURI().equals("http://www.w3.org/2000/01/rdf-schema#Literal")) )
+            //    			fos.write((currentP.getSubj()+"##"+currentP.getPred()+"##"+currentP.getObj()+"##"+currentP.getFreq()+"##"+currentP.getInstances()+"\n").getBytes());
 
             		}
             		else{
             			if(!returnV_graph(newPattern3).getColor().equals("N")){
             				returnV_graph(newPattern3).setColor("N");
             				returnV_graph(newPattern3).setInstances( returnV_graph(newPattern3).getInstances() + currentP.getInstances());
+            				
+           // 				if(currentP.getSubj().getURI().equals("http://www.w3.org/2002/07/owl#Thing") && (currentP.getObj().getURI().equals("http://www.w3.org/2002/07/owl#Thing") || currentP.getObj().getURI().equals("http://www.w3.org/2000/01/rdf-schema#Literal")) )
+            //        			fos.write((currentP.getSubj()+"##"+currentP.getPred()+"##"+currentP.getObj()+"##"+currentP.getFreq()+"##"+currentP.getInstances()+"\n").getBytes());
             			}
             			topPatternGraph.addEdge(currentP,returnV_graph(newPattern3));
+            			
+            			
             		}
             	}
             }
             
         }
+        fos.close();
     }
     
     public void linkToTheTop(){
