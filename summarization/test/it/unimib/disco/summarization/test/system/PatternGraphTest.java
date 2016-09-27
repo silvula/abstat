@@ -19,7 +19,7 @@ public class PatternGraphTest  {
 	
 	
 	public PatternGraphTest() throws Exception{
-		File f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_object.txt");
+		File f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_splitMode_object.txt");
 		BufferedReader reader = new BufferedReader(new FileReader(f));
 		String line = reader.readLine();
 		while(line!=null){
@@ -28,7 +28,7 @@ public class PatternGraphTest  {
 		}
 		reader.close();
 		
-		f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_datatype.txt");
+		f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_splitMode_datatype.txt");
 		reader = new BufferedReader(new FileReader(f));
 		line = reader.readLine();
 		while(line!=null){
@@ -71,7 +71,7 @@ public class PatternGraphTest  {
 	}
 	
 	@Test
-	public void datatypePGShouldWorkWithInternalSubject() throws Exception{
+	public void datatypeInferenceShouldWorkWithInternalSubject() throws Exception{
 		assertThat(patterns_datatype, containsString("http://dbpedia.org/ontology/City##http://dbpedia.org/ontology/PopulatedPlace/areaTotal##http://dbpedia.org/datatype/squareKilometre##1##1"));
 		assertThat(patterns_datatype, containsString("http://dbpedia.org/ontology/AdministrativeRegion##http://dbpedia.org/ontology/PopulatedPlace/areaTotal##http://dbpedia.org/datatype/squareKilometre##1##1"));
 		assertThat(patterns_datatype, containsString("http://dbpedia.org/ontology/Settlement##http://dbpedia.org/ontology/PopulatedPlace/areaTotal##http://dbpedia.org/datatype/squareKilometre##1##2"));
@@ -83,7 +83,7 @@ public class PatternGraphTest  {
 	}
 
 	@Test
-	public void objectPGshouldWorkWithBothInternalSubjectAndObject() throws Exception{
+	public void objectInferenceshouldWorkWithBothInternalSubjectAndObject() throws Exception{
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/OfficeHolder##http://dbpedia.org/ontology/residence##http://schema.org/City##1##1"));
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/OfficeHolder##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Settlement##0##1"));
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/Person##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/City##0##1"));
@@ -115,7 +115,7 @@ public class PatternGraphTest  {
 
 	
 	@Test
-	public void objectPGshouldWorkWithExternalSubject() throws Exception{
+	public void objectInferenceshouldWorkWithExternalSubject() throws Exception{
 		assertThat(patterns_object, containsString("http://schema.org/Person##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/City##1##1"));
 		assertThat(patterns_object, containsString("http://schema.org/Person##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Settlement##0##1"));
 		assertThat(patterns_object, containsString("http://schema.org/Person##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/PopulatedPlace##0##1"));
@@ -126,7 +126,7 @@ public class PatternGraphTest  {
 	
 	
 	@Test
-	public void objectPGshouldWorkWithExternalObject() throws Exception{
+	public void objectInferenceshouldWorkWithExternalObject() throws Exception{
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/OfficeHolder##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Wikidata:Q532##1"));
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/Person##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Wikidata:Q532##0##1"));
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/Agent##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Wikidata:Q532##0##1"));

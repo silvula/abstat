@@ -19,30 +19,23 @@ import java.io.*;
 
 public class PatternGraph {
 
-	private DirectedAcyclicGraph<Pattern, DefaultEdge> patternGraph = new DirectedAcyclicGraph<Pattern, DefaultEdge>(DefaultEdge.class);
+	private DirectedAcyclicGraph<Pattern, DefaultEdge> patternGraph2 = new DirectedAcyclicGraph<Pattern, DefaultEdge>(DefaultEdge.class);
 	private PropertyGraph propertyGraph;
 	private TypeGraphExperimental typeGraph;
 	private String type;
-	private HashSet<String> rootProperties = new HashSet<String>();
-	private boolean splitMode;
+	private boolean full_inference;
 	 
 
-	public PatternGraph(File ontology, String type, boolean splitMode){
+	public PatternGraph(File ontology, String type, boolean full_inference){
 		typeGraph = new TypeGraphExperimental(ontology);
 		propertyGraph = new PropertyGraph(ontology);
 		
-		//se sto costruendo solo la base del patterngraph in splitMode
-		if(splitMode)
-			for(Property root : propertyGraph.findRoots())
-				rootProperties.add(root.getURI());
-		
-		//se invece sto costruendo direttamente tutto il pattergraph tenendolo in memoria
-		else{
+
+		if(full_inference)
 			propertyGraph.linkToTheoreticalProperties();
-		}
 		
 		this.type = type;
-		this.splitMode = splitMode;
+		this.full_inference = full_inference;
 	 }
 	
 	
@@ -128,10 +121,10 @@ public class PatternGraph {
 	}
 	
 	    
-    /*Dato un Pattern INTEGRA il grafo dei suoi superpattern con il grafo patternGraph*/
+    /*Dato un Pattern INTEGRA il grafo dei suoi superpattern con il grafo PatternGraph*/
     private void inferisciEintegra(Pattern p) throws Exception{
-    	if(!patternGraph.containsVertex(p)){
-        	patternGraph.addVertex(p);
+    	if(!patternGraph2.containsVertex(p)){
+        	patternGraph2.addVertex(p);
             String  pred;
             Concept subj, obj;
            
@@ -144,32 +137,23 @@ public class PatternGraph {
                 pred = currentP.getPred();
                 
                 
-                ArrayList<String> superProperties;
-                if(splitMode){
-                	superProperties = propertyGraph.superProperties(pred);
-                	superProperties.remove("http://www.w3.org/2002/07/owl#topObjectProperty"); 
-                	superProperties.remove("http://www.w3.org/2002/07/owl#topDataProperty"); 
+                if(full_inference){
                 	
-                	//aggiorno rootProperties
-            		if(superProperties.size()==0)
-            			this.rootProperties.add(pred);
+	                ArrayList<String> superProperties;
+	                superProperties = propertyGraph.superPropertiesFull(pred, type);
+	                for(String superProp : superProperties){
+	                	Pattern newPattern3 = new Pattern(subj, superProp, obj );
+	                		
+	                	if(patternGraph2.containsVertex(newPattern3)== false){
+	                		patternGraph2.addVertex(newPattern3);
+	                		patternGraph2.addEdge(currentP, newPattern3);
+	                		queue.put(newPattern3);
+	                	}
+	                	else
+	                		patternGraph2.addEdge(currentP,returnV(newPattern3));
+	                }
+	                
                 }
-                else
-                	superProperties = propertyGraph.superPropertiesFull(pred, type);
-                
-                for(String superProp : superProperties){
-                	Pattern newPattern3 = new Pattern(subj, superProp, obj );
-                		
-                	if(patternGraph.containsVertex(newPattern3)== false){
-                		patternGraph.addVertex(newPattern3);
-                		patternGraph.addEdge(currentP, newPattern3);
-                		queue.put(newPattern3);
-                	}
-                		
-                	else
-                		patternGraph.addEdge(currentP,returnV(newPattern3));
-                }
-                
                 
                 
                 ArrayList<Concept> subjSupertipi = typeGraph.superTipo(subj, type, "subject");
@@ -177,13 +161,13 @@ public class PatternGraph {
                 	for(Concept subjSup : subjSupertipi){
                     	Pattern newPattern1 = new Pattern(subjSup, pred, obj );
                 		
-                    	if(patternGraph.containsVertex(newPattern1)== false){//containVertex dice se esiste un vertice EQUIVALENTE(quindi un oggetto qualsiasi che abbia i suoi stessi parametri)
-                    		patternGraph.addVertex(newPattern1);
-                    		patternGraph.addEdge(currentP, newPattern1);
+                    	if(patternGraph2.containsVertex(newPattern1)== false){//containVertex dice se esiste un vertice EQUIVALENTE(quindi un oggetto qualsiasi che abbia i suoi stessi parametri)
+                    		patternGraph2.addVertex(newPattern1);
+                    		patternGraph2.addEdge(currentP, newPattern1);
                         	queue.put(newPattern1);
                     	}
                     	else
-                    		patternGraph.addEdge(currentP, returnV(newPattern1));	//non voglio creare la relazione con il pattern che ho creato, ma con quello equivalente in MTG.         
+                    		patternGraph2.addEdge(currentP, returnV(newPattern1));	//non voglio creare la relazione con il pattern che ho creato, ma con quello equivalente in MTG.         
                 	}
                 }
 
@@ -192,14 +176,14 @@ public class PatternGraph {
                 	for(Concept objSup : objSupertipi){
                 		Pattern newPattern2 = new Pattern(subj, pred, objSup );
                 		
-                		if(patternGraph.containsVertex(newPattern2)== false){
-                    		patternGraph.addVertex(newPattern2);
-                			patternGraph.addEdge(currentP, newPattern2);
+                		if(patternGraph2.containsVertex(newPattern2)== false){
+                    		patternGraph2.addVertex(newPattern2);
+                			patternGraph2.addEdge(currentP, newPattern2);
                 	
                 			queue.put(newPattern2);
                 		}
                 		else
-                			patternGraph.addEdge(currentP,returnV(newPattern2));
+                			patternGraph2.addEdge(currentP,returnV(newPattern2));
                 	}
                 }
                 
@@ -220,7 +204,7 @@ public class PatternGraph {
      
      /*Aggiorna la frequenza della radice e il contatore di tutti i superpattern di p di colroe bianco */
       private void incremento(Pattern p) throws Exception{
-          if(patternGraph.containsVertex(p) && p.getColor().equals("B")){
+          if(patternGraph2.containsVertex(p) && p.getColor().equals("B")){
               p.setFreq(p.getFreq()+1);
               LinkedBlockingQueue<Pattern> queue = new LinkedBlockingQueue<Pattern>();   
               p.setColor("G");
@@ -228,11 +212,11 @@ public class PatternGraph {
               queue.put(p);
               while(queue.size() != 0){
                   Pattern currentP = queue.poll();
-                  Set<DefaultEdge> relatedEdges = patternGraph.edgesOf(currentP);
+                  Set<DefaultEdge> relatedEdges = patternGraph2.edgesOf(currentP);
                  
                   for (DefaultEdge edge : relatedEdges) {
-                      if(currentP.equals( patternGraph.getEdgeSource(edge) )){
-                          Pattern target = patternGraph.getEdgeTarget(edge);
+                      if(currentP.equals( patternGraph2.getEdgeSource(edge) )){
+                          Pattern target = patternGraph2.getEdgeTarget(edge);
                           if (target.getColor().equals("B") && !queue.contains(target)){
                               target.setColor("G");
                               target.setInstances(target.getInstances()+1);
@@ -250,17 +234,17 @@ public class PatternGraph {
     /* Ripristina il colore di tutti i superpattern di un dato pattern p
      *l'input p deve essere un vertice del grafo, NON un suo fac-simile(altrimenti non colora p)*/
       private  void ripristinaColori(Pattern p) throws Exception{
-          if(patternGraph.containsVertex(p)){
+          if(patternGraph2.containsVertex(p)){
               LinkedBlockingQueue<Pattern> queue = new LinkedBlockingQueue<Pattern>();
               queue.put(p);  
               while(queue.size() != 0){
                   Pattern currentP = queue.poll();
                   if(!currentP.getColor().equals("B")){
                  
-                      Set<DefaultEdge> relatedEdges = patternGraph.edgesOf(currentP);
+                      Set<DefaultEdge> relatedEdges = patternGraph2.edgesOf(currentP);
                       for (DefaultEdge edge : relatedEdges) {
-                          if(currentP.equals( patternGraph.getEdgeSource(edge) )){
-                              Pattern target = patternGraph.getEdgeTarget(edge);                  
+                          if(currentP.equals( patternGraph2.getEdgeSource(edge) )){
+                              Pattern target = patternGraph2.getEdgeTarget(edge);                  
                               if (!target.getColor().equals("B") && !queue.contains(target))
                                   queue.put(target);
                           }
@@ -271,22 +255,7 @@ public class PatternGraph {
           }
       }
      
-      
-      public void getHeadPatterns(File output_dir ) throws Exception{
-    	  FileOutputStream fos;
-    	  if(type.equals("datatype"))
-    		  fos = new FileOutputStream(new File(output_dir.getAbsolutePath() + "/headPatterns_datatype.txt"), true);
-    	  else
-    		  fos = new FileOutputStream(new File(output_dir.getAbsolutePath() + "/headPatterns_object.txt"), true);
-    	  
-    	  for(Pattern vertex : patternGraph.vertexSet()){
-    		  String pred = vertex.getPred();
-    		  if(rootProperties.contains(pred))
-    				  fos.write( (vertex.getSubj().getURI()+"##"+vertex.getPred()+"##"+vertex.getObj().getURI()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes());
-    	  }
-    	  fos.close();
-      }
-
+     
       
       public PropertyGraph getPropertyGraph(){
     	  return propertyGraph;
@@ -305,7 +274,7 @@ public class PatternGraph {
 	*abbia le stesse caratteristiche, se lo trova torna QUEL vertice*/
 	private  Pattern returnV(Pattern p){
 		Set<Pattern> vertices = new HashSet<Pattern>();
-	    vertices.addAll(patternGraph.vertexSet());
+	    vertices.addAll(patternGraph2.vertexSet());
 	    for (Pattern vertex : vertices)    
 	    	if(p.equals(vertex))
 	    		return vertex; 
@@ -315,18 +284,36 @@ public class PatternGraph {
 
 	
 	//----------------------------------------------------------- UTILS -------------------------------------------------------------------------
-	public void stampaPatternsSuFile(String nomeFile, boolean depth){
+	public void stampaPatternsSuFile(String patterns_file, String HEADpatterns_file){
 		try{
-			FileOutputStream fos = new FileOutputStream(new File(nomeFile), true);
+			FileOutputStream fos = new FileOutputStream(new File(patterns_file), true);
+			FileOutputStream fosHEADpatterns = new FileOutputStream(new File(HEADpatterns_file), true);
 			Set<Pattern> vertices = new HashSet<Pattern>();
-			vertices.addAll(patternGraph.vertexSet());
+			vertices.addAll(patternGraph2.vertexSet());
 			for (Pattern vertex : vertices){
 				Property pred = propertyGraph.returnV(vertex.getPred());
 				
-				if(depth)
-					fos.write( (vertex.getSubj()+"$$"+vertex.getSubj().getDepth()+"##"+ pred + "$$" + pred.getDepth() + "##"+vertex.getObj()+"$$"+vertex.getObj().getDepth() + "##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
+				if(pred.getURI().contains("http://www.w3.org/2002/07/owl#top"))
+					fosHEADpatterns.write( (vertex.getSubj()+"##"+ pred + "##"+vertex.getObj()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
 				else
 					fos.write( (vertex.getSubj()+"##"+ pred + "##"+vertex.getObj()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
+			}
+			fos.close();
+			fosHEADpatterns.close();
+		}
+		catch(Exception e){
+			Events.summarization().error("Inferred patterns print error", e);
+		}
+	}
+	
+	public void stampaPatternsSuFile(String patterns_file){
+		try{
+			FileOutputStream fos = new FileOutputStream(new File(patterns_file), true);
+			Set<Pattern> vertices = new HashSet<Pattern>();
+			vertices.addAll(patternGraph2.vertexSet());
+			for (Pattern vertex : vertices){
+				Property pred = propertyGraph.returnV(vertex.getPred());
+				fos.write( (vertex.getSubj()+"##"+ pred + "##"+vertex.getObj()+"##"+ vertex.getFreq()+"##"+ vertex.getInstances()+"\n").getBytes()  );
 			}
 			fos.close();
 		}
@@ -334,22 +321,11 @@ public class PatternGraph {
 			Events.summarization().error("Inferred patterns print error", e);
 		}
 	}
-	
-	
-	public void stampaGrafoSuFile(String nomeFile){
-		try{
-			FileOutputStream fos = new FileOutputStream(new File(nomeFile));
-			fos.write(patternGraph.toString().getBytes());
-			fos.close();
-		}
-		catch(Exception e){
-			Events.summarization().error("PatternGraph print error", e);
-		}
-	}
+
 	
 	
 	public void disegna(){
-		JgraphGUI gui = new JgraphGUI(patternGraph);
+		JgraphGUI gui = new JgraphGUI(patternGraph2);
 		JFrame frame = new JFrame();
 		frame.getContentPane().add(gui);
 		frame.setTitle("Minimal Pattern Base Transitive Closure Graph");
@@ -364,12 +340,12 @@ public class PatternGraph {
 		HashSet<Pattern> orfani = new HashSet<Pattern>();
 		
 		Set<Pattern> vertices = new HashSet<Pattern>();
-	    vertices.addAll(patternGraph.vertexSet());
+	    vertices.addAll(patternGraph2.vertexSet());
 	    for (Pattern vertex : vertices) { 
 	    	boolean isOrphan = true;
-	    	Set<DefaultEdge> relatedEdges = patternGraph.edgesOf(vertex);
+	    	Set<DefaultEdge> relatedEdges = patternGraph2.edgesOf(vertex);
 			for (DefaultEdge edge : relatedEdges) {
-				if(patternGraph.getEdgeSource(edge).equals(vertex))
+				if(patternGraph2.getEdgeSource(edge).equals(vertex))
 					isOrphan = false;
 			}
 			if(isOrphan)
@@ -377,7 +353,6 @@ public class PatternGraph {
 	    }
 	    return orfani;   
 	}
-	
-	
+		
 	    
 }
