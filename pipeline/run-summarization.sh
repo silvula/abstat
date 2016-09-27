@@ -19,10 +19,8 @@ fi
 DataDirectory=$1
 ResultsDirectory=$2
 propMin=$3
-inference=$4
-split_inference=$5
-split_inference_2=$6
-patterns_depth=$7
+split_inference=$4
+patterns_depth=$5
 
 AwkScriptsDirectory=awk-scripts
 TripleFile=dataset.nt
@@ -396,85 +394,43 @@ then
 	mv  count-object-properties_Updated.txt "$ResultsDirectory/patterns/count-object-properties.txt"
 fi
 
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-if [ ${inference} = "1" ]	
-then
-	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternInference "$OntologyFile" "$ResultsDirectory/patterns/"
 
-	if [ $? -ne 0 ]
-	then
-	    echo "App Failed during run"
-	    exit 1
-	fi
-fi
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 if [ ${split_inference} = "1" ]
 then
 	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
-
-	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.SplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$ResultsDirectory/patterns/headAKPs-parts"  "$OntologyFile"
-
-	rm "$ResultsDirectory/patterns/headPatterns_datatype.txt"
-	rm "$ResultsDirectory/patterns/headPatterns_object.txt"
-	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-	rm -r "$ResultsDirectory/patterns/headAKPs-parts"
-
-
-	if [ $? -ne 0 ]
-	then
-	    echo "App Failed during run"
-	    exit 1
-	fi
-fi
-
-#-----------------------------------------------------------------
-if [ ${split_inference_2} = "1" ]
-then
-	mv "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"  "$ResultsDirectory/patterns/patterns_splitMode_datatype_ORIGINALE.txt"
-	mv "$ResultsDirectory/patterns/patterns_splitMode_object.txt" "$ResultsDirectory/patterns/patterns_splitMode_object_ORIGINALE.txt"
-
-
-	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
+	mkdir "$ResultsDirectory/patterns/specialParts_outputs"
 	mkdir "$ResultsDirectory/patterns/patterns-datatype_parts"
 	mkdir "$ResultsDirectory/patterns/patterns-object_parts"
+	mkdir "$ResultsDirectory/patterns/HEADpatterns-datatype_parts"
 
-	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.DatatypeSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$ResultsDirectory/patterns/headAKPs-parts"  "$OntologyFile"
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.DatatypeSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts" "$OntologyFile" "$ResultsDirectory/patterns/specialParts_outputs"
 	if [ $? -ne 0 ]
 	then
 	    echo "App Failed during run"
 	    exit 1
 	fi
 	
-	cat "$ResultsDirectory/patterns/patterns-datatype_parts/"*.txt  "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"  > "$ResultsDirectory/patterns/patterns_splitMode_datatypeMERGED.txt"
-	rm "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
+	cat "$ResultsDirectory/patterns/patterns-datatype_parts/"*.txt  "$ResultsDirectory/patterns/HEADpatterns_datatype.txt" > "$ResultsDirectory/patterns/patterns_splitMode_datatypeMERGED.txt"
 	mv "$ResultsDirectory/patterns/patterns_splitMode_datatypeMERGED.txt" "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
 
-	rm "$ResultsDirectory/patterns/headPatterns_datatype.txt"
 ##	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-	rm -r "$ResultsDirectory/patterns/headAKPs-parts"
 
 #------------------------------------------
 
 ##	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-	mkdir "$ResultsDirectory/patterns/headAKPs-parts"
+	mkdir "$ResultsDirectory/patterns/HEADpatterns-object_parts"
 
-	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.ObjectSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$ResultsDirectory/patterns/headAKPs-parts"  "$OntologyFile"
+	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.ObjectSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$OntologyFile" "$ResultsDirectory/patterns/specialParts_outputs"
 	if [ $? -ne 0 ]
 	then
 	    echo "App Failed during run"
 	    exit 1
 	fi
-	cat "$ResultsDirectory/patterns/patterns-object_parts/"*.txt  "$ResultsDirectory/patterns/patterns_splitMode_object.txt"  > "$ResultsDirectory/patterns/patterns_splitMode_objectMERGED.txt"
-	rm "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
+	cat "$ResultsDirectory/patterns/patterns-object_parts/"*.txt  "$ResultsDirectory/patterns/HEADpatterns_object.txt"  > "$ResultsDirectory/patterns/patterns_splitMode_objectMERGED.txt"
 	mv "$ResultsDirectory/patterns/patterns_splitMode_objectMERGED.txt" "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
 
-
-##	rm "$ResultsDirectory/patterns/headPatterns_object.txt"
 ##	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-	rm -r "$ResultsDirectory/patterns/headAKPs-parts"
-
 
 
 fi
@@ -483,11 +439,11 @@ if [ ${patterns_depth} = "1" ]
 then
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternDepth "$OntologyFile" "$ResultsDirectory/patterns/"
 
-	rm "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
-	mv  patterns_datatype_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
+#	rm "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
+#	mv  patterns_datatype_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
 
-	rm "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
-	mv  patterns_object_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
+#	rm "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
+#	mv  patterns_object_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
 	
 
 	if [ $? -ne 0 ]

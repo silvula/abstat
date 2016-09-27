@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 
@@ -14,7 +13,7 @@ import it.unimib.disco.summarization.ontology.PropertyGraph;
 public class AKPsPartitioner {
 
 	private PropertyGraph propertyGraph;
-	private List<HashSet<String>> pseudoSCS;
+	private List<ArrayList<String>> pseudoSCS;
 	private ArrayList<String> externalProperties;  //struttura usata per dare indici (negativi) 
 	
 	
@@ -35,9 +34,13 @@ public class AKPsPartitioner {
 				String predicate = tripla.split("##")[1];
 				
 				int indexSet = -1;
-				for(HashSet<String> set : pseudoSCS){
+				int indexProp = -1;
+				int depthProp = -1;
+				for(ArrayList<String> set : pseudoSCS){
 					if(set.contains(predicate)){
 						indexSet = pseudoSCS.indexOf(set);
+						indexProp = set.indexOf(predicate);
+						depthProp = propertyGraph.returnV(predicate).getDepth();
 						break;
 					}
 				}
@@ -48,7 +51,7 @@ public class AKPsPartitioner {
 					indexSet = 0 - externalProperties.indexOf(predicate) -1;  //il -1 perchè lo 0 appartiene a quelli interni
 				}
 				
-				File outputFile = new File (output_dir+"/"+ "predicateSet"+indexSet + suffix + ".txt");
+				File outputFile = new File (output_dir+"/"+ "predicateSet"+indexSet + "_"+ indexProp + "_Depth" + depthProp + suffix + ".txt");
 				FileOutputStream fos = new FileOutputStream(outputFile, true);
 				fos.write((line+"\n").getBytes());
 				fos.close();
@@ -57,7 +60,7 @@ public class AKPsPartitioner {
 		br.close();
 	}
 	
-	
+	/*
 	public void AKPsPartion(File input_f, File output_dir, String suffix) throws Exception{
 		BufferedReader br = new BufferedReader(new FileReader(input_f));
 		String line;
@@ -67,7 +70,7 @@ public class AKPsPartitioner {
 				String predicate = splitted[1];
 					
 				int indexSet = -1;
-				for(HashSet<String> set : pseudoSCS){
+				for(ArrayList<String> set : pseudoSCS){
 					if(set.contains(predicate)){
 							indexSet = pseudoSCS.indexOf(set);	
 							break;
@@ -88,6 +91,6 @@ public class AKPsPartitioner {
 		}
 		br.close();	
 	}
-	
+	*/
 	
 }

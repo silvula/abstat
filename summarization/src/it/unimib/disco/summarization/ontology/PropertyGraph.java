@@ -144,7 +144,7 @@ public class PropertyGraph {
 	}
 	
 	
-	public List<HashSet<Property>> pseudoStronglyConnectedSets(){
+	public List<ArrayList<Property>> pseudoStronglyConnectedSets(){
 		HashMap<Property, HashSet<Property>> map = new HashMap<Property, HashSet<Property>>();
 		List<HashSet<Property>> rootFamilies = new ArrayList<HashSet<Property>>();
 		
@@ -238,14 +238,16 @@ public class PropertyGraph {
 		
 		*/
 		
-		ArrayList<HashSet<Property>> pseudoSCS = new  ArrayList<HashSet<Property>>();
+		ArrayList<ArrayList<Property>> pseudoSCS = new  ArrayList<ArrayList<Property>>();
 		for(HashSet<Property> rootFamily : rootFamilies){
 			HashSet<Property> connectedSet = new HashSet<Property>();
 			for(Property root : rootFamily){
 				connectedSet.addAll(map.get(root));
 				connectedSet.add(root);
 			}
-			pseudoSCS.add(connectedSet);
+			ArrayList<Property> connectedSetArrayList = new ArrayList<Property>();
+			connectedSetArrayList.addAll(connectedSet);
+			pseudoSCS.add(connectedSetArrayList);
 		}
 
 
@@ -367,10 +369,10 @@ public class PropertyGraph {
 	}
 	
 	
-	public List<HashSet<String>> convertPseudoSCS(List<HashSet<Property>> pseudoSCS){
-		List<HashSet<String>> out = new ArrayList<HashSet<String>>();
-		for(HashSet<Property> set : pseudoSCS){
-			HashSet<String> setCopy = new HashSet<String>();
+	public List<ArrayList<String>> convertPseudoSCS(List<ArrayList<Property>> pseudoSCS){
+		List<ArrayList<String>> out = new ArrayList<ArrayList<String>>();
+		for(ArrayList<Property> set : pseudoSCS){
+			ArrayList<String> setCopy = new ArrayList<String>();
 			for(Property prop : set){
 				setCopy.add(prop.getURI());
 			}
@@ -472,7 +474,7 @@ public class PropertyGraph {
 		frame.setVisible(true);
 	}
 	
-	
+/*	
 	public void verificaCorrettezza(){
 		List<HashSet<Property>> pseudoSCS = pseudoStronglyConnectedSets();
 		for(Property vertex : graph.vertexSet()){
@@ -492,9 +494,9 @@ public class PropertyGraph {
 			if(cont!=1)
 				System.out.println("DIVERSO DA 1: "+ cont +"  "+ vertex.getURI());
 		}
-	}
+	}*/
 	
-	public void verificaCorrettezza2(){
+/*	public void verificaCorrettezza2(){
 		List<HashSet<Property>> pseudoSCS = pseudoStronglyConnectedSets();
 		for(HashSet<Property> set : pseudoSCS){
 			for(Property prop : set){
@@ -505,6 +507,6 @@ public class PropertyGraph {
 				}
 			}
 		}
-	}
+	}*/
 	
 }

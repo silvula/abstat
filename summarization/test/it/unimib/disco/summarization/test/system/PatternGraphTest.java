@@ -19,7 +19,7 @@ public class PatternGraphTest  {
 	
 	
 	public PatternGraphTest() throws Exception{
-		File f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_object.txt");
+		File f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_splitMode_object.txt");
 		BufferedReader reader = new BufferedReader(new FileReader(f));
 		String line = reader.readLine();
 		while(line!=null){
@@ -28,7 +28,7 @@ public class PatternGraphTest  {
 		}
 		reader.close();
 		
-		f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_datatype.txt");
+		f = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/patterns_splitMode_datatype.txt");
 		reader = new BufferedReader(new FileReader(f));
 		line = reader.readLine();
 		while(line!=null){
