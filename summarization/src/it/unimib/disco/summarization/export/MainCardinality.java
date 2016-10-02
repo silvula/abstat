@@ -13,20 +13,13 @@ public class MainCardinality {
 
 	public static void main(String[] args) throws Exception{
 
-		//File homedir = new File(System.getProperty("user.home"));
-		
-		//String path =homedir+"/workspace";
 		String path = args[0];
 		
 		//creo la cartella per accogliere i file AKP
 		File folderAkps = new File(path+"/Akps");
-		//boolean created = folderAkps.mkdir();
-		//cleanFolder(folderAkps, created);
-		
+
 		//creo la cartella per accogliere i file Property
 		File folderProps = new File(path+"/Properties");
-		//created = folderProps.mkdir();
-		//cleanFolder(folderProps, created);
 		
 		//creo gli ArrayList, uno per gli AKP, uno per le Property
 		ArrayList<String> listP = new ArrayList<String>();
@@ -66,45 +59,35 @@ public class MainCardinality {
 		catch(IOException e){
 			e.printStackTrace();
 		}
-			
 		
-		File globalCard = createFile(path+"/globalCardinalities.txt");
-		//File globalCard = new File(path+"/globalCardinalities.txt");
+		File globalCard = new File(path+"/globalCardinalities.txt");
+		globalCard.createNewFile();
 		writeResults(folderProps, listP, globalCard);
 		
-		File patternCard = createFile(path+"/patternCardinalities.txt");
-		//File patternCard = new File(path+"/patternCardinalities.txt");
+		File patternCard = new File(path+"/patternCardinalities.txt");
+		patternCard.createNewFile();
 		writeResults(folderAkps, listAKP, patternCard);
+		
+		File mapAkps = new File(path+"/mapAkps.txt");
+		mapAkps.createNewFile();
+		for(String akp : listAKP){
+			String index = Integer.toString(listAKP.indexOf(akp));
+			String map = "AKP"+index+".txt : "+akp;
+			 FileOutputStream fos;
+			 try {
+				fos = new FileOutputStream(new File(mapAkps.getPath()), true);
+
+				try {
+					fos.write((map+"\n").getBytes());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} catch (FileNotFoundException e) {
+					e.printStackTrace();
+			}
+		}
 			
 	}
-	
-	public static File createFile(String fileName){
-
-		File file = new File(fileName);
-		if(file.exists()){
-			file.delete();
-		}
-		else{
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return file;
-	}
-	
-	/*public static void cleanFolder(File folder, boolean created){
-		if(!created){
-			if(folder.exists()){
-				File files[]=folder.listFiles();
-				for(File f : files){
-					f.delete();
-				}
-			}
-			folder.mkdir();
-		}
-	}*/
 	
 	public static void writeResults(File folder, ArrayList<String> list, File resultFile ){
 		for(File f : folder.listFiles()){

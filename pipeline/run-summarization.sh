@@ -404,6 +404,7 @@ fi
 
 	 rm -f "$ResultsDirectory/patterns/globalCardinalities.txt"
 	 rm -f "$ResultsDirectory/patterns/patternCardinalities.txt"
+	 rm -f "$ResultsDirectory/patterns/mapAkps.txt"
 
 	 eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.MainCardinality "$ResultsDirectory/patterns"
  	if [ $? -ne 0 ]
