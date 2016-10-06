@@ -21,6 +21,7 @@ ResultsDirectory=$2
 propMin=$3
 split_inference=$4
 patterns_depth=$5
+cardinalities=$6
 
 AwkScriptsDirectory=awk-scripts
 TripleFile=dataset.nt
@@ -394,26 +395,6 @@ then
 	mv  count-object-properties_Updated.txt "$ResultsDirectory/patterns/count-object-properties.txt"
 fi
 
-#----------------------------------------------------------------
-
-	 rm -r "$ResultsDirectort/patterns/Properties"
-	 rm -r "$ResultsDirectort/patterns/Akps"
-
-	 mkdir "$ResultsDirectory/patterns/Properties"
-	 mkdir "$ResultsDirectory/patterns/Akps"
-
-	 rm -f "$ResultsDirectory/patterns/globalCardinalities.txt"
-	 rm -f "$ResultsDirectory/patterns/patternCardinalities.txt"
-	 rm -f "$ResultsDirectory/patterns/mapAkps.txt"
-
-	 eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.MainCardinality "$ResultsDirectory/patterns"
- 	if [ $? -ne 0 ]
-	then
-	    echo "App Failed during run"
-	    exit 1
-	fi
-
-
 #-----------------------------------------------------------------
 if [ ${split_inference} = "1" ]
 then
@@ -453,7 +434,7 @@ then
 
 
 fi
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------
 if [ ${patterns_depth} = "1" ]
 then
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternDepth "$OntologyFile" "$ResultsDirectory/patterns/"
@@ -471,7 +452,29 @@ then
 	    exit 1
 	fi
 fi
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------
+if [ ${cardinalities} = "1" ]
+then
+	 rm -r "$ResultsDirectort/patterns/Properties"
+	 rm -r "$ResultsDirectort/patterns/Akps"
+
+	 mkdir "$ResultsDirectory/patterns/Properties"
+	 mkdir "$ResultsDirectory/patterns/Akps"
+
+	 rm -f "$ResultsDirectory/patterns/globalCardinalities.txt"
+	 rm -f "$ResultsDirectory/patterns/patternCardinalities.txt"
+	 rm -f "$ResultsDirectory/patterns/mapAkps.txt"
+
+	 eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.MainCardinality "$ResultsDirectory/patterns"
+ 	if [ $? -ne 0 ]
+	then
+	    echo "App Failed during run"
+	    exit 1
+	fi
+fi
+
+#----------------------------------------------------------------
 
 	endBlock=$SECONDS
 	if [ $debug -eq 1 ]
