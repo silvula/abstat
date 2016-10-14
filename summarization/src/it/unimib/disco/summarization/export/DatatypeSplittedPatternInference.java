@@ -37,12 +37,12 @@ public class DatatypeSplittedPatternInference {
 		TriplesRetriever retriever = new TriplesRetriever(ontology, new File(akps_dir), akps_Grezzo_splitted_dir, specialParts_outputs);
 		new ParallelProcessing(akps_Grezzo_splitted_dir, "_datatype.txt").process(retriever);
 		
-		retriever = null;   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		retriever = null;  
 		
 		
 //-----------------------------------------------------------     Special PGs Merge    -------------------------------------------------------------------------------		
 		
-		final SpecialPGsMerge merger = new SpecialPGsMerge(ontology, new File(akps_dir+"patterns-datatype_parts"));
+		final SpecialPGsMerge merger = new SpecialPGsMerge(ontology, new File(akps_dir));
 		
 		ExecutorService executor = Executors.newFixedThreadPool(10);
 		for( final File file :specialParts_outputs.listFiles()){
@@ -62,7 +62,7 @@ public class DatatypeSplittedPatternInference {
 		executor.shutdown();
 	    while(!executor.isTerminated()){}
 	    
-	    merger.mergeHeadPatterns(akps_dir, "datatype");
+	    merger.mergeHeadPatterns("datatype");
 	    
 	}
 	

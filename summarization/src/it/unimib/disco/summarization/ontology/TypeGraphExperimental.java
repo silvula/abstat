@@ -194,10 +194,6 @@ public class TypeGraphExperimental {
     	}
     }
     
-	public DirectedAcyclicGraph<Concept, DefaultEdge> getGraph(){
-		return graph;
-	}
-	
     
 	
 //--------------------------------------------------------- UTILS ------------------------------------------------------------------------------	

@@ -110,7 +110,7 @@ public class TriplesRetriever implements Processing{
 			PG.stampaPatternsSuFile(specialDir +"/"+ fileName);
 		}
 		else{
-			PG.stampaPatternsSuFile(output_dir + "/patterns-"+type+"_parts/"+ fileName, output_dir + "/HEADpatterns-"+type+"_parts/"+ fileName);
+			PG.stampaPatternsSuFile(output_dir + "/patterns_splitMode_"+ type +".txt", output_dir + "/HEADpatterns_"+type+"_unmerged.txt");
 		}
 		
 		

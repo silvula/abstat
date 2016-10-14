@@ -7,7 +7,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-
+import it.unimib.disco.summarization.export.Events;
 import it.unimib.disco.summarization.ontology.PropertyGraph;
 
 public class AKPsPartitioner {
@@ -24,8 +24,11 @@ public class AKPsPartitioner {
 	}
 	
 	
-	/* Legge il file AKP_Grezzo e smista le sue righe (tripla ->akps) in files. Un file di output contiene solo triple con predicati che stanno nella stesso stesso pseudoSCS*/
+	/* Legge il file AKP_Grezzo e smista le sue righe (tripla ->akps) in files separati per predicato. Due triple che usano predicati che stanno nello stessopseudoSCS si 
+	 * troveranno in partizioni i cui nomi hanno la stessa radice.*/
 	public void AKPs_Grezzo_partition(File input_f, File output_dir, String suffix) throws Exception{
+		Events.summarization().info("START partitioning " + input_f.getName()); 	
+		
 		BufferedReader br = new BufferedReader(new FileReader(input_f));
 		String line;
 		while ((line = br.readLine()) != null) {
@@ -58,39 +61,9 @@ public class AKPsPartitioner {
 			}
 		}
 		br.close();
+		
+		Events.summarization().info("END partitioning " + input_f.getName());	
 	}
-	
-	/*
-	public void AKPsPartion(File input_f, File output_dir, String suffix) throws Exception{
-		BufferedReader br = new BufferedReader(new FileReader(input_f));
-		String line;
-		while ((line = br.readLine()) != null) {
-			if(!line.equals("")){
-				String[] splitted = line.split("##");
-				String predicate = splitted[1];
-					
-				int indexSet = -1;
-				for(ArrayList<String> set : pseudoSCS){
-					if(set.contains(predicate)){
-							indexSet = pseudoSCS.indexOf(set);	
-							break;
-					}
-				}
-					
-				if(indexSet==-1){
-					if(!externalProperties.contains(predicate))
-						externalProperties.add(predicate);
-					indexSet = 0 - externalProperties.indexOf(predicate)-1;
-				}
-				
-				File outputFile = new File (output_dir+"/"+ "predicateSet"+indexSet + suffix + ".txt");
-				FileOutputStream fos = new FileOutputStream(outputFile, true);
-				fos.write((line+"\n").getBytes());
-				fos.close();
-			}
-		}
-		br.close();	
-	}
-	*/
+
 	
 }

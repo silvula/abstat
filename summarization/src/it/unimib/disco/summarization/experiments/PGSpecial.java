@@ -151,19 +151,17 @@ public class PGSpecial {
           int aumento = p.getInstances();
           while(queue.size() != 0){
               Pattern currentP = queue.poll();
-              Set<DefaultEdge> relatedEdges = PG.edgesOf(currentP);
-             
-              for (DefaultEdge edge : relatedEdges) {
-                  if(currentP.equals( PG.getEdgeSource(edge) )){
-                      Pattern target = PG.getEdgeTarget(edge);
-                      if (target.getColor().equals("B") && !queue.contains(target)){
-                          target.setColor("G");
-                          target.setInstances(target.getInstances() + aumento);
-                          queue.put(target); 
-                      }
+              
+              for(DefaultEdge edge : PG.outgoingEdgesOf(currentP)){
+            	  Pattern target = PG.getEdgeTarget(edge);
+            	  if (target.getColor().equals("B") && !queue.contains(target)){
+                      target.setColor("G");
+                      target.setInstances(target.getInstances() + aumento);
+                      queue.put(target); 
                   }
               }
-              currentP.setColor("N");
+              currentP.setColor("N");  
+              
           }
          
       }
@@ -179,15 +177,13 @@ public class PGSpecial {
           while(queue.size() != 0){
               Pattern currentP = queue.poll();
               if(!currentP.getColor().equals("B")){
-             
-                  Set<DefaultEdge> relatedEdges = PG.edgesOf(currentP);
-                  for (DefaultEdge edge : relatedEdges) {
-                      if(currentP.equals( PG.getEdgeSource(edge) )){
-                          Pattern target = PG.getEdgeTarget(edge);                  
-                          if (!target.getColor().equals("B") && !queue.contains(target))
-                              queue.put(target);
-                      }
+            	  
+            	  for(DefaultEdge edge : PG.outgoingEdgesOf(currentP)){
+                	  Pattern target = PG.getEdgeTarget(edge);
+                	  if (!target.getColor().equals("B") && !queue.contains(target))
+                          queue.put(target);
                   }
+
               }
               currentP.setColor("B");
           }
@@ -201,11 +197,6 @@ public class PGSpecial {
 	  return propertyGraph;
   }
 
-  
-  public TypeGraphExperimental getTypeGraph(){
-	  return typeGraph;
-  }
-  
   
 //------------------------------------------------------------ SECONDARI  -------------------------------------------------------------
 

@@ -400,9 +400,6 @@ if [ ${split_inference} = "1" ]
 then
 	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
 	mkdir "$ResultsDirectory/patterns/specialParts_outputs"
-	mkdir "$ResultsDirectory/patterns/patterns-datatype_parts"
-	mkdir "$ResultsDirectory/patterns/patterns-object_parts"
-	mkdir "$ResultsDirectory/patterns/HEADpatterns-datatype_parts"
 
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.DatatypeSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts" "$OntologyFile" "$ResultsDirectory/patterns/specialParts_outputs"
 	if [ $? -ne 0 ]
@@ -410,16 +407,7 @@ then
 	    echo "App Failed during run"
 	    exit 1
 	fi
-	
-	cat "$ResultsDirectory/patterns/patterns-datatype_parts/"*.txt  "$ResultsDirectory/patterns/HEADpatterns_datatype.txt" > "$ResultsDirectory/patterns/patterns_splitMode_datatypeMERGED.txt"
-	mv "$ResultsDirectory/patterns/patterns_splitMode_datatypeMERGED.txt" "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
-
-##	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-
 #------------------------------------------
-
-##	mkdir "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-	mkdir "$ResultsDirectory/patterns/HEADpatterns-object_parts"
 
 	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.ObjectSplittedPatternInference "$ResultsDirectory/patterns/" "$ResultsDirectory/patterns/AKPs_Grezzo-parts"  "$OntologyFile" "$ResultsDirectory/patterns/specialParts_outputs"
 	if [ $? -ne 0 ]
@@ -427,11 +415,6 @@ then
 	    echo "App Failed during run"
 	    exit 1
 	fi
-	cat "$ResultsDirectory/patterns/patterns-object_parts/"*.txt  "$ResultsDirectory/patterns/HEADpatterns_object.txt"  > "$ResultsDirectory/patterns/patterns_splitMode_objectMERGED.txt"
-	mv "$ResultsDirectory/patterns/patterns_splitMode_objectMERGED.txt" "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
-
-##	rm -r "$ResultsDirectory/patterns/AKPs_Grezzo-parts"
-
 
 fi
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JFrame;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
@@ -16,8 +15,8 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
 
-import it.unimib.disco.summarization.experiments.JgraphGUI;
 import it.unimib.disco.summarization.experiments.Property;
+import it.unimib.disco.summarization.export.Events;
 
 
 
@@ -47,10 +46,9 @@ public class PropertyGraph {
 		}
 		
 		//link tra due predicati che rispettano la relazione subPropertyOf
-		for(List<OntProperty> subProperties : extractor.getSubPropertyOfs()){
+		for(List<OntProperty> subProperties : extractor.getSubPropertyOfs())
 			addEdgeWDepth( new Property(subProperties.get(0)), new Property(subProperties.get(1)) );
-			//System.out.println(subProperties.get(0) + " ## " + subProperties.get(1));
-		}
+		
 	}
 	
 	
@@ -101,9 +99,21 @@ public class PropertyGraph {
 	}
 	
 	
-	
+
+    
     //Ritorna i superpredicati diretti del predicato in input
-    public ArrayList<String> superProperties(String arg){
+    public ArrayList<String> superPropertiesFull(String arg, String type){
+    	
+    	if(!graph.containsVertex( new Property( ontologyModel.createOntProperty(arg)) )){
+    		ArrayList<String> output = new ArrayList<String>();
+    		if(type.equals("object"))
+    			output.add("http://www.w3.org/2002/07/owl#topObjectProperty");
+    		else
+    			output.add("http://www.w3.org/2002/07/owl#topDataProperty");
+    		return output;
+    	}  	
+    	
+        else{
         	ArrayList<String> superprops = new ArrayList<String>();
           	Property source, target;
             Set<Property> vertices = new HashSet<Property>();
@@ -120,22 +130,21 @@ public class PropertyGraph {
                     }
                 }
             }
+            
+            if(type.equals("datatype") && superprops.contains("http://www.w3.org/2002/07/owl#topObjectProperty")){
+            	superprops.remove("http://www.w3.org/2002/07/owl#topObjectProperty");
+            	superprops.add("http://www.w3.org/2002/07/owl#topDataProperty");
+            	Events.summarization().info(arg + " è un ObjectProperty usato come DatatypeProperty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+            if(type.equals("object") && superprops.contains("http://www.w3.org/2002/07/owl#topDataProperty")){
+            	superprops.remove("http://www.w3.org/2002/07/owl#topDataProperty");
+            	superprops.add("http://www.w3.org/2002/07/owl#topObjectProperty");
+            	Events.summarization().info(arg + " è un DatatypeProperty  usato come ObjectProperty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+            	
   
             return superprops;
-    }
-    
-    //Ritorna i superpredicati diretti del predicato in input
-    public ArrayList<String> superPropertiesFull(String arg, String type){
-    	if(!graph.containsVertex( new Property( ontologyModel.createOntProperty(arg)) )){
-    		ArrayList<String> output = new ArrayList<String>();
-    		if(type.equals("object"))
-    			output.add("http://www.w3.org/2002/07/owl#topObjectProperty");
-    		else
-    			output.add("http://www.w3.org/2002/07/owl#topDataProperty");
-    		return output;
-    	}  	
-        else
-        	return superProperties(arg);
+        }
     }
 	
     
@@ -434,45 +443,6 @@ public class PropertyGraph {
 	    }
 	    fos.close();
 	}
-	public void stampaPropertyGraphSuFile(String nomeFile){	
-		try{
-			FileOutputStream fos = new FileOutputStream(new File(nomeFile));
-			
-			Property source, target;
-			Set<Property> vertices = new HashSet<Property>();
-			vertices.addAll(graph.vertexSet());
-   
-			for (Property vertex : vertices) {
-				boolean orfano = true;
-				Set<DefaultEdge> relatedEdges = graph.edgesOf(vertex);
-				for (DefaultEdge edge : relatedEdges) {
-                    source = graph.getEdgeSource(edge);
-                    target = graph.getEdgeTarget(edge);
-                    if(source.equals(vertex)){
-                        fos.write((source.getURI()+"$$"+source.getDepth() +"  "+ target.getURI()+"$$"+target.getDepth()+"\n").getBytes());
-                        orfano = false;
-                    }
-                }
-				if(orfano)
-					fos.write((vertex.getURI()+"$$"+vertex.getDepth()+"\n").getBytes());
-			}
-			fos.close();
-		
-		}
-		catch(Exception e){
-			System.out.println("Eccezione stampatypeGraphSuFile");
-		}
-	}	
-	
-	public void disegna(){
-		JgraphGUI gui = new JgraphGUI(graph);
-		JFrame frame = new JFrame();
-		frame.getContentPane().add(gui);
-		frame.setTitle("Property Graph");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setVisible(true);
-	}
 	
 /*	
 	public void verificaCorrettezza(){
@@ -508,5 +478,6 @@ public class PropertyGraph {
 			}
 		}
 	}*/
+	
 	
 }

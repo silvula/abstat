@@ -51,50 +51,48 @@ public class SpecialPGsMerge {
 				}
 			}
 		}
-		String outputFile_name = file.getName().replace("_"+type, "_merged" + "_"+type + ".txt");
+	//	String outputFile_name = file.getName().replace("_"+type, "_merged" + "_"+type + ".txt");
 		
-		PGS.stampaPatternsSuFile(outputDir + "/" + outputFile_name, outputDir + "/../HEADpatterns-"+type+"_parts/"+ file.getName());
+		PGS.stampaPatternsSuFile(outputDir + "/patterns_splitMode_"+ type +".txt", outputDir + "/HEADpatterns_"+type+"_unmerged.txt");
 		
-		double endTime   = System.currentTimeMillis();
-		Events.summarization().info( (endTime - startTime)/1000 +"s  ..." + file.getName()+ "     SPECIAL"); 	
+		Events.summarization().info( (System.currentTimeMillis() - startTime)/1000 +"s  ..." + file.getName()+ "     MERGE"); 	
 	}
 
 	
 
-	public void mergeHeadPatterns(String akps_dir, String type) throws Exception{
+	public void mergeHeadPatterns(String type) throws Exception{
 		ArrayList<Pattern> HEADpatterns = new ArrayList<Pattern>();
-		for(File file : new File(akps_dir+"/HEADpatterns-"+ type + "_parts").listFiles()){
-			String line;
-			BufferedReader br = new BufferedReader(new FileReader(file));
-			while ((line = br.readLine()) != null) {
-				if(!line.equals("")){
-					String[] splitted = line.split("##");
-					String s = splitted[0];
-					String p = splitted[1];
-					String o = splitted[2];
-					int freq = Integer.parseInt(splitted[3]);
-					int numIstanze = Integer.parseInt(splitted[4]);
-						
+		String line;
+		BufferedReader br = new BufferedReader(new FileReader(new File(outputDir+"/HEADpatterns_"+type+"_unmerged.txt")));
+		while ((line = br.readLine()) != null) {
+			if(!line.equals("")){
+				String[] splitted = line.split("##");
+				String s = splitted[0];
+				String p = splitted[1];
+				String o = splitted[2];
+				int freq = Integer.parseInt(splitted[3]);
+				int numIstanze = Integer.parseInt(splitted[4]);
+					
 
-					
-					Pattern pattern = new Pattern(new Concept(s), p, new Concept(o));
-					pattern.setFreq(freq);
-					pattern.setInstances(numIstanze);
-					
-					if(HEADpatterns.contains(pattern)){
-						Pattern original_p = HEADpatterns.get(HEADpatterns.indexOf(pattern));
-						pattern.setInstances(pattern.getInstances() + original_p.getInstances());
-						HEADpatterns.remove(original_p);
-						HEADpatterns.add(pattern);
-					}
-					else
-						HEADpatterns.add(pattern);
+				
+				Pattern pattern = new Pattern(new Concept(s), p, new Concept(o));
+				pattern.setFreq(freq);
+				pattern.setInstances(numIstanze);
+				
+				if(HEADpatterns.contains(pattern)){
+					Pattern original_p = HEADpatterns.get(HEADpatterns.indexOf(pattern));
+					pattern.setInstances(pattern.getInstances() + original_p.getInstances());
+					HEADpatterns.remove(original_p);
+					HEADpatterns.add(pattern);
 				}
+				else
+					HEADpatterns.add(pattern);
 			}
-			br.close();
 		}
+		br.close();
 		
-		FileOutputStream fos = new FileOutputStream(new File(akps_dir+"/HEADpatterns_" + type + ".txt"), true);
+		
+		FileOutputStream fos = new FileOutputStream(new File(outputDir+"/patterns_splitMode_"+type+".txt"), true);
 		for(Pattern HEADpattern : HEADpatterns)
 			fos.write( (HEADpattern.getSubj()+"##"+ HEADpattern.getPred() + "##"+HEADpattern.getObj()+"##"+ HEADpattern.getFreq()+"##"+ HEADpattern.getInstances()+"\n").getBytes()  );
 		fos.close();
