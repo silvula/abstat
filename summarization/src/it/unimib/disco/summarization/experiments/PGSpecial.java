@@ -34,13 +34,13 @@ public class PGSpecial {
 	 }
 	
 
-	/*inserisce tutti i pattern che legge in PG*/
 	public void addPatterns(File file) {
 		HashSet<Pattern> file_patterns = new HashSet<Pattern>();
 		try{
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line;
 			
+			//ogni pattern letto in file viene aggiunto al PG
 			while ((line = br.readLine()) != null) {
 				if(!line.equals("")){
 					String[] splitted = line.split("##");
@@ -62,7 +62,7 @@ public class PGSpecial {
 					if(property == null){
 						property = propertyGraph.createProperty(p);
                         ////per evitare i null//    PG.getPropertyGraph().getGraph().addVertex(property);
-						propertyGraph.linkExternalProperty(property, type);   ///////////////////////////
+						propertyGraph.linkExternalProperty(property, type); 
 					}
 					
 					Pattern pattern = new Pattern(sConcept, p, oConcept);
@@ -80,6 +80,7 @@ public class PGSpecial {
 			Events.summarization().error(file, e);
 		} 
 		
+		//ogni pattern è mandato all'algoritmo per inferenza su predicati & aggiornamento verticale dei contatori
 		for(Pattern p : file_patterns)
 			func(p);
 	}
@@ -88,7 +89,7 @@ public class PGSpecial {
 	public void func(Pattern pattern) {
 
 		try{
-			inferisciEintegra(pattern);	
+			inferisciEintegra_vertical(pattern);	
 		}
 		catch(Exception e){
 			Events.summarization().error("Inference error: "+ pattern.toString(), e);
@@ -104,9 +105,9 @@ public class PGSpecial {
 	}
 
     
-	/*Dato un Pattern INTEGRA il grafo dei suoi superpattern (inferito solo astraendo sulla proprietà) con PG*/
-	private void inferisciEintegra(Pattern p) throws Exception{
-	    PG.addVertex(p);
+	/*Collega un pattern con tutti i suoi superpattern in "verticale", se ne genera nuovi li aggiunge e continua a inferire fino ai top properties*/
+	private void inferisciEintegra_vertical(Pattern p) throws Exception{
+	    PG.addVertex(p);   ///////SUPERFLUO?
 	    String  pred;
 	    Concept subj, obj;
 	       
@@ -135,14 +136,15 @@ public class PGSpecial {
 	}
 	
 
-/*aggiorna la frequenza dei pattern in input e aggiorna i contatori di istantze di
- *tutti i superpattern di un insieme di AKP*/
+/*aggiorna la frequenza dei pattern in input e aggiorna i contatori di istantze ditutti i superpattern di un di AKP.
+ *N.B. L'inferenza è stata fatta in verticale, quindi ovviamente la rel. di superpattern in orizzontale non è 
+ *rappresentata e quindi non può avvenire un incremento in orizzontale*/
   private void conta(Pattern pattern) throws Exception {
 		  incremento(pattern);
     	  ripristinaColori(pattern);
   }
  
- /*Aggiorna la frequenza della radice e il contatore di tutti i superpattern di p di colroe bianco */
+ /*Aggiorna numIstanze di tutti i superpattern di p di colore bianco */
   private void incremento(Pattern p) throws Exception{
       if(PG.containsVertex(p) && p.getColor().equals("B")){
           LinkedBlockingQueue<Pattern> queue = new LinkedBlockingQueue<Pattern>();   
@@ -168,8 +170,7 @@ public class PGSpecial {
   }
   
 
-/* Ripristina il colore di tutti i superpattern di un dato pattern p
- *l'input p deve essere un vertice del grafo, NON un suo fac-simile(altrimenti non colora p)*/
+/* Ripristina il colore di tutti i superpattern di un dato pattern p*/
   private  void ripristinaColori(Pattern p) throws Exception{
       if(PG.containsVertex(p)){
           LinkedBlockingQueue<Pattern> queue = new LinkedBlockingQueue<Pattern>();

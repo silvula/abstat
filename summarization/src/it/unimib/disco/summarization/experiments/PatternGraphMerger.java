@@ -11,34 +11,36 @@ import java.util.Iterator;
 import it.unimib.disco.summarization.export.Events;
 
 
-
-public class SpecialPGsMerge {
+public class PatternGraphMerger {
 	private File ontology;
 	private File outputDir;
 	
-	public SpecialPGsMerge(File ontology, File outputDir){
+	public PatternGraphMerger(File ontology, File outputDir){
 		this.ontology = ontology;
 		this.outputDir = outputDir;
 	}
 	
 	
-	public void process(File file) throws Exception {
+	public void process(File dir) throws Exception {
 		double startTime = System.currentTimeMillis();
-		ArrayList<File> listofFiles = new ArrayList<File>( Arrays.asList( file.listFiles() ) );
 		
+		//inizializzazione PG
 		String type;
-		if(file.getName().contains("datatype"))  type = "datatype"; 
+		if(dir.getName().contains("datatype"))  type = "datatype"; 
 		else  type = "object";
-		
 		PGSpecial PGS = new PGSpecial(ontology, type);
-		int maxDepth =-1;
 		
+		//itera su ogni file presente in dir, li salva in listofFiles. Ricava la maxDepth tra tutti i file.
+		ArrayList<File> listofFiles = new ArrayList<File>( Arrays.asList( dir.listFiles() ) );
+		int maxDepth =-1;
 		for(File f : listofFiles){
 			String nome = f.getName();
 			int currentDepth = Integer.parseInt( nome.substring(nome.indexOf("Depth")+5, nome.lastIndexOf("_")) );
 			if( currentDepth > maxDepth )
 				maxDepth = currentDepth;
 		}
+		
+		//manda i file a addPatterns() in ordine crescente di depth
 		for(int i=0; i<=maxDepth; i++){
 			Iterator<File> itr = listofFiles.iterator();
 			while(itr.hasNext()){
@@ -51,15 +53,16 @@ public class SpecialPGsMerge {
 				}
 			}
 		}
-	//	String outputFile_name = file.getName().replace("_"+type, "_merged" + "_"+type + ".txt");
 		
+		//dopo costruzione del PG speciale stampo in file separati i pattern definitivi e gli HEADpattern
 		PGS.stampaPatternsSuFile(outputDir + "/patterns_splitMode_"+ type +".txt", outputDir + "/HEADpatterns_"+type+"_unmerged.txt");
 		
-		Events.summarization().info( (System.currentTimeMillis() - startTime)/1000 +"s  ..." + file.getName()+ "     MERGE"); 	
+		Events.summarization().info( (System.currentTimeMillis() - startTime)/1000 +"s  ..." + dir.getName()+ "     MERGE"); 	
 	}
 
 	
 
+	//gli HEADpatterns fino a questo punto non sono definitivi, quindi vanno processati per ricavare quelli definitivi
 	public void mergeHeadPatterns(String type) throws Exception{
 		ArrayList<Pattern> HEADpatterns = new ArrayList<Pattern>();
 		String line;
@@ -91,7 +94,7 @@ public class SpecialPGsMerge {
 		}
 		br.close();
 		
-		
+		//scriviamo su file gli HEADpatterns definitivi
 		FileOutputStream fos = new FileOutputStream(new File(outputDir+"/patterns_splitMode_"+type+".txt"), true);
 		for(Pattern HEADpattern : HEADpatterns)
 			fos.write( (HEADpattern.getSubj()+"##"+ HEADpattern.getPred() + "##"+HEADpattern.getObj()+"##"+ HEADpattern.getFreq()+"##"+ HEADpattern.getInstances()+"\n").getBytes()  );

@@ -30,7 +30,6 @@ public class PatternGraph {
 		typeGraph = new TypeGraphExperimental(ontology);
 		propertyGraph = new PropertyGraph(ontology);
 		
-
 		if(full_inference)
 			propertyGraph.linkToTheoreticalProperties();
 		
@@ -155,8 +154,6 @@ public class PatternGraph {
               while(queue.size() != 0){
                   Pattern currentP = queue.poll();
                   
-                 
-                  ///
                   for(DefaultEdge edge : patternGraph2.outgoingEdgesOf(currentP)){
                 	  Pattern target = patternGraph2.getEdgeTarget(edge);
                       if (target.getColor().equals("B") && !queue.contains(target)){
