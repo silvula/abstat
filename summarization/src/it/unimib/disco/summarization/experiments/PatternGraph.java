@@ -30,71 +30,12 @@ public class PatternGraph {
 		typeGraph = new TypeGraphExperimental(ontology);
 		propertyGraph = new PropertyGraph(ontology);
 		
-
 		if(full_inference)
 			propertyGraph.linkToTheoreticalProperties();
 		
 		this.type = type;
 		this.full_inference = full_inference;
 	 }
-	
-	
-	
-	/*Legge un file txt dove per ogni relational assert nel dataset esiste una riga con i suoi AKP*/
-	public void readTriplesAKPs(String AKPsFile) {
-		try{
-			BufferedReader br = new BufferedReader(new FileReader(new File(AKPsFile)));
-			String line;
-			
-			while ((line = br.readLine()) != null) {
-				if(!line.equals("")){
-					int index = line.indexOf(" [")+1;
-					line = line.substring(index);   //per togliere il relational assertion dalla riga.
-					
-					line =line.substring(1, line.length()-1);
-					String[] stringAKPs = line.split(", ");  
-					Pattern[] AKPs = new Pattern[stringAKPs.length];
-		    		
-					for(int i=0; i<stringAKPs.length;i++){
-						String[] splitted = stringAKPs[i].split("##");
-						String s = splitted[0];
-						String p = splitted[1];
-						String o = splitted[2];
-						
-						//se soggetto o oggetto sono esterni setto depth = 1
-						Concept sConcept = typeGraph.returnV(new Concept(s));
-						if(sConcept ==  null){
-							sConcept = new Concept(s);
-							if(!s.equals("http://www.w3.org/2002/07/owl#Thing"))
-								sConcept.setDepth(1);
-						}
-							
-						Concept oConcept = typeGraph.returnV(new Concept(o));
-						if(oConcept ==  null){
-							oConcept = new Concept(o);
-							if(!o.equals("http://www.w3.org/2002/07/owl#Thing") && !o.equals("http://www.w3.org/2000/01/rdf-schema#Literal"))
-								oConcept.setDepth(1);
-						}
-						
-						Property property = propertyGraph.returnV( propertyGraph.createProperty(p));
-						if(property == null){
-							property = propertyGraph.createProperty(p);
-							property.setDepth(1);
-							propertyGraph.linkExternalProperty(property, type);
-						}
-									
-						AKPs[i] = new Pattern( sConcept, p, oConcept);
-					}
-		    		
-					contatoreIstanze(AKPs);
-				}
-			}
-			br.close();
-		}
-		catch(Exception e){
-			Events.summarization().error(AKPsFile, e);
-		}  
-	}
 	 
 	
 	
@@ -212,19 +153,17 @@ public class PatternGraph {
               queue.put(p);
               while(queue.size() != 0){
                   Pattern currentP = queue.poll();
-                  Set<DefaultEdge> relatedEdges = patternGraph2.edgesOf(currentP);
-                 
-                  for (DefaultEdge edge : relatedEdges) {
-                      if(currentP.equals( patternGraph2.getEdgeSource(edge) )){
-                          Pattern target = patternGraph2.getEdgeTarget(edge);
-                          if (target.getColor().equals("B") && !queue.contains(target)){
-                              target.setColor("G");
-                              target.setInstances(target.getInstances()+1);
-                              queue.put(target); 
-                          }
+                  
+                  for(DefaultEdge edge : patternGraph2.outgoingEdgesOf(currentP)){
+                	  Pattern target = patternGraph2.getEdgeTarget(edge);
+                      if (target.getColor().equals("B") && !queue.contains(target)){
+                          target.setColor("G");
+                          target.setInstances(target.getInstances()+1);
+                          queue.put(target); 
                       }
                   }
-                  currentP.setColor("N");
+                  currentP.setColor("N");  
+                  
               }
              
           }
@@ -240,15 +179,13 @@ public class PatternGraph {
               while(queue.size() != 0){
                   Pattern currentP = queue.poll();
                   if(!currentP.getColor().equals("B")){
-                 
-                      Set<DefaultEdge> relatedEdges = patternGraph2.edgesOf(currentP);
-                      for (DefaultEdge edge : relatedEdges) {
-                          if(currentP.equals( patternGraph2.getEdgeSource(edge) )){
-                              Pattern target = patternGraph2.getEdgeTarget(edge);                  
-                              if (!target.getColor().equals("B") && !queue.contains(target))
-                                  queue.put(target);
-                          }
+                          
+                	  for(DefaultEdge edge : patternGraph2.outgoingEdgesOf(currentP)){
+                    	  Pattern target = patternGraph2.getEdgeTarget(edge);
+                    	  if (!target.getColor().equals("B") && !queue.contains(target))
+                              queue.put(target);
                       }
+   
                   }
                   currentP.setColor("B");
               }

@@ -47,20 +47,20 @@ public class TriplesRetriever implements Processing{
 	public void process(InputFile file) throws Exception {
 		double startTime = System.currentTimeMillis();
 		
-		PatternGraph PG;
+		//inizializzazione pattern graph: cambia a seconda seconda del tipo di file
 		String type;
 		boolean full_inference;
 		String fileName = file.name().substring(file.name().lastIndexOf("/")+1);
 		
 		if(fileName.contains("datatype"))  type = "datatype"; 
 		else  type = "object";
-		
 		if(specialFiles.contains( fileName.replace( fileName.substring(fileName.indexOf("_"), fileName.lastIndexOf("_")), "") ))  full_inference = false;
 		else  full_inference = true;
 		
-		PG = new PatternGraph(ontology, type, full_inference);
+		PatternGraph PG = new PatternGraph(ontology, type, full_inference);
 		
 		
+		//leggo le righe: per ogni riga estraggo gli AKP e lo faccio elaborare a contatoreIStanze()
 		try{
 			while (file.hasNextLine()) {
 				String line = file.nextLine();
@@ -87,8 +87,8 @@ public class TriplesRetriever implements Processing{
 						Property property = PG.getPropertyGraph().returnV( PG.getPropertyGraph().createProperty(p));
 						if(property == null){
 							property = PG.getPropertyGraph().createProperty(p);
-////per evitare i null//    PG.getPropertyGraph().getGraph().addVertex(property);
-							PG.getPropertyGraph().linkExternalProperty(property, type);   ///////////////////////////
+						//	PG.getPropertyGraph().getGraph().addVertex(property);		////per evitare i null//
+							PG.getPropertyGraph().linkExternalProperty(property, type);  
 						}
 						
 						AKPs[i] = new Pattern( sConcept, p, oConcept);					
@@ -101,6 +101,7 @@ public class TriplesRetriever implements Processing{
 		catch(Exception e){ Events.summarization().error(file, e);}  
 		
 		
+		//stampa i pattern inferiti
 		if(!full_inference){
 			String s = fileName.replace( fileName.substring(fileName.indexOf("_"), fileName.lastIndexOf("_")), "");
 			s = s.substring(0, s.length()-4); //tolgo il .txt
@@ -109,13 +110,11 @@ public class TriplesRetriever implements Processing{
 				specialDir.mkdir();
 			PG.stampaPatternsSuFile(specialDir +"/"+ fileName);
 		}
-		else{
-			PG.stampaPatternsSuFile(output_dir + "/patterns-"+type+"_parts/"+ fileName, output_dir + "/HEADpatterns-"+type+"_parts/"+ fileName);
-		}
+		else
+			PG.stampaPatternsSuFile(output_dir + "/patterns_splitMode_"+ type +".txt", output_dir + "/HEADpatterns_"+type+"_unmerged.txt");
 		
 		
-		double endTime   = System.currentTimeMillis();
-		Events.summarization().info( (endTime - startTime)/1000 +"s  ..." + fileName); 	
+		Events.summarization().info( (System.currentTimeMillis() - startTime)/1000 +"s  ..." + fileName); 	
 	}
 
 	
