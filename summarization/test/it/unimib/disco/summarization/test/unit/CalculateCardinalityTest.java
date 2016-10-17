@@ -45,7 +45,7 @@ public class CalculateCardinalityTest extends TestWithTemporaryData{
 					countSeparator++;
 				}
 			}
-			assertThat(countSeparator, equalTo(3));
+			assertThat(countSeparator, equalTo(5));
 			
 		}
 		br.close();
@@ -84,7 +84,7 @@ public class CalculateCardinalityTest extends TestWithTemporaryData{
 					countSeparator++;
 				}
 			}
-			assertThat(countSeparator, equalTo(3));
+			assertThat(countSeparator, equalTo(5));
 			
 		}
 		br.close();
