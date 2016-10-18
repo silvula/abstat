@@ -26,10 +26,10 @@ public class CalculateCardinalityTest extends TestWithTemporaryData{
 		CalculateCardinality.calcCardinality(temporary.namedFile(content1, "Property"+listP.indexOf("http://dbpedia.org/ontology/capital")+".txt"), listP, temporary.namedFile("", "globalCardinalities.txt"));
 		
 		BufferedReader br = new BufferedReader(new FileReader(temporary.path()+"/globalCardinalities.txt"));
-		String s;
-		while ((s = br.readLine()) != null ){
+		String string;
+		while ((string = br.readLine()) != null ){
 			
-			String property = s.split(" ")[0];
+			String property = string.split(" ")[0];
 			boolean isProperty = false;
 			for(String p : listP){
 				if(p.equals(property)){
@@ -38,7 +38,7 @@ public class CalculateCardinalityTest extends TestWithTemporaryData{
 			}
 			assertTrue(isProperty);
 			
-			String cardinalities = s.split(" ")[1];
+			String cardinalities = string.split(" ")[1];
 			int countSeparator = 0;
 			for(int i = 0; i < cardinalities.length(); i++){
 				if(cardinalities.charAt(i)=='-'){
@@ -65,10 +65,10 @@ public class CalculateCardinalityTest extends TestWithTemporaryData{
 		CalculateCardinality.calcCardinality(temporary.namedFile(content1, "Akp"+listAKP.indexOf("http://schema.org/Place##http://dbpedia.org/ontology/capital##http://schema.org/Place")+".txt"), listAKP, temporary.namedFile("", "patternCardinalities.txt"));
 		
 		BufferedReader br = new BufferedReader(new FileReader(temporary.path()+"/patternCardinalities.txt"));
-		String s;
-		while ((s = br.readLine()) != null ){
+		String string;
+		while ((string = br.readLine()) != null ){
 			
-			String akp = s.split(" ")[0];
+			String akp = string.split(" ")[0];
 			boolean isAKP = false;
 			for(String a : listAKP){
 				if(a.equals(akp)){
@@ -77,7 +77,7 @@ public class CalculateCardinalityTest extends TestWithTemporaryData{
 			}
 			assertTrue(isAKP);
 			
-			String cardinalities = s.split(" ")[1];
+			String cardinalities = string.split(" ")[1];
 			int countSeparator = 0;
 			for(int i = 0; i < cardinalities.length(); i++){
 				if(cardinalities.charAt(i)=='-'){

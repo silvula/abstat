@@ -19,8 +19,8 @@ public class CardinalitiesTest {
 	ArrayList<String> props = new ArrayList<String>();
 	String patternCardinalities = "";
 	String globalCardinalities = "";
-	HashMap<String, String> gCard = new HashMap<String, String>();
-	HashMap<String, String> pCard = new HashMap<String, String>();
+	HashMap<String, String> resultGlobalCard = new HashMap<String, String>();
+	HashMap<String, String> resultPatternCard = new HashMap<String, String>();
 	
 	public CardinalitiesTest() throws Exception{
 		
@@ -32,7 +32,7 @@ public class CardinalitiesTest {
 				globalCardinalities = globalCardinalities + cardP + " ";
 				String pr = cardP.split(" ")[0];
 				String card = cardP.split(" ")[1];
-				gCard.put(pr, card);
+				resultGlobalCard.put(pr, card);
 			}
 		}
 		br1.close();
@@ -45,24 +45,53 @@ public class CardinalitiesTest {
 				patternCardinalities = patternCardinalities + cardAKP + " ";
 				String pa = cardAKP.split(" ")[0];
 				String card = cardAKP.split(" ")[1];
-				pCard.put(pa, card);
+				resultPatternCard.put(pa, card);
 			}
 		}
 		br2.close();
 		
-		File mapAkps = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/mapAkps.txt");
-		BufferedReader br3 = new BufferedReader(new FileReader(mapAkps));
-		String akp;
-		while ((akp = br3.readLine()) != null ){
-			if (!(akp.equals(""))){
-				akp = akp.split(" -")[0];
-				String property = akp.split("##")[1];
-				akps.add(akp);
+		File objAkp = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/object-akp_grezzo.txt");
+		BufferedReader br3 = new BufferedReader(new FileReader(objAkp));
+		String string;
+		while ((string = br3.readLine()) != null ){
+			if (!(string.equals(""))){
+				
+				String tripla = string.substring(string.indexOf("<")+1, string.lastIndexOf(">"));
+				
+				String property = tripla.split("##")[1];
 				if(!(props.contains(property)))
 					props.add(property);
+				
+				String[] AKP = string.substring( string.indexOf("> [")+3, string.lastIndexOf("]")).split(", ");
+				for(String akp : AKP){
+					if(!(akps.contains(akp))){
+						akps.add(akp);
+					}
+				}
 			}
 		}
 		br3.close();
+		
+		File datatypeAkp = new File(Paths.get("").toAbsolutePath().toString() + "/../data/summaries/system-test/patterns/datatype-akp_grezzo.txt");
+		BufferedReader br4 = new BufferedReader(new FileReader(datatypeAkp));
+		while ((string = br4.readLine()) != null ){
+			if (!(string.equals(""))){
+				
+				String tripla = string.substring(string.indexOf("<")+1, string.lastIndexOf(">"));
+				
+				String property = tripla.split("##")[1];
+				if(!(props.contains(property)))
+					props.add(property);
+				
+				String[] AKP = string.substring( string.indexOf("> [")+3, string.lastIndexOf("]")).split(", ");
+				for(String akp : AKP){
+					if(!(akps.contains(akp))){
+						akps.add(akp);
+					}
+				}
+			}
+		}
+		br4.close();
 		
 	}
 
@@ -81,7 +110,7 @@ public class CardinalitiesTest {
 	
 	
 	@Test
-	public void correctGlobalCardinalities() throws Exception {
+	public void shouldCheckGlobalCardinalities() throws Exception {
 		assertThat(globalCardinalities, containsString("http://dbpedia.org/ontology/areaLand 1-1-1-1-1-1"));
 		assertThat(globalCardinalities, containsString("http://www.w3.org/2003/01/geo/wgs84_pos#long 1-1-1-1-1-1"));
 		assertThat(globalCardinalities, containsString("http://dbpedia.org/ontology/birthPlace 1-1-1-2-2-2"));
@@ -101,7 +130,7 @@ public class CardinalitiesTest {
 	}
 	
 	@Test
-	public void correctPatternCardinalities() throws Exception {
+	public void shouldCheckPatternCardinalities() throws Exception {
 		assertThat(patternCardinalities, containsString("http://schema.org/Place##http://dbpedia.org/ontology/isPartOf##http://schema.org/Place 1-1-1-1-1-1"));
 		assertThat(patternCardinalities, containsString("http://schema.org/Place##http://dbpedia.org/ontology/capital##http://schema.org/Place 1-1-1-1-1-1"));
 		assertThat(patternCardinalities, containsString("http://dbpedia.org/ontology/TelevisionStation##http://dbpedia.org/ontology/locationCity##http://dbpedia.org/ontology/Place 1-1-1-1-1-1"));
@@ -121,8 +150,8 @@ public class CardinalitiesTest {
 	}
 	
 	@Test
-	public void checkMinGlobalCardinalities(){
-		Collection<String> card = gCard.values();
+	public void shouldCheckMinGlobalCardinalities(){
+		Collection<String> card = resultGlobalCard.values();
 		for(String c : card){
 			int minM = Integer.parseInt(c.split("-")[2]);
 			int minN = Integer.parseInt(c.split("-")[5]);
@@ -135,8 +164,8 @@ public class CardinalitiesTest {
 	}
 	
 	@Test
-	public void checkMinPatternCardinalities(){
-		Collection<String> card = pCard.values();
+	public void shouldCheckMinPatternCardinalities(){
+		Collection<String> card = resultPatternCard.values();
 		for(String c : card){
 			int minM = Integer.parseInt(c.split("-")[2]);
 			int minN = Integer.parseInt(c.split("-")[5]);
@@ -149,9 +178,9 @@ public class CardinalitiesTest {
 	}
 	
 	@Test
-	public void checkMaxCardinalities(){
+	public void shouldCheckMaxCardinalities(){
 		for(String p : props){
-			String cardP = gCard.get(p);
+			String cardP = resultGlobalCard.get(p);
 			ArrayList<String> singleP = new ArrayList<String>();
 			for(String a : akps){
 				String property = a.split("##")[1];
@@ -161,7 +190,7 @@ public class CardinalitiesTest {
 			}
 			ArrayList<String> cardA = new ArrayList<String>();
 			for(String a : singleP){
-				String sCard = pCard.get(a);
+				String sCard = resultPatternCard.get(a);
 				cardA.add(sCard);
 			}
 			
@@ -172,11 +201,9 @@ public class CardinalitiesTest {
 				int maxMA = Integer.parseInt(c.split("-")[0]);
 				int maxNA = Integer.parseInt(c.split("-")[3]);
 				boolean checkMax = false;
-				if(maxMP>=1 && maxNP>=1 && maxMA>=1 && maxNA>=1){
 					if(maxMP>=maxMA && maxNP>=maxNA){
 						checkMax=true;
 					}
-				}
 				assertTrue(checkMax);
 			}
 			
@@ -184,8 +211,8 @@ public class CardinalitiesTest {
 	}
 	
 	@Test
-	public void checkAvgPatternCard(){
-		Collection<String> card = pCard.values();
+	public void shouldCheckAvgPatternCard(){
+		Collection<String> card = resultPatternCard.values();
 		for(String c : card){
 			int maxM = Integer.parseInt(c.split("-")[0]);
 			int avgM = Integer.parseInt(c.split("-")[1]);
@@ -208,8 +235,8 @@ public class CardinalitiesTest {
 	}
 	
 	@Test
-	public void checkAvgGlobalCard(){
-		Collection<String> card = gCard.values();
+	public void shouldCheckAvgGlobalCard(){
+		Collection<String> card = resultGlobalCard.values();
 		for(String c : card){
 			int maxM = Integer.parseInt(c.split("-")[0]);
 			int avgM = Integer.parseInt(c.split("-")[1]);
