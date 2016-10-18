@@ -50,18 +50,23 @@ public class CalculateCardinality {
 		int maxS = (int)Collections.max(valuesS);
 		//minS e min N : numero minimo di oggetti distinti, fissato subject+property
 		int minS = (int)Collections.min(valuesS);
-
+		int avgS = avg(valuesS);
+		
 		Collection<Integer> valuesO = new ArrayList<Integer>();
 		valuesO = object.values();
 		//maxO e max M : numero massimo di soggetti distinti, fissato property+object
 		int maxO = (int)Collections.max(valuesO);
 		//minO e min M : numero minimo di soggetti distinti, fissato property+object
 		int minO = (int)Collections.min(valuesO);
-		int[]cardinalities = new int[4];
+		int avgO = avg(valuesO);
+		
+		int[]cardinalities = new int[6];
 		cardinalities[0]=maxO;
-		cardinalities[1]=minO;
-		cardinalities[2]=maxS;
-		cardinalities[3]=minS;
+		cardinalities[1]=avgO;
+		cardinalities[2]=minO;
+		cardinalities[3]=maxS;
+		cardinalities[4]=avgS;
+		cardinalities[5]=minS;
 
 		String fileName = file.getName();
 		if(fileName.charAt(0)=='A'){
@@ -72,8 +77,8 @@ public class CalculateCardinality {
 
 		int code = Integer.parseInt(fileName);
 
-		//il risultato nel file e' : AKP o Property max M-min M-max N-min N 
-		String tmp = list.get(code)+" "+cardinalities[0]+"-"+cardinalities[1]+"-"+cardinalities[2]+"-"+cardinalities[3];
+		//il risultato nel file e' : AKP o Property maxM-avgM-minM-maxN-avgN-min N 
+		String tmp = list.get(code)+" "+cardinalities[0]+"-"+cardinalities[1]+"-"+cardinalities[2]+"-"+cardinalities[3]+"-"+cardinalities[4]+"-"+cardinalities[5];
 
 		FileOutputStream fos;
 		fos = new FileOutputStream(new File(resultFile.getPath()), true);
@@ -101,5 +106,18 @@ public class CalculateCardinality {
 		while(!executor.isTerminated()){}
 	}
 
+	public static int avg(Collection<Integer> values){
+		int n = 0;
+		int tot = 0;
+		for(int el : values){
+			tot = tot+el;
+			n++;
+		}
+		float nf = (float)n;
+		float totf = (float)tot;
+		float avgf = totf/nf;
+		int avg = Math.round(avgf);
+		return avg;
+	}
 
 }
