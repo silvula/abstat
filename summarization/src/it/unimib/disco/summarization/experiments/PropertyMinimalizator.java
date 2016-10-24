@@ -44,16 +44,15 @@ public class PropertyMinimalizator {
 			while ((line = br.readLine()) != null) {
 				if(!line.equals("")){
 					
-					//estae la tripla da line 
+					//estrae la tripla da line 
 					int index = line.indexOf(" [");
 					String triplaCorrente = line.substring(0, index);   
 					String currentSubj = triplaCorrente.split("##")[0].substring(1);
-					//System.out.println(currentSubj);
 					line = line.substring(index+1);
 					
 					//ottengo gli AKPs della tripla corrente
 					line = line.substring(1, line.length()-1);
-					String[] stringAKPs = line.split(", ");  
+					String[] stringAKPs = line.split(", "); 
 					ArrayList<Pattern> AKPs = new ArrayList<Pattern>();
 		    		
 					for(int i=0; i<stringAKPs.length;i++){
@@ -63,9 +62,10 @@ public class PropertyMinimalizator {
 						String o = splitted[2];
 						AKPs.add( new Pattern( new Concept(s), p, new Concept(o)));
 					}
+					
+					//se il soggetto non è cambiato salvo dati nella mappa, altrimenti minimalizzo su ciò che ho raccolto
 					if(currentSubj.equals(subjGroup) || tripleWithAKPs.isEmpty()){
 						tripleWithAKPs.put(triplaCorrente, AKPs);
-						//System.out.println(tripla);
 						subjGroup = currentSubj;
 					}
 					else{
@@ -77,9 +77,12 @@ public class PropertyMinimalizator {
 					}
 				}
 			}
-			startMinimalization();  //dopo aver letto l'ultima tripla minimilizzo l'ultimo carico di triple
+			//dopo aver letto l'ultima tripla minimilizzo l'ultimo carico di triple
+			startMinimalization();  
+			//svuoto il set di AKP aggiornato su file
 			scriviAKPs();
 			
+			//aggiorno i file di cout dei predicati.
 			if(akp_grezzo.getPath().contains("datatype"))
 				updateCountFile(new File(akp_grezzo.getParent()+"/count-datatype-properties.txt"), new File("count-datatype-properties_Updated.txt"));
 			else
@@ -95,12 +98,10 @@ public class PropertyMinimalizator {
 	
 	//viene chiamato quando un gruppo di triple con stesso soggetto è "pronto" cioè quando non ce ne sono altre con stesso sogg.
 	private void startMinimalization(){
-	
-		HashMap<String, ArrayList<String>> simili = new HashMap<String, ArrayList<String>>(); //mappa oggetto o1 con triple di tripleWithAkps con oggetto=o1 
+		HashMap<String, ArrayList<String>> simili = new HashMap<String, ArrayList<String>>(); //mappa oggetto Ogg_i con triple di tripleWithAkps con oggetto=Ogg_i
+		
 		for(String tripla: tripleWithAKPs.keySet()){
-			
-			int index = tripla.lastIndexOf("##");
-			String obj = tripla.substring(index+1, tripla.length()-2);
+			String obj = tripla.substring(tripla.lastIndexOf("##") + 1, tripla.length()-2);
 			if(simili.containsKey(obj))
 				simili.get(obj).add(tripla);
 			else{
@@ -111,7 +112,7 @@ public class PropertyMinimalizator {
 		}
 		
 		minimalizza(simili);		
-		if(this.updateAkpsGrezzo_File)
+		if(updateAkpsGrezzo_File)
 			aggiorna_akp_grezzo();
 		aggiornaInsiemeAKPs();
 	}
@@ -120,31 +121,33 @@ public class PropertyMinimalizator {
 	private void minimalizza(HashMap<String, ArrayList<String>> simili){
 		//per ogni gruppo
 		for(String key : simili.keySet()){	
-			if(simili.get(key).size()>1){   //minimalizzi solo se hai almeno 2 triple adatte
+			if(simili.get(key).size()>1){   //minimalizzi solo se hai almeno 2 triple nel gruppo
 				ArrayList<String> minimalPropertyTriples = new ArrayList<String>();
 				//per ogni tripla del gruppo
 				for(String tripla : simili.get(key)){  
+					
 					if(minimalPropertyTriples.isEmpty())
 						minimalPropertyTriples.add(tripla);
+					
 					else{
-						String prop = tripla.substring(tripla.indexOf("##")+2,tripla.lastIndexOf("##"));
+						String pred = tripla.substring(tripla.indexOf("##")+2,tripla.lastIndexOf("##"));
 						ListIterator<String>  listIt = minimalPropertyTriples.listIterator();
 						while(listIt.hasNext()){
 							String tripla2 = listIt.next();
-							String minimalProp = tripla2.substring(tripla2.indexOf("##")+2,tripla2.lastIndexOf("##"));
+							String pred2 = tripla2.substring(tripla2.indexOf("##")+2,tripla2.lastIndexOf("##"));
 							
-							//se prop non è superProperty di minimalProp è per forza property minimale e potrebbe esse anche subProeprty di minimalProp
-							if(propGraph.pathsBetween(minimalProp, prop).isEmpty()){ 
-								if(!propGraph.pathsBetween(prop, minimalProp).isEmpty()){  
+							//se pred non è superProperty di pred2 è per forza property minimale e potrebbe essere anche subProeprty di pred2
+							if(propGraph.pathsBetween(pred2, pred).isEmpty() == true){ 
+								if(propGraph.pathsBetween(pred, pred2).isEmpty() == false){  
 									listIt.remove();  
-									trackRemovedProperties(minimalProp); 
+									trackRemovedProperties(pred2); 
 									tripleWithAKPs.remove(tripla2); //minimalizzo
 									System.out.println("eliminato:  "+ tripla2);
 								}
 								listIt.add(tripla);
 							}
 							else{
-								trackRemovedProperties(prop);
+								trackRemovedProperties(pred);
 								tripleWithAKPs.remove(tripla); //minimalizzo
 								System.out.println("eliminato:  "+ tripla);
 							}
@@ -157,7 +160,7 @@ public class PropertyMinimalizator {
 	
 	
 	
-	
+	//scrive il contenuto di tripleWithAKPs su file. Notare che le entry rimosse nella minimalizzazione spariscono anche dai file akp_grezzo
 	private void aggiorna_akp_grezzo() {
 		try{
 			FileOutputStream fos = new FileOutputStream(akp_grezzo_Update, true);
@@ -176,6 +179,7 @@ public class PropertyMinimalizator {
 	}
 	
 	
+	//dopo la minimalizzazione su tripleWithAKPs, bisogna allineare anche AKPsSet perchè certi AKP potrebbero non esserci più.
 	private void aggiornaInsiemeAKPs(){
 		for(String tripla : tripleWithAKPs.keySet()){
 			for(Pattern pattern : tripleWithAKPs.get(tripla)){
@@ -205,6 +209,7 @@ public class PropertyMinimalizator {
 		
 	}
 	
+	//segna i predicati il cui contatore deve essere ridotto di un certo valore.
 	public void trackRemovedProperties(String property){
 		if(this.propertiesRemoved.containsKey(property))
 			propertiesRemoved.put(property, propertiesRemoved.get(property)+1);
