@@ -1,8 +1,5 @@
 package it.unimib.disco.summarization.export;
 
-import it.unimib.disco.summarization.ontology.LDSummariesVocabulary;
-import it.unimib.disco.summarization.ontology.RDFTypeOf;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,8 +17,12 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+import it.unimib.disco.summarization.ontology.LDSummariesVocabulary;
+import it.unimib.disco.summarization.ontology.RDFTypeOf;
+
 public class WriteAKPToRDF {
-	
+
+
 	public static void main (String args []) throws IOException{
 		
 		String csvFilePath = args[0];
@@ -41,6 +42,13 @@ public class WriteAKPToRDF {
 				Property globalPredicate = model.createProperty(row.get(Row.Entry.PREDICATE));
 				Resource globalObject = vocabulary.selfOrUntyped(row.get(Row.Entry.OBJECT));
 				Literal statistic = model.createTypedLiteral(Integer.parseInt(row.get(Row.Entry.SCORE1)));
+				Literal statistic2;
+				if(row.get(Row.Entry.SCORE2).equals("NONE")){
+					statistic2 = model.createTypedLiteral("NONE");
+				}
+				else{
+					statistic2 = model.createTypedLiteral(Integer.parseInt(row.get(Row.Entry.SCORE2)));
+				}
 				
 				Resource localSubject = vocabulary.asLocalResource(globalSubject.getURI());
 				
@@ -71,6 +79,7 @@ public class WriteAKPToRDF {
 				model.add(akpInstance, RDF.type, vocabulary.abstractKnowledgePattern());
 				model.add(akpInstance, RDF.type, internal);
 				model.add(akpInstance, vocabulary.occurrence(), statistic);
+				model.add(akpInstance, vocabulary.numberOfInstances(), statistic2);
 			}
 			catch(Exception e){
 				Events.summarization().error("file" + csvFilePath + " row" + row, e);
@@ -101,6 +110,10 @@ public class WriteAKPToRDF {
 					r.add(Row.Entry.PREDICATE, row[1]);
 					r.add(Row.Entry.OBJECT, row[2]);
 					r.add(Row.Entry.SCORE1, row[3]);
+					if(row.length>4)
+						r.add(Row.Entry.SCORE2, row[4]);
+					else
+						r.add(Row.Entry.SCORE2, "NONE");
 
 					allFacts.add(r);
 				}
@@ -111,5 +124,4 @@ public class WriteAKPToRDF {
 		}
 		return allFacts;
 	}
-
 }

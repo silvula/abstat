@@ -93,6 +93,10 @@ public class LDSummariesVocabulary {
 		return model.createProperty(ontologyNamespace() + "objectOccurrence");
 	}
 	
+	public Property numberOfInstances(){
+		return model.createProperty(ontologyNamespace() + "numberOfInstances");
+	}
+	
 	public Property subjectMinTypes() {
 		return model.createProperty(ontologyNamespace() + "subjectMinTypes");
 	}
