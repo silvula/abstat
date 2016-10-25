@@ -58,7 +58,7 @@ public class QueryWithParams implements Api{
 		String query;
 		
 		//comune a tutti i casi
-		query = "SELECT DISTINCT  ?akp ?subj ?pred ?obj ?akp_frequency ?subj_frequency ?pred_frequency ?obj_frequency " +
+		query = "SELECT DISTINCT  ?akp ?subj ?pred ?obj ?akp_instances ?akp_frequency ?subj_frequency ?pred_frequency ?obj_frequency  " +
 				"FROM <http://ld-summaries.org/"+dataset+"> "+
 			    "WHERE { " +
 				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ld-summaries.org/ontology/AbstractKnowledgePattern>. " + 
@@ -66,6 +66,7 @@ public class QueryWithParams implements Api{
 				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?pred. " +
 				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> ?obj. " +
 				"       ?akp  <http://ld-summaries.org/ontology/occurrence> ?akp_frequency. " +
+				"       ?akp  <http://ld-summaries.org/ontology/numberOfInstances> ?akp_instances. " +
 				"       OPTIONAL{ ?subj  <http://ld-summaries.org/ontology/occurrence> ?subj_frequency. } " +
 				"       OPTIONAL{ ?pred  <http://ld-summaries.org/ontology/occurrence> ?pred_frequency. } " +
 				"       OPTIONAL{ ?obj  <http://ld-summaries.org/ontology/occurrence> ?obj_frequency. } " ;
@@ -137,6 +138,7 @@ public class QueryWithParams implements Api{
 		Property hasPred = model.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate");
 		Property hasObj = model.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
 		Property hasOccurrences = model.createProperty("http://ld-summaries.org/ontology/occurrence");
+		Property hasInstances = model.createProperty("http://ld-summaries.org/ontology/numberOfInstance");
 		
 		while(res2.hasNext()){
 			QuerySolution soln = res2.nextSolution();
@@ -152,6 +154,7 @@ public class QueryWithParams implements Api{
 				subj.addProperty(hasOccurrences,soln.get("subj_frequency"));
 			
 			akp.addProperty(hasOccurrences,soln.get("akp_frequency"));
+			akp.addProperty(hasInstances,soln.get("akp_instances"));
 			akp.addProperty(hasObj, soln.getResource("obj"));
 			akp.addProperty(hasPred, soln.getResource("pred"));
 			akp.addProperty(hasSubj, soln.getResource("subj"));
