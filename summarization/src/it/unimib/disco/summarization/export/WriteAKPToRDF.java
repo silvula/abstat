@@ -42,13 +42,13 @@ public class WriteAKPToRDF {
 				Property globalPredicate = model.createProperty(row.get(Row.Entry.PREDICATE));
 				Resource globalObject = vocabulary.selfOrUntyped(row.get(Row.Entry.OBJECT));
 				Literal statistic = model.createTypedLiteral(Integer.parseInt(row.get(Row.Entry.SCORE1)));
-				Literal statistic2;
-				if(row.get(Row.Entry.SCORE2).equals("NONE")){
-					statistic2 = model.createTypedLiteral("NONE");
+		/*		Literal statistic2;
+				if(row.get(Row.Entry.SCORE2).equals("-")){
+					statistic2 = model.createTypedLiteral("-");
 				}
 				else{
 					statistic2 = model.createTypedLiteral(Integer.parseInt(row.get(Row.Entry.SCORE2)));
-				}
+				}*/
 				
 				Resource localSubject = vocabulary.asLocalResource(globalSubject.getURI());
 				
@@ -79,7 +79,7 @@ public class WriteAKPToRDF {
 				model.add(akpInstance, RDF.type, vocabulary.abstractKnowledgePattern());
 				model.add(akpInstance, RDF.type, internal);
 				model.add(akpInstance, vocabulary.occurrence(), statistic);
-				model.add(akpInstance, vocabulary.numberOfInstances(), statistic2);
+			//	model.add(akpInstance, vocabulary.numberOfInstances(), statistic2);
 			}
 			catch(Exception e){
 				Events.summarization().error("file" + csvFilePath + " row" + row, e);
@@ -110,10 +110,10 @@ public class WriteAKPToRDF {
 					r.add(Row.Entry.PREDICATE, row[1]);
 					r.add(Row.Entry.OBJECT, row[2]);
 					r.add(Row.Entry.SCORE1, row[3]);
-					if(row.length>4)
+			/*		if(row.length>4)
 						r.add(Row.Entry.SCORE2, row[4]);
 					else
-						r.add(Row.Entry.SCORE2, "NONE");
+						r.add(Row.Entry.SCORE2, "-");*/
 
 					allFacts.add(r);
 				}

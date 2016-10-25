@@ -138,7 +138,7 @@ public class QueryWithParams implements Api{
 		Property hasPred = model.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate");
 		Property hasObj = model.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
 		Property hasOccurrences = model.createProperty("http://ld-summaries.org/ontology/occurrence");
-		Property hasInstances = model.createProperty("http://ld-summaries.org/ontology/numberOfInstance");
+		Property hasInstances = model.createProperty("http://ld-summaries.org/ontology/numberOfInstances");
 		
 		while(res2.hasNext()){
 			QuerySolution soln = res2.nextSolution();

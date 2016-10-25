@@ -322,7 +322,7 @@ Summary = function(scope_service, http_service, filter){
 		endLoading = this.endLoading;
 		
 		new Sparql(http)
-			.query('select ' + subject + ' as ?subject ' + predicate + ' as ?predicate ' + object + ' as ?object ?frequency ?pattern ?gSubject ?gPredicate ?gObject ?subjectOcc ?predicateOcc ?objectOcc ' +
+			.query('select ' + subject + ' as ?subject ' + predicate + ' as ?predicate ' + object + ' as ?object ?frequency ?instances ?pattern ?gSubject ?gPredicate ?gObject ?subjectOcc ?predicateOcc ?objectOcc ' +
 				   ' where { ' +
 						'?pattern a lds:AbstractKnowledgePattern . ' +
 						internalConstraint +
@@ -330,6 +330,7 @@ Summary = function(scope_service, http_service, filter){
 						'?pattern rdf:predicate ' + predicate + ' . ' + 
 			         	'?pattern rdf:object ' + object + ' . ' +
 			         	'?pattern lds:occurrence ?frequency . ' +
+					'?pattern lds:numberOfInstances ?instances . ' +
 			         	subject + ' rdfs:seeAlso ?gSubject . ' +
 			         	predicate +' rdfs:seeAlso ?gPredicate . ' +
 			         	object + ' rdfs:seeAlso ?gObject . ' +
