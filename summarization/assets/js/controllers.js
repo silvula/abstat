@@ -322,7 +322,7 @@ Summary = function(scope_service, http_service, filter){
 		endLoading = this.endLoading;
 		
 		new Sparql(http)
-			.query('select ' + subject + ' as ?subject ' + predicate + ' as ?predicate ' + object + ' as ?object ?frequency ?instances ?pattern ?gSubject ?gPredicate ?gObject ?subjectOcc ?predicateOcc ?objectOcc ' +
+			.query('select ' + subject + ' as ?subject ' + predicate + ' as ?predicate ' + object + ' as ?object ?frequency ?instances ?max_M ?avg_M ?min_M ?max_N ?avg_N ?min_N ?pattern ?gSubject ?gPredicate ?gObject ?subjectOcc ?predicateOcc ?objectOcc ' +
 				   ' where { ' +
 						'?pattern a lds:AbstractKnowledgePattern . ' +
 						internalConstraint +
@@ -331,6 +331,20 @@ Summary = function(scope_service, http_service, filter){
 			         	'?pattern rdf:object ' + object + ' . ' +
 			         	'?pattern lds:occurrence ?frequency . ' +
 					'?pattern lds:numberOfInstances ?instances . ' +
+			
+			         	'optional { ?pattern  lds:max_M_Cardinality ?max_M . ' +
+					'} . ' +
+			         	'optional { ?pattern  lds:avg_M_Cardinality ?avg_M . ' +
+					'} . ' +
+			         	'optional { ?pattern  lds:min_M_Cardinality ?min_M . ' +
+					'} . ' +
+			         	'optional { ?pattern  lds:max_N_Cardinality ?max_N . ' +
+					'} . ' +
+			         	'optional { ?pattern  lds:avg_N_Cardinality ?avg_N . ' +
+					'} . ' +
+			         	'optional { ?pattern  lds:min_N_Cardinality ?min_N . ' +
+					'} . ' +
+
 			         	subject + ' rdfs:seeAlso ?gSubject . ' +
 			         	predicate +' rdfs:seeAlso ?gPredicate . ' +
 			         	object + ' rdfs:seeAlso ?gObject . ' +

@@ -58,7 +58,7 @@ public class QueryWithParams implements Api{
 		String query;
 		
 		//comune a tutti i casi
-		query = "SELECT DISTINCT  ?akp ?subj ?pred ?obj ?akp_instances ?akp_frequency ?subj_frequency ?pred_frequency ?obj_frequency  " +
+		query = "SELECT DISTINCT  ?akp ?subj ?pred ?obj ?akp_instances ?akp_frequency ?akp_max_M ?akp_avg_M ?akp_min_M ?akp_max_N ?akp_avg_N ?akp_min_N ?subj_frequency ?pred_frequency ?obj_frequency  " +
 				"FROM <http://ld-summaries.org/"+dataset+"> "+
 			    "WHERE { " +
 				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ld-summaries.org/ontology/AbstractKnowledgePattern>. " + 
@@ -67,6 +67,12 @@ public class QueryWithParams implements Api{
 				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> ?obj. " +
 				"       ?akp  <http://ld-summaries.org/ontology/occurrence> ?akp_frequency. " +
 				"       ?akp  <http://ld-summaries.org/ontology/numberOfInstances> ?akp_instances. " +
+				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/max_M_Cardinality> ?akp_max_M.  } " +
+				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/avg_M_Cardinality> ?akp_avg_M.  } " +
+				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/min_M_Cardinality> ?akp_min_M.  } " +
+				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/max_N_Cardinality> ?akp_max_N.  } " +
+				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/avg_M_Cardinality> ?akp_avg_N.  } " +
+				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/min_N_Cardinality> ?akp_min_N.  } " +
 				"       OPTIONAL{ ?subj  <http://ld-summaries.org/ontology/occurrence> ?subj_frequency. } " +
 				"       OPTIONAL{ ?pred  <http://ld-summaries.org/ontology/occurrence> ?pred_frequency. } " +
 				"       OPTIONAL{ ?obj  <http://ld-summaries.org/ontology/occurrence> ?obj_frequency. } " ;
@@ -139,6 +145,12 @@ public class QueryWithParams implements Api{
 		Property hasObj = model.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
 		Property hasOccurrences = model.createProperty("http://ld-summaries.org/ontology/occurrence");
 		Property hasInstances = model.createProperty("http://ld-summaries.org/ontology/numberOfInstances");
+		Property has_maxM = model.createProperty("http://ld-summaries.org/ontology/max_M_Cardinality");
+		Property has_avgM = model.createProperty("http://ld-summaries.org/ontology/avg_M_Cardinality");
+		Property has_minM = model.createProperty("http://ld-summaries.org/ontology/min_M_Cardinality");
+		Property has_maxN = model.createProperty("http://ld-summaries.org/ontology/max_N_Cardinality");
+		Property has_avgN = model.createProperty("http://ld-summaries.org/ontology/avg_N_Cardinality");
+		Property has_minN = model.createProperty("http://ld-summaries.org/ontology/min_N_Cardinality");
 		
 		while(res2.hasNext()){
 			QuerySolution soln = res2.nextSolution();
@@ -158,6 +170,19 @@ public class QueryWithParams implements Api{
 			akp.addProperty(hasObj, soln.getResource("obj"));
 			akp.addProperty(hasPred, soln.getResource("pred"));
 			akp.addProperty(hasSubj, soln.getResource("subj"));
+			
+			if(soln.get("akp_max_M")!=null)
+				akp.addProperty(has_maxM,soln.get("akp_max_M"));
+			if(soln.get("akp_avg_M")!=null)
+				akp.addProperty(has_avgM,soln.get("akp_avg_M"));
+			if(soln.get("akp_min_M")!=null)
+				akp.addProperty(has_minM,soln.get("akp_min_M"));
+			if(soln.get("akp_max_N")!=null)
+				akp.addProperty(has_maxN,soln.get("akp_max_N"));
+			if(soln.get("akp_avg_N")!=null)
+				akp.addProperty(has_avgN,soln.get("akp_avg_N"));
+			if(soln.get("akp_min_N")!=null)
+				akp.addProperty(has_minN,soln.get("akp_min_N"));
 		}
 		
 		
