@@ -330,8 +330,9 @@ Summary = function(scope_service, http_service, filter){
 						'?pattern rdf:predicate ' + predicate + ' . ' + 
 			         	'?pattern rdf:object ' + object + ' . ' +
 			         	'?pattern lds:occurrence ?frequency . ' +
-					'?pattern lds:numberOfInstances ?instances . ' +
-			
+
+					'optional { ?pattern  lds:numberOfInstances ?instances . ' +
+					'} . ' +
 			         	'optional { ?pattern  lds:max_M_Cardinality ?max_M . ' +
 					'} . ' +
 			         	'optional { ?pattern  lds:avg_M_Cardinality ?avg_M . ' +

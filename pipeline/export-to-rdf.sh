@@ -40,6 +40,12 @@ export_rdf WriteDatatypePropertyToRDF $input_directory/count-datatype-properties
 export_rdf WriteAKPToRDF $input_directory/object-akp.txt $output_directory/relation-count.nt $graph $domain object 
 export_rdf WriteAKPToRDF $input_directory/datatype-akp.txt $output_directory/relation-datatype-count.nt $graph $domain datatype 
 
+if [ -f $input_directory/patterns_splitMode_datatype.txt ] && [ -f $input_directory/patterns_splitMode_object.txt ];
+then
+   export_rdf WriteInstancesToRDF $input_directory/patterns_splitMode_datatype.txt $output_directory/datatpe-akp-instances.nt  $graph $domain datatype
+   export_rdf WriteInstancesToRDF $input_directory/patterns_splitMode_object.txt $output_directory/object-akp-instances.nt $graph $domain object
+fi
+
 if [ -f $input_directory/datatype-patternCardinalities.txt ] && [ -f $input_directory/object-patternCardinalities.txt ];
 then
    export_rdf WriteCardinalitiesToRDF $input_directory/datatype-patternCardinalities.txt $output_directory/datatype-akp-cardinalities.nt $graph $domain datatype

@@ -14,11 +14,9 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 import it.unimib.disco.summarization.ontology.LDSummariesVocabulary;
-import it.unimib.disco.summarization.ontology.RDFTypeOf;
+
 
 public class WriteCardinalitiesToRDF {
 
@@ -28,12 +26,11 @@ public class WriteCardinalitiesToRDF {
 		String csvFilePath = args[0];
 		String outputFilePath = args[1];
 		String dataset = args[2];
-		String domain = args[3];
+//		String domain = args[3];
 		String type = args[4];
 		
 		Model model = ModelFactory.createDefaultModel();
 		LDSummariesVocabulary vocabulary = new LDSummariesVocabulary(model, dataset);
-		RDFTypeOf typeOf = new RDFTypeOf(domain);
 		
 		for (Row row : readCSV(csvFilePath)){
 
@@ -51,20 +48,18 @@ public class WriteCardinalitiesToRDF {
 				Resource localSubject = vocabulary.asLocalResource(globalSubject.getURI());
 				
 				Resource localPredicate = null;
-				Resource internal = null;
-				if(type.equals("object")) {
+				if(type.equals("object")) 
 					localPredicate = vocabulary.asLocalObjectProperty(globalPredicate.getURI());
-					internal = typeOf.objectAKP(globalSubject.getURI(), globalObject.getURI());
-				}
-				if(type.equals("datatype")) {
+
+				if(type.equals("datatype")) 
 					localPredicate = vocabulary.asLocalDatatypeProperty(globalPredicate.getURI());
-					internal = typeOf.datatypeAKP(globalSubject.getURI());
-				}
+
 				
 				Resource localObject = vocabulary.asLocalResource(globalObject.getURI());
 				
 				Resource akpInstance = vocabulary.akpInstance(localSubject.getURI(), localPredicate.getURI(), localObject.getURI());
 			
+				//add statements to model
 				model.add(akpInstance, vocabulary.max_M_Cardinality(), statistic3);
 				model.add(akpInstance, vocabulary.avg_M_Cardinality(), statistic4);
 				model.add(akpInstance, vocabulary.min_M_Cardinality(), statistic5);
