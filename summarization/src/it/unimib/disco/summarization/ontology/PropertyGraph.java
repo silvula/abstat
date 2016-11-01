@@ -202,50 +202,6 @@ public class PropertyGraph {
 			}
 		}
 		
-		//CONTROLLO CORRETTEZZA MAP:
-		/*for(OntProperty key : map.keySet()){
-			for(OntProperty prop : map.get(key)){
-				boolean corretto = false;
-				for(List<OntProperty> path : pathsToFartherAncestors(prop)){
-					OntProperty ancestor = path.get(path.size()-1);
-					if(key.equals(ancestor))
-						corretto = true;
-					else
-						System.out.println( prop+ " questo prop è in un altro value della mappa?" + map.get(ancestor).contains(prop) + "con chiave "+ ancestor);
-						
-				}
-				if(!corretto)
-					System.out.println("map("+key+") contiene " + prop +" e key non è suo ancestor");
-			}
-		}*/
-		
-		/*
-		//CONTROLLO CORRETTEZZA ROOTFAMILIES:
-		for(HashSet<OntProperty> family : rootFamilies){
-			for(OntProperty root : family){
-				int cont = 0;
-				for(HashSet<OntProperty> family2 : rootFamilies){
-					if(family2.contains(root))
-						cont++;
-				}
-				if(cont !=1)
-					System.out.println(root + " questo root è presente in "+ cont +" sets di rootFamilies");
-			}
-		
-		}
-		
-	//CONTROLLO CORRETTEZZA ROOTFAMILIES 2:
-		for(OntProperty root : findRoots()){
-			boolean presente = false;
-			for(HashSet<OntProperty> family : rootFamilies){
-				if(family.contains(root))
-					presente=true;
-			}
-			if(!presente)
-				System.out.println(root + "Questo vertex-root non è presente in nessuna rootFamily");
-		}
-		
-		*/
 		
 		ArrayList<ArrayList<Property>> pseudoSCS = new  ArrayList<ArrayList<Property>>();
 		for(HashSet<Property> rootFamily : rootFamilies){
@@ -285,19 +241,6 @@ public class PropertyGraph {
 		return new Property( ontologyModel.createOntProperty(propertyURI));
 	}
 	
-	/*
-	public void addEdge(Property property, Property superProperty){
-		if(!graph.containsVertex(property))
-			graph.addVertex(property);
-		
-		if(graph.containsVertex(superProperty))
-			graph.addEdge(property, returnV_graph(superProperty));
-		else{
-			graph.addVertex(superProperty);
-			graph.addEdge(property, superProperty);
-		}
-	}
-	*/
 	
 	//Costruisce il typegraph incrementalmente contando il DEPTH
 	private void addEdgeWDepth(Property property, Property superProperty){
@@ -443,41 +386,5 @@ public class PropertyGraph {
 	    }
 	    fos.close();
 	}
-	
-/*	
-	public void verificaCorrettezza(){
-		List<HashSet<Property>> pseudoSCS = pseudoStronglyConnectedSets();
-		for(Property vertex : graph.vertexSet()){
-			int cont=0;
-			for(HashSet<Property> set : pseudoSCS){
-				if(set.contains(vertex))
-					cont++;
-				
-				if(set.size()==1){
-					Property prop = (Property)set.toArray()[0];
-					Set<DefaultEdge> edges = graph.edgesOf(returnV(prop));
-					if(edges.size()!=0)
-						System.out.println("SINGOLO HA ARCHI!: "+ edges.size()+ "  "+ prop);
-				}
-			}
-			
-			if(cont!=1)
-				System.out.println("DIVERSO DA 1: "+ cont +"  "+ vertex.getURI());
-		}
-	}*/
-	
-/*	public void verificaCorrettezza2(){
-		List<HashSet<Property>> pseudoSCS = pseudoStronglyConnectedSets();
-		for(HashSet<Property> set : pseudoSCS){
-			for(Property prop : set){
-				for(List<Property> path  : pathsToFartherAncestors(prop)){
-					Object[] array = path.toArray();
-					if(!set.contains( (OntProperty)array[array.length-1] ))
-						System.out.println(prop +"   NON contiene il suo root "+ " "+array[array.length-1].toString() +"  nel suo set");
-				}
-			}
-		}
-	}*/
-	
 	
 }
