@@ -132,4 +132,29 @@ public class PatternGraphTest  {
 		assertThat(patterns_object, containsString("http://dbpedia.org/ontology/Agent##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Wikidata:Q532##0##1"));
 		assertThat(patterns_object, containsString("http://www.w3.org/2002/07/owl#Thing##http://dbpedia.org/ontology/residence##http://dbpedia.org/ontology/Wikidata:Q532##0##1"));
 	}
+	
+	
+	@Test
+	public void objectInferenceShouldContainTopPatterns() throws Exception{
+		assertThat(patterns_object, containsString("http://www.w3.org/2002/07/owl#topObjectProperty"));
+	}
+	
+	
+	@Test
+	public void datatypeInferenceShouldContainTopPatterns() throws Exception{
+		assertThat(patterns_datatype, containsString("http://www.w3.org/2002/07/owl#topDataProperty"));
+	}
+	
+	
+	@Test
+	public void topObjectPropertyShouldBeOK() throws Exception{
+		assertThat(patterns_object, containsString("http://www.w3.org/2002/07/owl#Thing##http://www.w3.org/2002/07/owl#topObjectProperty##http://www.w3.org/2002/07/owl#Thing##0##7"));
+	}
+	
+	
+	@Test
+	public void topDataPropertyShouldBeOK() throws Exception{
+		assertThat(patterns_datatype, containsString("http://www.w3.org/2002/07/owl#Thing##http://www.w3.org/2002/07/owl#topDataProperty##http://www.w3.org/2000/01/rdf-schema#Literal##0##22"));
+	}
+	
 }
