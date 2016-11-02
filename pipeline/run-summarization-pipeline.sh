@@ -22,6 +22,32 @@ else
 	cardinalities=$5
 fi
 
+
+if [ $propMin -eq 1 ] || [ $split_inference -eq 1 ] || [ $patterns_depth -eq 1 ] || [ $cardinalities -eq 1 ];
+then
+	echo "The following additional features will be executed:"
+	if [ $propMin -eq 1 ]
+	then 
+		echo " - pattern minimalization on properties"
+	fi
+
+	if [ $split_inference -eq 1 ]
+	then 
+		echo " - pattern inference and instances counting"
+	fi
+
+	if [ $patterns_depth -eq 1 ]
+	then 
+		echo " - patterns' components depth"
+	fi
+
+	if [ $cardinalities -eq 1 ]
+	then 
+		echo " - akp and predicate cardinality"
+	fi
+fi
+
+
 data=$(as_absolute $current_directory/../data/datasets/$dataset)
 results=$current_directory/../data/summaries/$dataset
 
