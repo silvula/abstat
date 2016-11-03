@@ -8,7 +8,9 @@ import java.util.ArrayList;
 public class MainCardinality {
 
 	public static void main(String[] args) throws Exception{
-
+		
+		Events.summarization();
+		
 		String path = args[0];
 
 		File folderAkps = new File(path+"/Akps");
