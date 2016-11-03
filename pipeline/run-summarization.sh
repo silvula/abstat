@@ -20,8 +20,7 @@ DataDirectory=$1
 ResultsDirectory=$2
 propMin=$3
 split_inference=$4
-patterns_depth=$5
-cardinalities=$6
+cardinalities=$5
 
 AwkScriptsDirectory=awk-scripts
 TripleFile=dataset.nt
@@ -418,25 +417,6 @@ then
 
 fi
 #-------------------------------------------------------------------
-if [ ${patterns_depth} = "1" ]
-then
-	eval ${dbgCmd}""$JAVA_HOME/bin/java -Xms256m -Xmx32000m -cp summarization.jar it.unimib.disco.summarization.export.PatternDepth "$OntologyFile" "$ResultsDirectory/patterns/"
-
-#	rm "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
-#	mv  patterns_datatype_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_datatype.txt"
-
-#	rm "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
-#	mv  patterns_object_WDepth.txt "$ResultsDirectory/patterns/patterns_splitMode_object.txt"
-	
-
-	if [ $? -ne 0 ]
-	then
-	    echo "App Failed during run"
-	    exit 1
-	fi
-fi
-
-#----------------------------------------------------------------
 if [ ${cardinalities} = "1" ]
 then
 	 rm -r "$ResultsDirectort/patterns/Properties"

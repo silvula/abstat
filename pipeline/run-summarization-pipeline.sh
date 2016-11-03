@@ -13,17 +13,15 @@ if [ -z "$2" ]
 then
 	propMin="1"
 	split_inference="1"
-	patterns_depth="1"
 	cardinalities="1"
 else
 	propMin=$2
 	split_inference=$3
-	patterns_depth=$4
-	cardinalities=$5
+	cardinalities=$4
 fi
 
 
-if [ $propMin -eq 1 ] || [ $split_inference -eq 1 ] || [ $patterns_depth -eq 1 ] || [ $cardinalities -eq 1 ];
+if [ $propMin -eq 1 ] || [ $split_inference -eq 1 ] || [ $cardinalities -eq 1 ];
 then
 	echo "The following additional features will be executed:"
 	if [ $propMin -eq 1 ]
@@ -34,11 +32,6 @@ then
 	if [ $split_inference -eq 1 ]
 	then 
 		echo " - pattern inference and instances counting"
-	fi
-
-	if [ $patterns_depth -eq 1 ]
-	then 
-		echo " - patterns' components depth"
 	fi
 
 	if [ $cardinalities -eq 1 ]
@@ -59,7 +52,7 @@ echo "With data from $data"
 echo "Saving results in $results"
 
 cd $current_directory
-./run-summarization.sh $data $results $propMin $split_inference $patterns_depth $cardinalities
+./run-summarization.sh $data $results $propMin $split_inference $cardinalities
 
 echo "Done"
 
