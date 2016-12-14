@@ -81,6 +81,30 @@ public class LDSummariesVocabulary {
 		return RDF.predicate;
 	}
 	
+	public Property max_M_Cardinality(){
+		return model.createProperty(ontologyNamespace() + "max_M_Cardinality");
+	}
+	
+	public Property avg_M_Cardinality(){
+		return model.createProperty(ontologyNamespace() + "avg_M_Cardinality");
+	}
+
+	public Property min_M_Cardinality(){
+		return model.createProperty(ontologyNamespace() + "min_M_Cardinality");
+	}
+	
+	public Property max_N_Cardinality(){
+		return model.createProperty(ontologyNamespace() + "max_N_Cardinality");
+	}
+	
+	public Property avg_N_Cardinality(){
+		return model.createProperty(ontologyNamespace() + "avg_N_Cardinality");
+	}
+	
+	public Property min_N_Cardinality(){
+		return model.createProperty(ontologyNamespace() + "min_N_Cardinality");
+	}
+	
 	public Property occurrence() {
 		return model.createProperty(ontologyNamespace() + "occurrence");
 	}
@@ -91,6 +115,10 @@ public class LDSummariesVocabulary {
 	
 	public Property objectOccurrence() {
 		return model.createProperty(ontologyNamespace() + "objectOccurrence");
+	}
+	
+	public Property numberOfInstances(){
+		return model.createProperty(ontologyNamespace() + "numberOfInstances");
 	}
 	
 	public Property subjectMinTypes() {

@@ -7,7 +7,7 @@ public class Row {
 
     Map<Entry, String> components;
 
-    public enum Entry {SUBJECT, OBJECT, PREDICATE, SCORE1, SCORE2, SCORE3};
+    public enum Entry {SUBJECT, OBJECT, PREDICATE, SCORE1, SCORE2, SCORE3, SCORE4, SCORE5, SCORE6, SCORE7, SCORE8};
     public Row() {
         components = new HashMap<Entry, String>();
     }
