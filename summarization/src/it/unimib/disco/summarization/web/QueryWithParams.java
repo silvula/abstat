@@ -66,7 +66,7 @@ public class QueryWithParams implements Api{
 				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?pred. " +
 				"       ?akp  <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> ?obj. " +
 				"       ?akp  <http://ld-summaries.org/ontology/occurrence> ?akp_frequency. " +
-				"       ?akp  <http://ld-summaries.org/ontology/numberOfInstances> ?akp_instances. " +
+				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/numberOfInstances> ?akp_instances.  } " +
 				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/max_M_Cardinality> ?akp_max_M.  } " +
 				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/avg_M_Cardinality> ?akp_avg_M.  } " +
 				"       OPTIONAL{ ?akp  <http://ld-summaries.org/ontology/min_M_Cardinality> ?akp_min_M.  } " +
