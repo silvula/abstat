@@ -16,13 +16,16 @@ relative_path=`dirname $0`
 current_directory=$(as_absolute $relative_path)
 cd $current_directory
 
-echo
-echo "Indexing the produced summary"
-
 dataset=$1
 payleveldomain=$2
 
-cd ../summarization
+echo "Computing concept PageRank"
+cd ../summarization/src/it/unimib/disco/summarization/export
+run CalculatePageRank ../../../../../../../data/summaries/$dataset/patterns/datatype-akp.txt ../../../../../../../data/summaries/$dataset/patterns/object-akp.txt ../../../../../../../data/summaries/$dataset/patterns/count-concepts.txt
+echo
+echo "Indexing the produced summary"
+
+#cd ../summarization
 
 run DeleteAllDocumentsFromIndex $dataset
 
