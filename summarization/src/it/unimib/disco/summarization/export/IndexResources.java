@@ -42,6 +42,10 @@ public class IndexResources{
 			document.setField("subtype", subtype);
 			document.setField("fullTextSearchField", localName);
 			document.setField("occurrence", occurrences);
+			if(line[2] != null){
+				double conceptPagerank = Double.parseDouble(line[2]);
+				document.setField("conceptPagerank", conceptPagerank);
+			}
 			
 			request.add(document);
 			processed++;

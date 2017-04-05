@@ -208,6 +208,9 @@ bootstrapSearchController = function(scope, solr, dataset){
 		if(dataset){
 			solr.withFilter('dataset:' + dataset);
 		}
+		if(scope.searchAKPOnly){
+			solr.withFilter('type: (objectAkp OR datatypeAkp)' );
+		}
 		solr.search(scope.srcStr);
 	};
 	

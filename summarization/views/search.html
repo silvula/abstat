@@ -34,12 +34,34 @@
       								<input type="checkbox" ng-model="searchInExternalResources">include external resources
     							</label>
  						    </div>
+
 						    </div>
 						    <div class="col-md-1"></div>
 					    </div>
 				    </form>
 			    </div>
       		</div>
+      		
+
+      		<div class="row">
+      		<div class="col-md-1"></div>
+      		<div class="col-md-7">
+      		<div class="checkbox">
+    			<label>
+      				<input type="checkbox" ng-model="searchAKPOnly">AKP only
+    			</label>
+			</div>
+				    Order by
+				    <div class = "radio">
+				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" id="subjectpr">subject pagerank</label>
+				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" id="propertypr">property pagerank</label>
+				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" id="objectpr">object pagerank</label>
+				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" id="AKPpr">AKP pagerank</label>
+				    </div>
+      		</div>
+      		<div class="col-md-4"></div>
+      		</div> 
+
       		<div class="row" style="margin-top:1cm" ng-show="allDocuments">
       		<div class="col-md-12">
       			<ul class="list-unstyled">
