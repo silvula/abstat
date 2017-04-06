@@ -19,9 +19,12 @@ cd $current_directory
 dataset=$1
 payleveldomain=$2
 
+cd ../summarization
+
+echo
 echo "Computing concept PageRank"
-cd ../summarization/src/it/unimib/disco/summarization/export
-run CalculatePageRank ../../../../../../../data/summaries/$dataset/patterns/datatype-akp.txt ../../../../../../../data/summaries/$dataset/patterns/object-akp.txt ../../../../../../../data/summaries/$dataset/patterns/count-concepts.txt
+
+run CalculatePageRank ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt ../data/summaries/$dataset/patterns/count-concepts.txt
 echo
 echo "Indexing the produced summary"
 
@@ -30,6 +33,7 @@ echo "Indexing the produced summary"
 run DeleteAllDocumentsFromIndex $dataset
 
 sleep 1
+echo "DeleteAllDocumentsFromIndex eseguito con successo"
 
 run RunResourcesIndexing ../data/summaries/$dataset/patterns/count-concepts.txt $dataset concept $payleveldomain
 run RunResourcesIndexing ../data/summaries/$dataset/patterns/count-datatype.txt $dataset datatype $payleveldomain
