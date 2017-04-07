@@ -24,7 +24,9 @@ cd ../summarization
 echo
 echo "Computing concept PageRank"
 
-run CalculatePageRank ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt ../data/summaries/$dataset/patterns/count-concepts.txt
+run CalculateConceptsDatatypesPageRank ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt ../data/summaries/$dataset/patterns/count-concepts.txt ../data/summaries/$dataset/patterns/count-datatype.txt
+run CalculatePropertiesPageRank ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt ../data/summaries/$dataset/patterns/count-datatype-properties.txt ../data/summaries/$dataset/patterns/count-object-properties.txt
+run CalculateAKPPageRank ../data/summaries/$dataset/patterns/count-concepts.txt ../data/summaries/$dataset/patterns/count-datatype.txt ../data/summaries/$dataset/patterns/count-object-properties.txt ../data/summaries/$dataset/patterns/count-datatype-properties.txt ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt
 echo
 echo "Indexing the produced summary"
 
@@ -33,7 +35,6 @@ echo "Indexing the produced summary"
 run DeleteAllDocumentsFromIndex $dataset
 
 sleep 1
-echo "DeleteAllDocumentsFromIndex eseguito con successo"
 
 run RunResourcesIndexing ../data/summaries/$dataset/patterns/count-concepts.txt $dataset concept $payleveldomain
 run RunResourcesIndexing ../data/summaries/$dataset/patterns/count-datatype.txt $dataset datatype $payleveldomain

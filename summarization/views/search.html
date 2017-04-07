@@ -53,10 +53,10 @@
 			</div>
 				    Order by
 				    <div class = "radio">
-				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" id="subjectpr">subject pagerank</label>
-				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" id="propertypr">property pagerank</label>
-				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" id="objectpr">object pagerank</label>
-				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" id="AKPpr">AKP pagerank</label>
+				    	<label class="radio-inline"><input ng-disabled = "!searchAKPOnly" type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankSubjectAKP">subject pagerank</label>
+				    	<label class="radio-inline"><input ng-disabled = "!searchAKPOnly" type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankPropertyAKP">property pagerank</label>
+				    	<label class="radio-inline"><input ng-disabled = "!searchAKPOnly" type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankObjectAKP">object pagerank</label>
+				    	<label class="radio-inline"><input ng-disabled = "!searchAKPOnly" type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerank">AKP pagerank</label>
 				    </div>
       		</div>
       		<div class="col-md-4"></div>

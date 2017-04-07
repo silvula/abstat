@@ -38,13 +38,15 @@ public class IndexResources{
 			SolrInputDocument document = new SolrInputDocument();
 			document.setField("URI", resource);
 			document.setField("type", type);
+			if(type.equalsIgnoreCase("datatype"))
+				System.out.println(resource);
 			document.setField("dataset", dataset);
 			document.setField("subtype", subtype);
 			document.setField("fullTextSearchField", localName);
 			document.setField("occurrence", occurrences);
-			if(line[2] != null){
-				double conceptPagerank = Double.parseDouble(line[2]);
-				document.setField("conceptPagerank", conceptPagerank);
+			if(line.length>2){
+				double resourcePagerank = Double.parseDouble(line[2]);
+				document.setField("pagerank", resourcePagerank);
 			}
 			
 			request.add(document);

@@ -50,6 +50,16 @@ public class IndexAKP{
 					subjectLocalName, propertyLocalName, objectLocalName
 			});
 			document.setField("occurrence", occurrences);
+			if(line.length==8){
+				double pagerankAKP = Double.parseDouble(line[4]);
+				document.setField("pagerank", pagerankAKP);
+				double pagerankSubjectAKP = Double.parseDouble(line[5]);
+				document.setField("pagerankSubjectAKP", pagerankSubjectAKP);
+				double pagerankPropertyAKP = Double.parseDouble(line[6]);
+				document.setField("pagerankPropertyAKP", pagerankPropertyAKP);
+				double pagerankObjectAKP = Double.parseDouble(line[7]);
+				document.setField("pagerankObjectAKP", pagerankObjectAKP);
+			}
 			
 			request.add(document);
 			processed++;

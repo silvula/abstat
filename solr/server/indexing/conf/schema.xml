@@ -6,7 +6,10 @@
    	<field name="idDocument" type="text_general" indexed="true" stored="true" required="true" multiValued="false" /> 
 	<field name="_version_" type="long" indexed="true" stored="true" multiValued="false" />
 	<field name="occurrence" type="long" indexed="true" stored="true" multiValued="false" />
-  <filed name="conceptPagerank" type ="double" indexed ="true" stored ="true" multiValued ="false" />
+  	<field name="pagerank" type ="double" indexed ="true" stored ="true" multiValued ="false" />
+	<field name="pagerankSubjectAKP" type ="double" indexed ="true" stored ="true" multiValued ="false" />
+	<field name="pagerankObjectAKP" type ="double" indexed ="true" stored ="true" multiValued ="false" />
+	<field name="pagerankPropertyAKP" type ="double" indexed ="true" stored ="true" multiValued ="false" />
 	<field name="URI" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="dataset" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="subtype" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />
@@ -20,6 +23,7 @@
 	<fieldType name="int" class="solr.TrieIntField" precisionStep="0" positionIncrementGap="0"/>
 	<fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
 	<fieldType name="string" class="solr.StrField"/>
+	<fieldType name="double" class="solr.TrieDoubleField"/>
 
    	<fieldType name="text_general" class="solr.TextField" sortMissingLast="true" positionIncrementGap="100">
 		<analyzer type="index">
