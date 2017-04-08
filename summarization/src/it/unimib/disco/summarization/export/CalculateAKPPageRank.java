@@ -5,69 +5,73 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
-
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
 
 public class CalculateAKPPageRank {
+	
 	private static HashMap<String, Double> rankingMap = new HashMap<String, Double>();
 
 	public static void main(String[] args) {
 		
-		BufferedReader br;
+		String source1 = args[0]; //count-concepts.txt file
+		String source2 = args[1]; //count-datatype.txt file
+		String source3 = args[2]; //count-datatype-properties.txt file
+		String source4 = args[3]; //count-object-properties.txt file
+		String dest1 = args[4]; //datatype-akp.txt file
+		String dest2 = args[5]; //object-akp.txt file
+		 
+		BufferedReader br = null;
 
 		try {
-			br = new BufferedReader(new FileReader(args[4]));
+			br = new BufferedReader(new FileReader(dest1));
 
 			if (br.readLine().split("##").length > 4) {
 				System.out.println("PageRank score has already been computed for the first destination file");
-				br = new BufferedReader(new FileReader(args[5]));
+				br = new BufferedReader(new FileReader(dest2));
 				if (br.readLine().split("##").length > 4) {
 					System.out.println("PageRank score has already been computed for the second destination file");
-
 				} else {
-
-					buildMap(args[0]);
-					buildMap(args[1]);
-					buildMap(args[2]);
-					buildMap(args[3]);
-					computeAndWrite(args[5]);
+					buildMap(source1);
+					buildMap(source2);
+					buildMap(source3);
+					buildMap(source4);
+					computeAndWrite(dest2);
 				}
 			} else {
-				br = new BufferedReader(new FileReader(args[5]));
+				br = new BufferedReader(new FileReader(dest2));
 				if (br.readLine().split("##").length > 2) {
 					System.out.println("PageRank score has already been computed for the second destination file");
 
-					buildMap(args[0]);
-					buildMap(args[1]);
-					buildMap(args[2]);
-					buildMap(args[3]);
-					computeAndWrite(args[4]);
+					buildMap(source1);
+					buildMap(source2);
+					buildMap(source3);
+					buildMap(source4);
+					computeAndWrite(dest1);
 				} else {
-					buildMap(args[0]);
-					buildMap(args[1]);
-					buildMap(args[2]);
-					buildMap(args[3]);
-					computeAndWrite(args[4]);
-					computeAndWrite(args[5]);
+					buildMap(source1);
+					buildMap(source2);
+					buildMap(source3);
+					buildMap(source4);
+					computeAndWrite(dest1);
+					computeAndWrite(dest2);
 				}
 			}
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Attention: FileNotFoundException!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Attention: IOException!");
 			e.printStackTrace();
 		}
 	}
 
 	public static void buildMap(String file) {
-		BufferedReader br;
+		
+		BufferedReader br = null;
+		
 		try {
 			br = new BufferedReader(new FileReader(file));
 
@@ -80,49 +84,51 @@ public class CalculateAKPPageRank {
 			}
 			br.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Attention: FileNotFoundException!");
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Attention: NumberFormatException!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Attention: IOException!");
 			e.printStackTrace();
 		}
 	}
 
 	public static void computeAndWrite(String file) {
+		
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			ArrayList<String> tmp = new ArrayList<String>();
 			String line = null;
 
 			while ((line = br.readLine()) != null) {
-				String[] lineArr = line.split("##");
+				String[] lineArr = line.split("##"); //split on "##"
+				
 				double prSubj = Collections.min(rankingMap.values());
 				double prProp = prSubj;
 				double prObj = prSubj;
 
-				if(rankingMap.containsKey(lineArr[0])){
+				if (rankingMap.containsKey(lineArr[0])) {
 					prSubj = rankingMap.get(lineArr[0]);
 				}
-				else{
+				else {
 					rankingMap.put(lineArr[0], prSubj);
 				}
-				if(rankingMap.containsKey(lineArr[1])){
+				if (rankingMap.containsKey(lineArr[1])) {
 					prProp = rankingMap.get(lineArr[1]);
 				}
-				else{
+				else {
 					rankingMap.put(lineArr[1], prProp);
 				}
-				if(rankingMap.containsKey(lineArr[2])){
+				if(rankingMap.containsKey(lineArr[2])) {
 					prObj = rankingMap.get(lineArr[2]);
 				}
-				else{
+				else {
 					rankingMap.put(lineArr[2], prObj);
 				}
 
-				double pagerank = (prSubj + prProp + prObj) / 3;
+				double pagerank = (prSubj + prProp + prObj) / 3; //compute AKP PageRank as mean of 3 PageRank values
 
 				tmp.add(line + "##" + pagerank + "##" + prSubj + "##" + prProp + "##" + prObj + "\n");
 			}
@@ -137,7 +143,7 @@ public class CalculateAKPPageRank {
 			br.close();
 			bw.close();
 		} catch (IOException e) {
-			System.out.println("IOException");
+			System.out.println("Attention: IOException!");
 			e.printStackTrace();
 		}
 
