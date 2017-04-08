@@ -22,11 +22,20 @@ payleveldomain=$2
 cd ../summarization
 
 echo
-echo "Computing concept PageRank"
+echo "Computing concepts and datatypes PageRank"
 
 run CalculateConceptsDatatypesPageRank ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt ../data/summaries/$dataset/patterns/count-concepts.txt ../data/summaries/$dataset/patterns/count-datatype.txt
+
+echo
+echo "Computing properties PageRank"
+
 run CalculatePropertiesPageRank ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt ../data/summaries/$dataset/patterns/count-datatype-properties.txt ../data/summaries/$dataset/patterns/count-object-properties.txt
-run CalculateAKPPageRank ../data/summaries/$dataset/patterns/count-concepts.txt ../data/summaries/$dataset/patterns/count-datatype.txt ../data/summaries/$dataset/patterns/count-object-properties.txt ../data/summaries/$dataset/patterns/count-datatype-properties.txt ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt
+
+echo
+echo "Computing AKP PageRank"
+
+run CalculateAKPPageRank ../data/summaries/$dataset/patterns/count-concepts.txt ../data/summaries/$dataset/patterns/count-datatype.txt ../data/summaries/$dataset/patterns/count-datatype-properties.txt ../data/summaries/$dataset/patterns/count-object-properties.txt ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt
+
 echo
 echo "Indexing the produced summary"
 
