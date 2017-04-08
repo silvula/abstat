@@ -210,11 +210,11 @@ bootstrapSearchController = function(scope, solr, dataset){
 		}
 		if(scope.searchAKPOnly){
 			solr.withFilter('type: (objectAkp OR datatypeAkp)' );
-			
 		}
 		else{
 			scope.orderByRadio = undefined;
 		}
+		solr.setRanking(scope.orderByRadio);
 		solr.search(scope.srcStr);
 	};
 
@@ -222,12 +222,9 @@ bootstrapSearchController = function(scope, solr, dataset){
 	scope.loadPatterns = function(){
 		solr.startFrom(0);
 		prepare(scope, solr, dataset);
-		//if(!scope.searchAKPOnly){
-		//	scope.orderByRadio = undefined;
-		//}
 		solr.accumulate(function(results){
 					scope.allDocuments = results.response.docs;
-				}, scope.orderByRadio);
+				});
 	};
 	
 	var offset = 0;
@@ -238,7 +235,7 @@ bootstrapSearchController = function(scope, solr, dataset){
 					for (var i = 0; i < results.response.docs.length; i++) {
 						scope.allDocuments.push(results.response.docs[i]);
 				    }
-				}, scope.orderByRadio);
+				});
 	};	
 }
 
@@ -426,7 +423,7 @@ Solr = function(connector){
 	var textToSearch;
 	var filters = [];
 	var startIndex = 0;
-
+	var ranking = 'occurrence';
 	
 	var escape = function(string){
 		return string.toLowerCase()
@@ -454,9 +451,13 @@ Solr = function(connector){
 		startIndex = index;
 	};
 
-	this.accumulate = function(callback, ranking){
+	this.setRanking = function(orderByRadio){
+		ranking = orderByRadio;
 		if(ranking==undefined)
 			ranking = 'occurrence';
+	}
+
+	this.accumulate = function(callback){
 		http.get('/solr/indexing/select', {
 			method: 'GET',
 			params: {
