@@ -178,11 +178,64 @@ summary.controller('browse', function ($scope, $http) {
 		 });
 });
 
-summary.controller("search", function ($scope, $http) {
+summary.controller('search', function ($scope, $http) {
 	var solr = new Solr($http);
+
+	var handle = $("#custom-handle");
 	
+	$("#slider").slider({
+			/*
+			create: function() {
+			handle.text( $(this).slider("value") );
+			},
+
+			slide: function(event, ui) {
+			handle.text(ui.value);
+			}
+			*/
+	 	});
+
+
+	$scope.selected = [0];
+
+	$scope.setSelected = function(index) {
+		i = $scope.selected.indexOf(index);
+		if(i!=-1){
+			if($scope.selected.length>1){
+				$scope.selected.splice(i,1);
+			}	
+		}
+		else{
+			if($scope.selected.length >1){
+				$scope.selected.shift();
+				$scope.selected.push(index);
+			}
+			else{
+				$scope.selected.push(index);
+			}
+		}
+	};
+
+	$scope.list = [
+    {
+      "id": 0,
+      "text": "TF-IDF",
+      "value": "tfidf"
+    },
+    {
+      "id": 1,
+      "text": "PageRank",
+      "value": "pagerank"
+    },
+    {
+      "id": 2,
+      "text": "Occurrence",
+      "value": "occurrence"
+    }
+    ];
+
 	bootstrapSearchController($scope, solr, '');
-});
+	});
 
 summary.controller('experiment-browse', function ($scope, $http) {
 	var summaries = new Summary($scope, $http, '?pattern a lds:Internal . ');
@@ -194,13 +247,16 @@ summary.controller('experiment-browse', function ($scope, $http) {
 
 summary.controller("experiment-search", function ($scope, $http) {
 	var solr = new Solr($http);
-	
+
 	bootstrapSearchController($scope, solr, 'dbpedia-3.9');
 });
 
+
+
 bootstrapSearchController = function(scope, solr, dataset){
-	
+
 	var prepare = function(scope, solr, dataset){
+
 		solr.noFilters();
 		if(!scope.searchInExternalResources){
 			solr.withFilter('subtype: internal');
@@ -208,13 +264,29 @@ bootstrapSearchController = function(scope, solr, dataset){
 		if(dataset){
 			solr.withFilter('dataset:' + dataset);
 		}
-		if(scope.searchAKPOnly){
-			solr.withFilter('type: (objectAkp OR datatypeAkp)' );
-		}
-		else{
-			scope.orderByRadio = undefined;
-		}
-		solr.setRanking(scope.orderByRadio);
+
+		switch(scope.searchBy) {
+    	case 'AKPOnly':
+  	      	solr.withFilter('type: (objectAkp OR datatypeAkp)' );
+    	    break;
+   		case 'ConceptOnly':
+        	solr.withFilter('type: concept' );
+        	break;
+        case 'PropertyOnly':
+  	      	solr.withFilter('type: (objectProperty OR datatypeProperty)' );
+    	    break;
+   		case 'DatatypeOnly':
+        	solr.withFilter('type: datatype' );
+        	break;	
+        case 'all':
+    	    break;
+    	default:
+        	scope.orderByRadio = undefined;
+		} 
+
+
+
+		solr.setRanking(scope);
 		solr.search(scope.srcStr);
 	};
 
@@ -237,7 +309,7 @@ bootstrapSearchController = function(scope, solr, dataset){
 				    }
 				});
 	};	
-}
+};
 
 bootstrapControllerFor = function(scope, http, graph, summaries, filter){
 	
@@ -381,7 +453,7 @@ Summary = function(scope_service, http_service, filter){
 				endLoading();
 			});
 	}
-}
+};
 
 Sparql = function(http_service){
 	
@@ -423,7 +495,7 @@ Solr = function(connector){
 	var textToSearch;
 	var filters = [];
 	var startIndex = 0;
-	var ranking = 'occurrence';
+	var ranking = '';
 	
 	var escape = function(string){
 		return string.toLowerCase()
@@ -451,24 +523,55 @@ Solr = function(connector){
 		startIndex = index;
 	};
 
-	this.setRanking = function(orderByRadio){
-		ranking = orderByRadio;
-		if(ranking==undefined)
-			ranking = 'occurrence';
-	}
+	this.setRanking = function(scope){
+		if(scope.selected.length==1){
+		ranking = scope.list[scope.selected[0]].value;
+		} else {
+			scope.sliderValue = $("#slider").slider("value")/100;
+			var firstEl = scope.list[scope.selected[0]].value;
+			var secondEl = scope.list[scope.selected[1]].value;
+			if(firstEl=="tfidf")
+				firstEl = "query($q)";
+			if(secondEl == "tfidf")
+				secondEl = "query($q)";
+			ranking = "sum(product(sub(1, " + scope.sliderValue + "), " + firstEl + "), product(" + scope.sliderValue + ", " + secondEl +"))";
+			alert(ranking);
+		}
+
+		if(ranking == 'pagerank'){
+			ranking = scope.orderByRadio;
+		}
+	};
+
+	
 
 	this.accumulate = function(callback){
-		http.get('/solr/indexing/select', {
+		if(ranking != "tfidf"){
+				http.get('/solr/indexing/select', {
+					method: 'GET',
+					params: {
+						wt: 'json',
+						q: 'fullTextSearchField:(' + escape(textToSearch) + ')',
+						rows: 20,
+						start: startIndex,
+						fq: filters,
+						sort: ranking + ' desc'
+					}
+				})
+				.success(callback);
+		} else {
+			http.get('/solr/indexing/select', {
 			method: 'GET',
 			params: {
 				wt: 'json',
 				q: 'fullTextSearchField:(' + escape(textToSearch) + ')',
 				rows: 20,
 				start: startIndex,
-				fq: filters,
-				sort: ranking + ' desc'
-			}})
+				fq: filters
+			}
+		})
 		.success(callback);
+		}
 	}
 };
 var prefixes = {

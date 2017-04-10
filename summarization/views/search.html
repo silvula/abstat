@@ -9,6 +9,28 @@
 	<link rel="shortcut icon" href="static/img/abstat.svg">
 	<script src="static/js/ui-bootstrap-tpls-0.12.1.min.js"></script>
     <script src="static/js/controllers.js"></script>
+    <script src="static/js/jquery.min.js"></script>
+ <!--   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+-->
+  	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+
+  	  <style>
+  #custom-handle {
+    width: 3em;
+    height: 1.6em;
+    top: 50%;
+    margin-top: -.8em;
+    text-align: center;
+    line-height: 1.6em;
+  }
+  </style>
+   
+
+   	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.3/css/bootstrap-slider.css" />
     <title>ABSTAT</title>
   </head>
   <body>
@@ -42,24 +64,46 @@
 			    </div>
       		</div>
       		
-
       		<div class="row">
       		<div class="col-md-1"></div>
       		<div class="col-md-7">
-      		<div class="checkbox">
-    			<label>
-      				<input type="checkbox" ng-model="searchAKPOnly">AKP only
-    			</label>
+      		<div class = "radio">
+				   		<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="all" ng-checked ="true">All</label>
+				    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="AKPOnly">AKP only</label>
+				    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="ConceptOnly">Concept only</label>
+				    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="PropertyOnly">Property only</label>
+				    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="DatatypeOnly">Datatype only</label>
 			</div>
+				    
+				    <div class = "radio" ng-show = "searchBy=='AKPOnly'">
 				    Order by
-				    <div class = "radio">
-				    	<label class="radio-inline"><input ng-disabled = "!searchAKPOnly" type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankSubjectAKP">subject pagerank</label>
-				    	<label class="radio-inline"><input ng-disabled = "!searchAKPOnly" type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankPropertyAKP">property pagerank</label>
-				    	<label class="radio-inline"><input ng-disabled = "!searchAKPOnly" type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankObjectAKP">object pagerank</label>
-				    	<label class="radio-inline"><input ng-disabled = "!searchAKPOnly" type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerank">AKP pagerank</label>
+				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankSubjectAKP">subject pagerank</label>
+				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankPropertyAKP">property pagerank</label>
+				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankObjectAKP">object pagerank</label>
+				    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerank">AKP pagerank</label>
 				    </div>
       		</div>
-      		<div class="col-md-4"></div>
+      		<div class="col-md-3">
+      			<ul class="list-group">
+  				<h4>Select ranking algorithm</h4>
+      			 <div ng-repeat="item in list" ng-click="setSelected($index)">
+			      <a href="#" class="list-group-item" ng-class="{'active': selected.indexOf(item.id)!=-1}"> {{item.text}} </a>
+				</div>
+				</ul>
+
+				<div id="slider" ng-show = "selected.length>1">
+				  <div id="custom-handle" class="ui-slider-handle"></div> 
+				</div>
+				 <div id="legend"> 
+				 <div class="row" ng-show = "selected.length>1" style="margin-top:0.5cm" style="margin-right: 0.5cm">
+				 <label > </label>
+				 	<label ng-value="selected[0]" style='float: left;'>{{list[selected[0]].text}}</label>
+					<label ng-value="selected[1]" style='float: right'>{{list[selected[1]].text}}</label>
+</div>
+
+				 </div>
+      		</div>
+      		<div class="col-md-1"></div>
       		</div> 
 
       		<div class="row" style="margin-top:1cm" ng-show="allDocuments">
@@ -94,4 +138,5 @@
 	    </div>
     </div>
   </body>
+
 </html>
