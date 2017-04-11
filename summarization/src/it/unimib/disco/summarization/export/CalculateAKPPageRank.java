@@ -32,7 +32,9 @@ public class CalculateAKPPageRank {
 				br = new BufferedReader(new FileReader(dest2));
 				if (br.readLine().split("##").length > 4) {
 					System.out.println("PageRank score has already been computed for the second destination file");
+					br.close();
 				} else {
+					br.close();
 					buildMap(source1);
 					buildMap(source2);
 					buildMap(source3);
@@ -43,13 +45,14 @@ public class CalculateAKPPageRank {
 				br = new BufferedReader(new FileReader(dest2));
 				if (br.readLine().split("##").length > 2) {
 					System.out.println("PageRank score has already been computed for the second destination file");
-
+					br.close();
 					buildMap(source1);
 					buildMap(source2);
 					buildMap(source3);
 					buildMap(source4);
 					computeAndWrite(dest1);
 				} else {
+					br.close();
 					buildMap(source1);
 					buildMap(source2);
 					buildMap(source3);

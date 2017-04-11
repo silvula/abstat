@@ -535,7 +535,6 @@ Solr = function(connector){
 			if(secondEl == "tfidf")
 				secondEl = "query($q)";
 			ranking = "sum(product(sub(1, " + scope.sliderValue + "), " + firstEl + "), product(" + scope.sliderValue + ", " + secondEl +"))";
-			alert(ranking);
 		}
 
 		if(ranking == 'pagerank'){
