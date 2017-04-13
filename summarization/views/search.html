@@ -63,27 +63,31 @@
       		<div class="row">
       		<div class="col-md-1"></div>
       		<div class="col-md-7">
-	      		<div class = "radio">
-					   		<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="all" ng-checked ="true">All</label>
-					    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="AKPOnly">AKP only</label>
-					    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="ConceptOnly">Concept only</label>
-					    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="PropertyOnly">Property only</label>
-					    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="DatatypeOnly">Datatype only</label>
-				</div>
-					    
+      			<div class="panel panel-default">
+	      			<div class="panel-body">
+			      		<div class = "radio">
+							   		<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="all" ng-checked ="true">All</label>
+							    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="AKPOnly">AKP only</label>
+							    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="ConceptOnly">Concept only</label>
+							    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="PropertyOnly">Property only</label>
+							    	<label class="radio-inline"><input type="radio" name = "searchBy" ng-model="searchBy" value="DatatypeOnly">Datatype only</label>
+						</div>
+							    
 
-	    		<div class="panel panel-default"  ng-show = "searchBy=='AKPOnly' && (list[selected[0]].value=='pagerank' || list[selected[1]].value=='pagerank')">
+			    		<div class="panel panel-default"  ng-show = "searchBy=='AKPOnly' && (list[selected[0]].value=='pagerank' || list[selected[1]].value=='pagerank')">
 
-	        		<div class="panel-body">
-					     <label class="row">Order by:</label>
-	        	 		<div class = "radio">
-					    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankSubjectAKP" ng-checked ="true">Subject PageRank</label>
-					    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankPropertyAKP">Property PageRank</label>
-					    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankObjectAKP">Object PageRank</label>
-					    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerank">AKP PageRank</label>
-					    </div>
-	        		</div>
-    			</div>   
+			        		<div class="panel-body">
+							     <label class="row">Order by:</label>
+			        	 		<div class = "radio">
+							    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" ng-checked ="true" value="pagerankSubjectAKP">Subject PageRank</label>
+							    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankPropertyAKP">Property PageRank</label>
+							    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerankObjectAKP">Object PageRank</label>
+							    	<label class="radio-inline"><input type="radio" name = "orderByRadio" ng-model="orderByRadio" value="pagerank">AKP PageRank</label>
+							    </div>
+			        		</div>
+		    			</div>   
+	    			</div>
+	    		</div>
       		</div>
       		<div class="col-md-3">
       			<ul class="list-group">
@@ -129,7 +133,12 @@
 					<li><span class="label label-{{doc.type | asLabel}}">{{doc.type}}</span></li>
 					<li><span class="glyphicon glyphicon-resize-{{doc.subtype | asIcon}}" aria-hidden="true"></span></li>
 			 		<li ng-repeat="uri in doc.URI track by $index"><h4>{{uri | prefixed}}</h4></li>
-			 		<li>({{doc.occurrence}})</li>
+			 		<li ng-show="resultList.indexOf('tfidf')!=-1"> (TF-IDF score: <span class="badge">{{doc.score}}</span>)</li>
+			 		<li ng-show="resultList.indexOf('occurrence')!=-1"> (Occurrences: <span class="badge">{{doc.occurrence}}</span>)</li>
+			 		<li ng-show="resultList.indexOf('pagerank')!=-1"> (Pagerank: <span class="badge">{{doc.pagerank}}</span>)</li>
+			 		<li ng-show="resultList.indexOf('pagerankObjectAKP')!=-1"> (Pagerank: <span class="badge">{{doc.pagerankObjectAKP}}</span>)</li>
+			 		<li ng-show="resultList.indexOf('pagerankPropertyAKP')!=-1"> (Pagerank: <span class="badge">{{doc.pagerankPropertyAKP}}</span>)</li>
+			 		<li ng-show="resultList.indexOf('pagerankSubjectAKP')!=-1"> (Pagerank: <span class="badge">{{doc.pagerankSubjectAKP}}</span>)</li>
 			 	</ul>
 				</div>
 				<button ng-show="allDocuments" ng-click="loadMore()" type="button" class="btn btn-deafult btn-block">

@@ -281,7 +281,7 @@ bootstrapSearchController = function(scope, solr, dataset){
         case 'all':
     	    break;
     	default:
-        	scope.orderByRadio = undefined;
+        	break;
 		} 
 
 
@@ -297,6 +297,7 @@ bootstrapSearchController = function(scope, solr, dataset){
 		solr.accumulate(function(results){
 					scope.allDocuments = results.response.docs;
 				});
+		solr.setResultSelected(scope);
 	};
 	
 	var offset = 0;
@@ -524,9 +525,12 @@ Solr = function(connector){
 	};
 
 	this.setRanking = function(scope){
+
 		if(scope.selected.length==1){
 		ranking = scope.list[scope.selected[0]].value;
+
 		} else {
+
 			scope.sliderValue = $("#slider").slider("value")/100;
 			var firstEl = scope.list[scope.selected[0]].value;
 			var secondEl = scope.list[scope.selected[1]].value;
@@ -537,9 +541,13 @@ Solr = function(connector){
 			ranking = "sum(product(sub(1, " + scope.sliderValue + "), " + firstEl + "), product(" + scope.sliderValue + ", " + secondEl +"))";
 		}
 
-		if(ranking == 'pagerank'){
-			ranking = scope.orderByRadio;
+		if(scope.searchBy =="AKPOnly" && ranking.indexOf('pagerank')!=-1){
+			if(scope.orderByRadio==undefined){
+				scope.orderByRadio = "pagerankSubjectAKP";
+			}
+			ranking.replace("pagerank", scope.orderByRadio);
 		}
+		
 	};
 
 	
@@ -554,7 +562,8 @@ Solr = function(connector){
 						rows: 20,
 						start: startIndex,
 						fq: filters,
-						sort: ranking + ' desc'
+						sort: ranking + ' desc',
+						fl: '*, score'
 					}
 				})
 				.success(callback);
@@ -566,12 +575,27 @@ Solr = function(connector){
 				q: 'fullTextSearchField:(' + escape(textToSearch) + ')',
 				rows: 20,
 				start: startIndex,
-				fq: filters
+				fq: filters,
+				fl: '*, score'
 			}
 		})
 		.success(callback);
 		}
-	}
+	};
+
+	this.setResultSelected = function(scope){
+		scope.resultList = [];
+		for(i = 0; i < scope.selected.length; i++){
+			if(scope.orderByRadio==undefined){
+			scope.resultList.push(scope.list[scope.selected[i]].value);
+			}
+			else
+				if(scope.list[scope.selected[i]].value =="pagerank")
+					scope.resultList.push(scope.orderByRadio);
+				else 
+					scope.resultList.push(scope.list[scope.selected[i]].value);
+		}
+	};
 };
 var prefixes = {
 		"http://yago-knowledge.org/resource/": "yago",
