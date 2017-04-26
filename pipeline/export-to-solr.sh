@@ -37,6 +37,12 @@ echo "Computing AKP PageRank"
 run CalculateAKPPageRank ../data/summaries/$dataset/patterns/count-concepts.txt ../data/summaries/$dataset/patterns/count-datatype.txt ../data/summaries/$dataset/patterns/count-datatype-properties.txt ../data/summaries/$dataset/patterns/count-object-properties.txt ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt
 
 echo
+echo "Computing resource descriptions"
+
+run CalculateResourceDescription ../data/summaries/$dataset/patterns/datatype-akp.txt ../data/summaries/$dataset/patterns/object-akp.txt ../data/summaries/$dataset/patterns/count-concepts.txt ../data/summaries/$dataset/patterns/count-datatype.txt ../data/summaries/$dataset/patterns/count-datatype-properties.txt ../data/summaries/$dataset/patterns/count-object-properties.txt
+
+
+echo
 echo "Indexing the produced summary"
 
 #cd ../summarization

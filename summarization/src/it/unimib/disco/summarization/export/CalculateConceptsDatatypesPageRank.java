@@ -19,7 +19,7 @@ public class CalculateConceptsDatatypesPageRank {
 		String source1 = args[0]; // datatype-akp.txt file
 		String source2 = args[1]; // object-akp.txt file
 		String destination1 = args[2]; // count-concepts.txt file
-		String destination2 = args[3]; //count-datatype.txt file
+		String destination2 = args[3]; // count-datatype.txt file
 
 		BufferedReader br = null;
 
@@ -38,11 +38,20 @@ public class CalculateConceptsDatatypesPageRank {
 					// create a graph
 					DirectedSparseGraph<String, Integer> g = new DirectedSparseGraph<>();
 
-					g = computeConceptsGraph(g, source1); // add vertex and edges to a graph
-					g = computeConceptsGraph(g, source2); // add vertex and edges to a graph
+					g = computeConceptsGraph(g, source1); // add vertex and
+															// edges to a graph
+					g = computeConceptsGraph(g, source2); // add vertex and
+															// edges to a graph
 
-					HashMap<String, Double> hm = computePageRank(g); //compute the value of PageRank
-					writePageRank(hm, destination2); //write the value of the PageRank to the destination file 'count-datatype.txt'
+					HashMap<String, Double> hm = computePageRank(g); // compute
+																		// the
+																		// value
+																		// of
+																		// PageRank
+					writePageRank(hm, destination2); // write the value of the
+														// PageRank to the
+														// destination file
+														// 'count-datatype.txt'
 				}
 			} else {
 				br = new BufferedReader(new FileReader(destination2));
@@ -53,22 +62,43 @@ public class CalculateConceptsDatatypesPageRank {
 					// create a graph
 					DirectedSparseGraph<String, Integer> g = new DirectedSparseGraph<>();
 
-					g = computeConceptsGraph(g, source1); // add vertex and edges to a graph
-					g = computeConceptsGraph(g, source2); // add vertex and edges to a graph
+					g = computeConceptsGraph(g, source1); // add vertex and
+															// edges to a graph
+					g = computeConceptsGraph(g, source2); // add vertex and
+															// edges to a graph
 
-					HashMap<String, Double> hm = computePageRank(g); //compute the value of PageRank
-					writePageRank(hm, destination1); //write the value of the PageRank to the destination file 'count-concepts.txt'
+					HashMap<String, Double> hm = computePageRank(g); // compute
+																		// the
+																		// value
+																		// of
+																		// PageRank
+					writePageRank(hm, destination1); // write the value of the
+														// PageRank to the
+														// destination file
+														// 'count-concepts.txt'
 				} else {
 					// create a graph
 					DirectedSparseGraph<String, Integer> g = new DirectedSparseGraph<>();
 
-					g = computeConceptsGraph(g, source1); // add vertex and edges to a graph
+					g = computeConceptsGraph(g, source1); // add vertex and
+															// edges to a graph
 
-					g = computeConceptsGraph(g, source2); // add vertex and edges to a graph
+					g = computeConceptsGraph(g, source2); // add vertex and
+															// edges to a graph
 
-					HashMap<String, Double> hm = computePageRank(g); //compute the value of PageRank
-					writePageRank(hm, destination1); // write the value of PageRank to the destination file 'count-concepts.txt'
-					writePageRank(hm, destination2); // write the value of PageRank to the destination file 'count-datatype.txt'
+					HashMap<String, Double> hm = computePageRank(g); // compute
+																		// the
+																		// value
+																		// of
+																		// PageRank
+					writePageRank(hm, destination1); // write the value of
+														// PageRank to the
+														// destination file
+														// 'count-concepts.txt'
+					writePageRank(hm, destination2); // write the value of
+														// PageRank to the
+														// destination file
+														// 'count-datatype.txt'
 				}
 			}
 
@@ -82,10 +112,11 @@ public class CalculateConceptsDatatypesPageRank {
 
 	}
 
-	public static DirectedSparseGraph<String, Integer> computeConceptsGraph(DirectedSparseGraph<String, Integer> graph,
-			String fileAKP) {
+	public static DirectedSparseGraph<String, Integer> computeConceptsGraph(
+			DirectedSparseGraph<String, Integer> graph, String fileAKP) {
 
-		int edgeCount = graph.getEdgeCount(); // count the number of edges of the graph
+		int edgeCount = graph.getEdgeCount(); // count the number of edges of
+												// the graph
 
 		BufferedReader br = null;
 
@@ -98,10 +129,14 @@ public class CalculateConceptsDatatypesPageRank {
 				String source = lineArr[0]; // subject of the AKP
 				String dest = lineArr[2]; // object of the AKP
 
-				graph.addVertex(source); //add the vertex to the graph
-				graph.addVertex(dest); //add the vertex to the graph
+				graph.addVertex(source); // add the vertex to the graph
+				graph.addVertex(dest); // add the vertex to the graph
 
-				if (graph.findEdge(source, dest) == null) { // if there isn't any edge between source and dest, add the edge to the graph 
+				if (graph.findEdge(source, dest) == null) { // if there isn't
+															// any edge between
+															// source and dest,
+															// add the edge to
+															// the graph
 					graph.addEdge(new Integer(edgeCount + 1), source, dest);
 					edgeCount += 1;
 				}
@@ -119,7 +154,7 @@ public class CalculateConceptsDatatypesPageRank {
 
 	public static HashMap<String, Double> computePageRank(DirectedSparseGraph<String, Integer> graph) {
 
-		/*Execute PageRank algorithm with alpha (dumping factor) = 0.3*/
+		/* Execute PageRank algorithm with alpha (dumping factor) = 0.3 */
 		PageRank<String, Integer> ranker = new PageRank<String, Integer>(graph, 0.3);
 
 		ranker.evaluate();
@@ -145,9 +180,21 @@ public class CalculateConceptsDatatypesPageRank {
 				double pagerank = 0; // value of the PageRank computed before
 
 				try {
-					pagerank = ranking.get(resource); // get the value of the PageRank of the resource
+					pagerank = ranking.get(resource); // get the value of the
+														// PageRank of the
+														// resource
 				} catch (NullPointerException e) {
-					pagerank = Collections.min(ranking.values()); // if there isn't any value of the PageRank for any resource, set the minimum value as PageRank
+					pagerank = Collections.min(ranking.values()); // if there
+																	// isn't any
+																	// value of
+																	// the
+																	// PageRank
+																	// for any
+																	// resource,
+																	// set the
+																	// minimum
+																	// value as
+																	// PageRank
 				}
 				tmp.add(line + "##" + pagerank + "\n");
 			}

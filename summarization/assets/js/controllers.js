@@ -181,38 +181,12 @@ summary.controller('browse', function ($scope, $http) {
 summary.controller('search', function ($scope, $http) {
 	var solr = new Solr($http);
 
-	var handle = $("#custom-handle");
-	
-	$("#slider").slider({
-			/*
-			create: function() {
-			handle.text( $(this).slider("value") );
-			},
-
-			slide: function(event, ui) {
-			handle.text(ui.value);
-			}
-			*/
-	 	});
-
-
-	$scope.selected = [0];
+	$scope.selected = 0;
 
 	$scope.setSelected = function(index) {
-		i = $scope.selected.indexOf(index);
-		if(i!=-1){
-			if($scope.selected.length>1){
-				$scope.selected.splice(i,1);
-			}	
-		}
-		else{
-			if($scope.selected.length >1){
-				$scope.selected.shift();
-				$scope.selected.push(index);
-			}
-			else{
-				$scope.selected.push(index);
-			}
+		
+		if($scope.selected != index){
+			$scope.selected=index;
 		}
 	};
 
@@ -297,7 +271,7 @@ bootstrapSearchController = function(scope, solr, dataset){
 		solr.accumulate(function(results){
 					scope.allDocuments = results.response.docs;
 				});
-		solr.setResultSelected(scope);
+		//solr.setResultSelected(scope);
 	};
 	
 	var offset = 0;
@@ -526,28 +500,16 @@ Solr = function(connector){
 
 	this.setRanking = function(scope){
 
-		if(scope.selected.length==1){
-		ranking = scope.list[scope.selected[0]].value;
-
-		} else {
-
-			scope.sliderValue = $("#slider").slider("value")/100;
-			var firstEl = scope.list[scope.selected[0]].value;
-			var secondEl = scope.list[scope.selected[1]].value;
-			if(firstEl=="tfidf")
-				firstEl = "query($q)";
-			if(secondEl == "tfidf")
-				secondEl = "query($q)";
-			ranking = "sum(product(sub(1, " + scope.sliderValue + "), " + firstEl + "), product(" + scope.sliderValue + ", " + secondEl +"))";
-		}
-
-		if(scope.searchBy =="AKPOnly" && ranking.indexOf('pagerank')!=-1){
+		
+		ranking = scope.list[scope.selected].value;
+		/*
+		if(scope.searchBy =="AKPOnly" && ranking =='pagerank'){
 			if(scope.orderByRadio==undefined){
 				scope.orderByRadio = "pagerankSubjectAKP";
 			}
 			ranking.replace("pagerank", scope.orderByRadio);
 		}
-		
+		*/
 	};
 
 	
@@ -572,7 +534,7 @@ Solr = function(connector){
 			method: 'GET',
 			params: {
 				wt: 'json',
-				q: 'fullTextSearchField:(' + escape(textToSearch) + ')',
+				q: 'resourceDescription:(' + escape(textToSearch) + ')',
 				rows: 20,
 				start: startIndex,
 				fq: filters,
@@ -582,20 +544,21 @@ Solr = function(connector){
 		.success(callback);
 		}
 	};
-
+/*
 	this.setResultSelected = function(scope){
 		scope.resultList = [];
 		for(i = 0; i < scope.selected.length; i++){
 			if(scope.orderByRadio==undefined){
-			scope.resultList.push(scope.list[scope.selected[i]].value);
+			scope.resultList.push(scope.list[scope.selected].value);
 			}
 			else
-				if(scope.list[scope.selected[i]].value =="pagerank")
+				if(scope.list[scope.selected].value =="pagerank")
 					scope.resultList.push(scope.orderByRadio);
 				else 
-					scope.resultList.push(scope.list[scope.selected[i]].value);
+					scope.resultList.push(scope.list[scope.selected].value);
 		}
 	};
+	*/
 };
 var prefixes = {
 		"http://yago-knowledge.org/resource/": "yago",

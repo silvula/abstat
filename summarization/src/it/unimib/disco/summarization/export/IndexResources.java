@@ -46,6 +46,10 @@ public class IndexResources{
 			if (line.length > 2) {
 				double resourcePagerank = Double.parseDouble(line[2]);
 				document.setField("pagerank", resourcePagerank);
+				if(line.length > 3){
+					String resourceDescription = line[3];
+					document.setField("resourceDescription", resourceDescription);
+				}
 			}
 			
 			request.add(document);

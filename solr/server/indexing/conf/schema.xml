@@ -16,6 +16,7 @@
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 	<field name="type" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />
 	<field name="fullTextSearchField" type="full_text" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="resourceDescription" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="URI_ngram" type="text_ngram" indexed="true" stored="true" multiValued="true"/>
    </fields>
    <uniqueKey>idDocument</uniqueKey>
